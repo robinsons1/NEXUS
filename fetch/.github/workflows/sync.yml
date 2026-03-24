@@ -1,0 +1,34 @@
+name: Sync ThingSpeak → Firestore
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Crear archivo .env
+        run: |
+          echo "THINGSPEAK_CHANNEL_ID=${{ secrets.THINGSPEAK_CHANNEL_ID }}" >> .env
+          echo "THINGSPEAK_API_KEY=${{ secrets.THINGSPEAK_API_KEY }}" >> .env
+          echo "FIREBASE_CREDENTIALS=firebase_credentials.json" >> .env
+
+      - name: Crear credenciales Firebase
+        run: echo '${{ secrets.FIREBASE_CREDENTIALS_JSON }}' > firebase_credentials.json
+
+      - name: Ejecutar sincronización
+        run: python fetch/sync.py
