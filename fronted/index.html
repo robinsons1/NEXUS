@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #38bdf8;
+            letter-spacing: 4px;
+        }
+
+        header p {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px 30px;
+            text-align: center;
+            min-width: 180px;
+            border: 1px solid #334155;
+        }
+
+        .card .label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .card .unit {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .temp  { color: #f87171; }
+        .hum   { color: #34d399; }
+        .pres  { color: #818cf8; }
+
+        .charts {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chart-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .chart-box h3 {
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #last-update {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⬡ NEXUS</h1>
+    <p>Monitor de sensores en tiempo real</p>
+</header>
+
+<!-- Tarjetas con último valor -->
+<div class="cards">
+    <div class="card">
+        <div class="label">Temperatura</div>
+        <div class="value temp" id="val-temp">--</div>
+        <div class="unit">°C</div>
+    </div>
+    <div class="card">
+        <div class="label">Humedad</div>
+        <div class="value hum" id="val-hum">--</div>
+        <div class="unit">%</div>
+    </div>
+    <div class="card">
+        <div class="label">Presión</div>
+        <div class="value pres" id="val-pres">--</div>
+        <div class="unit">hPa</div>
+    </div>
+</div>
+
+<!-- Gráficas -->
+<div class="charts">
+    <div class="chart-box">
+        <h3>🌡️ Temperatura (°C)</h3>
+        <div id="chart-temp"></div>
+    </div>
+    <div class="chart-box">
+        <h3>💧 Humedad (%)</h3>
+        <div id="chart-hum"></div>
+    </div>
+    <div class="chart-box">
+        <h3>🔵 Presión (hPa)</h3>
+        <div id="chart-pres"></div>
+    </div>
+</div>
+
+<div id="last-update"></div>
+
+<script>
+    const API = "http://127.0.0.1:8000";
+
+    // Ajustar UTC a Colombia (UTC-5)
+    const toColombiaTime = (utcStr) => {
+        const date = new Date(utcStr);
+        date.setHours(date.getHours() - 5);
+        return date;
+    };
+
+    const formatDate = (d) => d.toLocaleString("es-CO", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+    });
+
+    const layout = (color) => ({
+        paper_bgcolor: "#1e293b",
+        plot_bgcolor: "#1e293b",
+        font: { color: "#94a3b8" },
+        margin: { t: 10, b: 40, l: 50, r: 20 },
+        xaxis: { gridcolor: "#334155" },
+        yaxis: {
+            gridcolor: "#334155",
+            autorange: true,
+            rangemode: "normal"
+        }
+    });
+
+    async function loadData() {
+        try {
+            const res = await fetch(`${API}/data?limit=200`);
+            const json = await res.json();
+            const data = json.data.reverse();
+
+            const times = data.map(d => toColombiaTime(d.created_at));
+            const temp  = data.map(d => parseFloat(d.field1));
+            const hum   = data.map(d => parseFloat(d.field2));
+            const pres  = data.map(d => parseFloat(d.field3));
+
+            document.getElementById("val-temp").textContent = temp.at(-1)?.toFixed(1) ?? "--";
+            document.getElementById("val-hum").textContent  = hum.at(-1)?.toFixed(1)  ?? "--";
+            document.getElementById("val-pres").textContent = pres.at(-1)?.toFixed(1) ?? "--";
+
+            const trace = (y, color) => [{
+                x: times, y,
+                type: "scatter", mode: "lines",
+                line: { color, width: 2 },
+                fill: "none"
+            }];
+
+            Plotly.newPlot("chart-temp", trace(temp, "#f87171"), layout("#f87171"), {responsive: true});
+            Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), layout("#34d399"), {responsive: true});
+            Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), layout("#818cf8"), {responsive: true});
+
+            document.getElementById("last-update").innerHTML = `
+                📡 Último dato recibido: <strong>${formatDate(toColombiaTime(data.at(-1).created_at))}</strong> &nbsp;|&nbsp;
+                📊 Desde: <strong>${formatDate(toColombiaTime(data[0].created_at))}</strong> &nbsp;|&nbsp;
+                🔄 Página actualizada: <strong>${new Date().toLocaleString("es-CO")}</strong>
+            `;
+
+        } catch (e) {
+            console.error("Error cargando datos:", e);
+        }
+    }
+
+    loadData();
+    setInterval(loadData, 900000);
+</script>
+
+
+</body>
+</html>
