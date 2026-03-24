@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -11,16 +13,27 @@ app = FastAPI(title="Nexus API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://nexus-w0yh.onrender.com",
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 def get_db():
     if not firebase_admin._apps:
         cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS"))
         firebase_admin.initialize_app(cred)
     return firestore.client()
+
+@app.get("/dashboard")
+def dashboard():
+    return FileResponse("frontend/index.html")
 
 @app.get("/")
 def root():

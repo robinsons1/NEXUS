@@ -129,5 +129,4 @@ NEXUS/
 ## 👤 Autor
 
 **Robinson Segura Aponte**  
-Ingeniero Mecatrónico — Bogotá, Colombia  
 [github.com/robinsons1](https://github.com/robinsons1)
