@@ -9,21 +9,19 @@ import os
 
 load_dotenv()
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 app = FastAPI(title="Nexus API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://nexus-w0yh.onrender.com",
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-    ],
+    allow_origins=["https://nexus-w0yh.onrender.com", "http://127.0.0.1:5500", "http://localhost:5500"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
 
 def get_db():
     if not firebase_admin._apps:
@@ -33,7 +31,7 @@ def get_db():
 
 @app.get("/dashboard")
 def dashboard():
-    return FileResponse("../frontend/index.html")
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "index.html"))
 
 @app.get("/")
 def root():
