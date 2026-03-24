@@ -23,7 +23,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
 
 def get_db():
     if not firebase_admin._apps:
@@ -33,7 +33,7 @@ def get_db():
 
 @app.get("/dashboard")
 def dashboard():
-    return FileResponse("frontend/index.html")
+    return FileResponse("../frontend/index.html")
 
 @app.get("/")
 def root():
