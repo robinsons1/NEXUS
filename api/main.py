@@ -73,7 +73,7 @@ def get_latest():
         d["created_at"] = str(d["created_at"])
         return d
 
-@app.post("/sync")
+@app.get("/sync")
 def sync():
     try:
         result = subprocess.run(
