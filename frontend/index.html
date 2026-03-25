@@ -146,24 +146,24 @@
 <script>
     const API = "https://nexus-w0yh.onrender.com";
 
-    // Ajustar UTC a Colombia (UTC-5)
-    const toColombiaTime = (utcStr) => {
-        const date = new Date(utcStr);
-        date.setHours(date.getHours() - 5);
-        return date;
-    };
+    const toColombiaTime = (utcStr) => new Date(utcStr);
 
     const formatDate = (d) => d.toLocaleString("es-CO", {
+        timeZone: "America/Bogota",
         day: "2-digit", month: "2-digit", year: "numeric",
         hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
 
-    const layout = (color) => ({
+    const layout = () => ({
         paper_bgcolor: "#1e293b",
         plot_bgcolor: "#1e293b",
         font: { color: "#94a3b8" },
         margin: { t: 10, b: 40, l: 50, r: 20 },
-        xaxis: { gridcolor: "#334155" },
+        xaxis: {
+            gridcolor: "#334155",
+            type: "date",
+            tickformat: "%d/%m %H:%M",
+        },
         yaxis: {
             gridcolor: "#334155",
             autorange: true,
@@ -177,7 +177,7 @@
             const json = await res.json();
             const data = json.data.reverse();
 
-            const times = data.map(d => toColombiaTime(d.created_at));
+            const times = data.map(d => new Date(d.created_at));
             const temp  = data.map(d => parseFloat(d.field1));
             const hum   = data.map(d => parseFloat(d.field2));
             const pres  = data.map(d => parseFloat(d.field3));
@@ -193,14 +193,14 @@
                 fill: "none"
             }];
 
-            Plotly.newPlot("chart-temp", trace(temp, "#f87171"), layout("#f87171"), {responsive: true});
-            Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), layout("#34d399"), {responsive: true});
-            Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), layout("#818cf8"), {responsive: true});
+            Plotly.newPlot("chart-temp", trace(temp, "#f87171"), layout(), {responsive: true});
+            Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), layout(), {responsive: true});
+            Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), layout(), {responsive: true});
 
             document.getElementById("last-update").innerHTML = `
                 📡 Último dato recibido: <strong>${formatDate(toColombiaTime(data.at(-1).created_at))}</strong> &nbsp;|&nbsp;
                 📊 Desde: <strong>${formatDate(toColombiaTime(data[0].created_at))}</strong> &nbsp;|&nbsp;
-                🔄 Página actualizada: <strong>${new Date().toLocaleString("es-CO")}</strong>
+                🔄 Página actualizada: <strong>${new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"})}</strong>
             `;
 
         } catch (e) {
