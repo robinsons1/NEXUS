@@ -1,12 +1,14 @@
 # ⬡ NEXUS — Monitor IoT en Tiempo Real
 
-Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real, almacenamiento histórico en la nube y sincronización automática.
+Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real, almacenamiento histórico en la nube y sincronización automática cada 5 minutos.
+
+🌐 **Demo en vivo:** [nexus-w0yh.onrender.com/dashboard](https://nexus-w0yh.onrender.com/dashboard)
 
 ---
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.1.0
+> **En desarrollo activo** — Versión 0.2.0
 
 ---
 
@@ -14,11 +16,13 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 
 - Lectura de datos desde ThingSpeak via API REST
 - Almacenamiento histórico en Firebase Firestore (+14,000 puntos)
-- Sincronización incremental automática cada 15 minutos (GitHub Actions)
+- Sincronización incremental automática cada 5 minutos (UptimeRobot + endpoint /sync)
 - API REST con FastAPI que expone los datos
 - Dashboard web con gráficas interactivas (Plotly.js)
 - Visualización de Temperatura, Humedad y Presión
-- Ajuste automático de zona horaria Colombia (UTC-5)
+- Ajuste automático de zona horaria Colombia (America/Bogota)
+- Dashboard público desplegado en Render.com
+- Auto-refresco del dashboard cada 5 minutos si la página está abierta
 
 ---
 
@@ -31,11 +35,12 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 - [x] API con FastAPI
 - [x] Dashboard básico con gráficas
 
-### Fase 2 — Deploy y disponibilidad (en curso 🔄)
-- [ ] Deploy del backend en Render.com
-- [ ] Deploy del frontend público
-- [ ] UptimeRobot para mantener el servicio activo 24/7
-- [ ] URL pública permanente
+### Fase 2 — Deploy y disponibilidad (completada ✅)
+- [x] Deploy del backend en Render.com
+- [x] Frontend servido desde FastAPI (ruta /dashboard)
+- [x] UptimeRobot para mantener el servicio activo 24/7
+- [x] Sincronización cada 5 minutos vía endpoint /sync
+- [x] URL pública permanente
 
 ### Fase 3 — Mejoras de visualización
 - [ ] Selector de rango de fechas
@@ -46,7 +51,7 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 
 ### Fase 4 — Alertas y notificaciones
 - [ ] Alertas por umbral (ej: temperatura > 30°C)
-- [ ] Notificaciones por correo o WhatsApp
+- [ ] Notificaciones por correo o Telegram
 - [ ] Historial de alertas
 
 ### Fase 5 — Escalabilidad
@@ -65,8 +70,23 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 | Base de datos | Firebase Firestore |
 | Backend API | Python + FastAPI |
 | Frontend | HTML + CSS + Plotly.js |
+| Sincronización | UptimeRobot + endpoint /sync |
 | Automatización | GitHub Actions |
 | Hosting | Render.com |
+
+---
+
+## 🔌 Endpoints disponibles
+
+| Endpoint | Método | Descripción |
+|---|---|---|
+| `/` | GET | Estado de la API |
+| `/dashboard` | GET | Dashboard web |
+| `/data?limit=N` | GET | Últimos N registros |
+| `/data/latest` | GET | Último registro |
+| `/sync` | GET | Ejecutar sincronización manual |
+| `/health` | GET/HEAD | Health check |
+| `/docs` | GET | Documentación Swagger |
 
 ---
 
@@ -103,14 +123,16 @@ cp .env.example .env
 python fetch/sync.py
 
 # Iniciar API
-python -m uvicorn api.main:app --reload
+uvicorn api.main:app --reload
 
-# Abrir frontend/index.html en el navegador
+# Abrir en el navegador
+# http://localhost:8000/dashboard
 ```
 
 ---
 
 ## 📁 Estructura del proyecto
+
 
 ```
 NEXUS/

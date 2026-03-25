@@ -1,8 +1,6 @@
 name: Sync ThingSpeak → Firestore
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 jobs:
