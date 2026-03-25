@@ -74,6 +74,7 @@ def get_latest():
         return d
 
 @app.get("/sync")
+@app.head("/sync")
 def sync():
     try:
         result = subprocess.run(
