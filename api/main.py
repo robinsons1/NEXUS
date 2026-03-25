@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+import subprocess
 
 load_dotenv()
 
@@ -71,3 +72,14 @@ def get_latest():
         d = doc.to_dict()
         d["created_at"] = str(d["created_at"])
         return d
+
+@app.post("/sync")
+def sync():
+    try:
+        result = subprocess.run(
+            ["python", "fetch/sync.py"],
+            capture_output=True, text=True, cwd=BASE_DIR
+        )
+        return {"status": "ok", "output": result.stdout, "error": result.stderr}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
