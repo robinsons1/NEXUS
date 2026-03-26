@@ -97,6 +97,44 @@
             font-size: 0.8rem;
             margin-top: 20px;
         }
+
+        .filtro {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filtro label {
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .filtro input[type="date"] {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+
+        .filtro button {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .filtro button:hover {
+            background: #7dd3fc;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +162,15 @@
     </div>
 </div>
 
+<div class="filtro">
+    <label>Desde</label>
+    <input type="date" id="fecha-inicio">
+    <label>Hasta</label>
+    <input type="date" id="fecha-fin">
+    <button onclick="aplicarFiltro()">Filtrar</button>
+    <button onclick="resetFiltro()">Ver todo</button>
+</div>
+
 <div class="charts">
     <div class="chart-box">
         <h3>🌡️ Temperatura (°C)</h3>
@@ -142,7 +189,10 @@
 <div id="last-update"></div>
 
 <script>
-    const API = "https://nexus-w0yh.onrender.com";
+    //const API = "https://nexus-w0yh.onrender.com";  CAMBIAR!!!
+    const API = "http://localhost:8000";
+
+    let allData = []; // cache de todos los datos cargados
 
     const toColombiaTime = (utcStr) => new Date(utcStr);
 
@@ -176,40 +226,77 @@
         }
     });
 
+    function renderCharts(data) {
+        const times = data.map(d => new Date(d.created_at));
+        const temp  = data.map(d => parseFloat(d.field1));
+        const hum   = data.map(d => parseFloat(d.field2));
+        const pres  = data.map(d => parseFloat(d.field3));
+
+        document.getElementById("val-temp").textContent = temp.at(-1)?.toFixed(1) ?? "--";
+        document.getElementById("val-hum").textContent  = hum.at(-1)?.toFixed(1)  ?? "--";
+        document.getElementById("val-pres").textContent = pres.at(-1)?.toFixed(1) ?? "--";
+
+        const trace = (y, color) => [{
+            x: times, y,
+            type: "scatter", mode: "lines",
+            line: { color, width: 2 },
+            fill: "none"
+        }];
+
+        Plotly.newPlot("chart-temp", trace(temp, "#f87171"), layout(), {responsive: true});
+        Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), layout(), {responsive: true});
+        Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), layout(), {responsive: true});
+
+        const lastDate = data.at(-1).created_at;
+        document.getElementById("last-update").innerHTML = `
+            📡 Último dato: <strong>${formatDate(toColombiaTime(lastDate))}</strong>
+            (${timeAgo(lastDate)}) &nbsp;|&nbsp;
+            📊 Desde: <strong>${formatDate(toColombiaTime(data[0].created_at))}</strong> &nbsp;|&nbsp;
+            🔄 Página actualizada: <strong>${new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"})}</strong>
+        `;
+    }
+
+    async function aplicarFiltro() {
+    const inicio = document.getElementById("fecha-inicio").value;
+    const fin    = document.getElementById("fecha-fin").value;
+
+    if (!inicio && !fin) {
+        renderCharts(allData);
+        return;
+    }
+
+    try {
+        let url = `${API}/data?limit=99999`;
+        if (inicio) url += `&start=${inicio}`;
+        if (fin)    url += `&end=${fin}T23:59:59`;
+
+        const res  = await fetch(url);
+        const json = await res.json();
+        const data = json.data.reverse();
+
+        if (data.length === 0) {
+            alert("No hay datos en ese rango de fechas.");
+            return;
+        }
+
+        renderCharts(data);
+    } catch (e) {
+        console.error("Error filtrando datos:", e);
+    }
+}
+
+    function resetFiltro() {
+        document.getElementById("fecha-inicio").value = "";
+        document.getElementById("fecha-fin").value = "";
+        renderCharts(allData);
+    }
+
     async function loadData() {
         try {
-            const res = await fetch(`${API}/data?limit=200`);
+            const res = await fetch(`${API}/data?limit=100`);
             const json = await res.json();
-            const data = json.data.reverse();
-
-            const times = data.map(d => new Date(d.created_at));
-            const temp  = data.map(d => parseFloat(d.field1));
-            const hum   = data.map(d => parseFloat(d.field2));
-            const pres  = data.map(d => parseFloat(d.field3));
-
-            document.getElementById("val-temp").textContent = temp.at(-1)?.toFixed(1) ?? "--";
-            document.getElementById("val-hum").textContent  = hum.at(-1)?.toFixed(1)  ?? "--";
-            document.getElementById("val-pres").textContent = pres.at(-1)?.toFixed(1) ?? "--";
-
-            const trace = (y, color) => [{
-                x: times, y,
-                type: "scatter", mode: "lines",
-                line: { color, width: 2 },
-                fill: "none"
-            }];
-
-            Plotly.newPlot("chart-temp", trace(temp, "#f87171"), layout(), {responsive: true});
-            Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), layout(), {responsive: true});
-            Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), layout(), {responsive: true});
-
-            const lastDate = data.at(-1).created_at;
-            document.getElementById("last-update").innerHTML = `
-                📡 Último dato: <strong>${formatDate(toColombiaTime(lastDate))}</strong>
-                (${timeAgo(lastDate)}) &nbsp;|&nbsp;
-                📊 Desde: <strong>${formatDate(toColombiaTime(data[0].created_at))}</strong> &nbsp;|&nbsp;
-                🔄 Página actualizada: <strong>${new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"})}</strong>
-            `;
-
+            allData = json.data.reverse();
+            renderCharts(allData);
         } catch (e) {
             console.error("Error cargando datos:", e);
         }

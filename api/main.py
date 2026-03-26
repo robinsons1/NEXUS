@@ -19,7 +19,12 @@ app = FastAPI(title="Nexus API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nexus-w0yh.onrender.com", "http://127.0.0.1:5500", "http://localhost:5500"],
+    allow_origins=[
+    "https://nexus-w0yh.onrender.com",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500", #ELIMINAR
+    "http://localhost:8000", #ELIMINAR
+    "http://127.0.0.1:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,14 +57,19 @@ def dashboard():
 
 
 @app.get("/data")
-def get_data(limit: int = 100):
+def get_data(limit: int = 100, start: str = None, end: str = None):
     db = get_db()
-    docs = (
-        db.collection("sensor_data")
-        .order_by("created_at", direction="DESCENDING")
-        .limit(limit)
-        .stream()
-    )
+    query = db.collection("sensor_data").order_by("created_at", direction="DESCENDING")
+
+    if start:
+        query = query.where("created_at", ">=", start)
+    if end:
+        query = query.where("created_at", "<=", end)
+
+    if not start and not end:
+        query = query.limit(limit)
+
+    docs = query.stream()
     data = []
     for doc in docs:
         d = doc.to_dict()
