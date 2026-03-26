@@ -7,8 +7,11 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 import subprocess
+import logging
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,24 +27,29 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
 
+
 def get_db():
     if not firebase_admin._apps:
         cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS"))
         firebase_admin.initialize_app(cred)
     return firestore.client()
 
+
 @app.get("/")
 def root():
     return {"status": "Nexus API funcionando ✅"}
+
 
 @app.get("/health")
 @app.head("/health")
 def health():
     return JSONResponse({"status": "ok"})
 
+
 @app.get("/dashboard")
 def dashboard():
     return FileResponse(os.path.join(BASE_DIR, "frontend", "index.html"))
+
 
 @app.get("/data")
 def get_data(limit: int = 100):
@@ -59,6 +67,7 @@ def get_data(limit: int = 100):
         data.append(d)
     return {"total": len(data), "data": data}
 
+
 @app.get("/data/latest")
 def get_latest():
     db = get_db()
@@ -73,6 +82,7 @@ def get_latest():
         d["created_at"] = str(d["created_at"])
         return d
 
+
 @app.get("/sync")
 @app.head("/sync")
 def sync():
@@ -83,4 +93,5 @@ def sync():
         )
         return {"status": "ok", "output": result.stdout, "error": result.stderr}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        logger.error("Error en /sync: %s", str(e), exc_info=True)
+        return {"status": "error", "message": "Error al ejecutar la sincronización"}

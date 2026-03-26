@@ -1,6 +1,7 @@
 # ⬡ NEXUS — Monitor IoT en Tiempo Real
 
-Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real, almacenamiento histórico en la nube y sincronización automática cada 5 minutos.
+Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real,
+almacenamiento histórico en la nube y sincronización automática cada 5 minutos.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com/dashboard](https://nexus-w0yh.onrender.com/dashboard)
 
@@ -43,18 +44,29 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 - [x] URL pública permanente
 
 ### Fase 3 — Mejoras de visualización
-- [ ] Selector de rango de fechas
-- [ ] Descarga de datos en CSV
+- [ ] Selector de rango de fechas para filtrar datos históricos
+- [ ] Indicadores en tiempo real (último valor, mínimo, máximo, promedio) sobre las gráficas
 - [ ] Gráfica combinada de los 3 sensores
-- [ ] Indicadores de mínimo, máximo y promedio
+- [ ] Descarga de datos en CSV desde el dashboard
+- [ ] Timestamp visible de la última sincronización
+- [ ] Alertas visuales cuando un sensor supera umbrales configurables
 - [ ] Modo oscuro / claro
 
-### Fase 4 — Alertas y notificaciones
+### Fase 4 — Mejoras del backend
+- [ ] Endpoint `GET /data/stats` con estadísticas agregadas por día/semana
+- [ ] Endpoint `GET /data/export?format=csv` para exportación directa desde Firestore
+- [ ] Endpoint `GET /sensors` con metadata de sensores (nombre, unidad, canal ThingSpeak)
+- [ ] Paginación en `/data` con parámetros `?limit=N&offset=N`
+- [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla
+- [ ] Logging estructurado para trazabilidad en Render logs
+- [ ] Índice compuesto en Firestore por `timestamp DESC` para optimizar queries
+
+### Fase 5 — Alertas y notificaciones
 - [ ] Alertas por umbral (ej: temperatura > 30°C)
 - [ ] Notificaciones por correo o Telegram
 - [ ] Historial de alertas
 
-### Fase 5 — Escalabilidad
+### Fase 6 — Escalabilidad
 - [ ] Soporte para múltiples canales ThingSpeak
 - [ ] Autenticación de usuarios
 - [ ] Panel de administración
@@ -71,7 +83,7 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 | Backend API | Python + FastAPI |
 | Frontend | HTML + CSS + Plotly.js |
 | Sincronización | UptimeRobot + endpoint /sync |
-| Automatización | GitHub Actions |
+| Automatización | GitHub Actions (ejecución manual) |
 | Hosting | Render.com |
 
 ---
@@ -84,7 +96,10 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 | `/dashboard` | GET | Dashboard web |
 | `/data?limit=N` | GET | Últimos N registros |
 | `/data/latest` | GET | Último registro |
-| `/sync` | GET | Ejecutar sincronización manual |
+| `/data/stats` | GET | Estadísticas agregadas *(próximamente)* |
+| `/data/export` | GET | Exportar datos en CSV *(próximamente)* |
+| `/sensors` | GET | Metadata de sensores *(próximamente)* |
+| `/sync` | GET/HEAD | Ejecutar sincronización manual |
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
 
