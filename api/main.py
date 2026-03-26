@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -81,6 +81,7 @@ def get_latest():
         d = doc.to_dict()
         d["created_at"] = str(d["created_at"])
         return d
+    raise HTTPException(status_code=404, detail="No hay datos disponibles")
 
 
 @app.get("/sync")
