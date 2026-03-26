@@ -1,3 +1,6 @@
+import os
+import sys
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +11,7 @@ from firebase_admin import credentials, firestore
 import os
 import subprocess
 import logging
+from fetch.database.supabase_client import get_supabase
 
 load_dotenv()
 
@@ -20,11 +24,12 @@ app = FastAPI(title="Nexus API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-    "https://nexus-w0yh.onrender.com",
-    "http://127.0.0.1:5500",
-    "http://localhost:5500", #ELIMINAR
-    "http://localhost:8000", #ELIMINAR
-    "http://127.0.0.1:8000"],
+        "https://nexus-w0yh.onrender.com",
+        "http://127.0.0.1:5500",
+        "http://localhost:5500", #eliminar
+        "http://localhost:8000", #eliminar
+        "http://127.0.0.1:8000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,40 +63,61 @@ def dashboard():
 
 @app.get("/data")
 def get_data(limit: int = 100, start: str = None, end: str = None):
-    db = get_db()
-    query = db.collection("sensor_data").order_by("created_at", direction="DESCENDING")
+    supabase = get_supabase()
+    
+    if start or end:
+        # Paginación automática para rangos de fecha
+        all_data = []
+        page_size = 1000
+        offset = 0
 
-    if start:
-        query = query.where("created_at", ">=", start)
-    if end:
-        query = query.where("created_at", "<=", end)
+        while True:
+            query = (
+                supabase.table("sensor_data")
+                .select("*")
+                .order("created_at", desc=True)
+                .range(offset, offset + page_size - 1)
+            )
+            if start:
+                query = query.gte("created_at", start)
+            if end:
+                query = query.lte("created_at", end)
 
-    if not start and not end:
-        query = query.limit(limit)
+            result = query.execute()
+            all_data.extend(result.data)
 
-    docs = query.stream()
-    data = []
-    for doc in docs:
-        d = doc.to_dict()
-        d["created_at"] = str(d["created_at"])
-        data.append(d)
-    return {"total": len(data), "data": data}
+            if len(result.data) < page_size:
+                break  # ya no hay más páginas
+
+            offset += page_size
+
+        return {"total": len(all_data), "data": all_data}
+
+    else:
+        # Sin filtro: retorna solo los últimos N registros
+        result = (
+            supabase.table("sensor_data")
+            .select("*")
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        return {"total": len(result.data), "data": result.data}
 
 
 @app.get("/data/latest")
 def get_latest():
-    db = get_db()
-    docs = (
-        db.collection("sensor_data")
-        .order_by("created_at", direction="DESCENDING")
+    supabase = get_supabase()
+    result = (
+        supabase.table("sensor_data")
+        .select("*")
+        .order("created_at", desc=True)
         .limit(1)
-        .stream()
+        .execute()
     )
-    for doc in docs:
-        d = doc.to_dict()
-        d["created_at"] = str(d["created_at"])
-        return d
-    raise HTTPException(status_code=404, detail="No hay datos disponibles")
+    if not result.data:
+        raise HTTPException(status_code=404, detail="No hay datos disponibles")
+    return result.data[0]
 
 
 @app.get("/sync")
