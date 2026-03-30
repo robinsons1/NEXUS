@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
 <header>
     <h1>⬡ NEXUS</h1>
     <p>Monitor de sensores en tiempo real</p>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️</button>  <!-- ← NUEVO -->
 </header>
 
 <div class="status-bar">
@@ -26,16 +27,19 @@
         <div class="label">Temperatura</div>
         <div class="value temp" id="val-temp">--</div>
         <div class="unit">°C</div>
+        <div class="alert-badge"></div>  <!-- ← NUEVO -->
     </div>
     <div class="card">
         <div class="label">Humedad</div>
         <div class="value hum" id="val-hum">--</div>
         <div class="unit">%</div>
+        <div class="alert-badge"></div>  <!-- ← NUEVO -->
     </div>
     <div class="card">
         <div class="label">Presión</div>
         <div class="value pres" id="val-pres">--</div>
         <div class="unit">hPa</div>
+        <div class="alert-badge"></div>  <!-- ← NUEVO -->
     </div>
 </div>
 
@@ -46,25 +50,83 @@
     <input type="date" id="fecha-fin">
     <button onclick="aplicarFiltro()">Filtrar</button>
     <button onclick="resetFiltro()">Últimas lecturas</button>
+    <button class="btn-csv" onclick="descargarCSV()">⬇ Descargar CSV</button>
 </div>
 
-<div class="charts">
+<div class="umbrales">
+    <div class="umbrales-header" onclick="toggleUmbrales()">
+        ⚙️ Umbrales de alerta
+        <span id="umbrales-toggle">▼</span>
+    </div>
+    <div class="umbrales-body" id="umbrales-body">
+        <div class="umbral-row">
+            <span class="umbral-label">🌡️ Temperatura (°C)</span>
+            <label>Mín</label><input type="number" id="u-temp-min" step="0.5">
+            <label>Máx</label><input type="number" id="u-temp-max" step="0.5">
+        </div>
+        <div class="umbral-row">
+            <span class="umbral-label">💧 Humedad (%)</span>
+            <label>Mín</label><input type="number" id="u-hum-min" step="1">
+            <label>Máx</label><input type="number" id="u-hum-max" step="1">
+        </div>
+        <div class="umbral-row">
+            <span class="umbral-label">🔵 Presión (hPa)</span>
+            <label>Mín</label><input type="number" id="u-pres-min" step="0.5">
+            <label>Máx</label><input type="number" id="u-pres-max" step="0.5">
+        </div>
+        <div class="umbrales-actions">
+            <button onclick="guardarUmbrales()">💾 Guardar</button>
+            <button class="btn-secondary" onclick="resetUmbrales()">↺ Restaurar</button>
+        </div>
+    </div>
+</div>
+
+<div class="charts-grid">
+
+    <!-- TEMPERATURA -->
     <div class="chart-box">
         <h3>🌡️ Temperatura (°C)</h3>
+        <div class="stats-bar">
+            <div class="stat-card"><span class="stat-label">Último</span><span class="stat-value" id="stat-temp-last">--</span><span class="stat-unit">°C</span></div>
+            <div class="stat-card"><span class="stat-label">Mín</span><span class="stat-value" id="stat-temp-min">--</span><span class="stat-unit">°C</span></div>
+            <div class="stat-card"><span class="stat-label">Máx</span><span class="stat-value" id="stat-temp-max">--</span><span class="stat-unit">°C</span></div>
+            <div class="stat-card"><span class="stat-label">Prom</span><span class="stat-value" id="stat-temp-avg">--</span><span class="stat-unit">°C</span></div>
+        </div>
         <div id="chart-temp"></div>
     </div>
-    <div class="charts-bottom">
-        <div class="chart-box">
-            <h3>💧 Humedad (%)</h3>
-            <div id="chart-hum"></div>
+
+    <!-- HUMEDAD -->
+    <div class="chart-box">
+        <h3>💧 Humedad (%)</h3>
+        <div class="stats-bar">
+            <div class="stat-card"><span class="stat-label">Último</span><span class="stat-value" id="stat-hum-last">--</span><span class="stat-unit">%</span></div>
+            <div class="stat-card"><span class="stat-label">Mín</span><span class="stat-value" id="stat-hum-min">--</span><span class="stat-unit">%</span></div>
+            <div class="stat-card"><span class="stat-label">Máx</span><span class="stat-value" id="stat-hum-max">--</span><span class="stat-unit">%</span></div>
+            <div class="stat-card"><span class="stat-label">Prom</span><span class="stat-value" id="stat-hum-avg">--</span><span class="stat-unit">%</span></div>
         </div>
-        <div class="chart-box">
-            <h3>🔵 Presión (hPa)</h3>
-            <div id="chart-pres"></div>
-        </div>
+        <div id="chart-hum"></div>
     </div>
+
+    <!-- PRESIÓN -->
+    <div class="chart-box">
+        <h3>🔵 Presión (hPa)</h3>
+        <div class="stats-bar">
+            <div class="stat-card"><span class="stat-label">Último</span><span class="stat-value" id="stat-pres-last">--</span><span class="stat-unit">hPa</span></div>
+            <div class="stat-card"><span class="stat-label">Mín</span><span class="stat-value" id="stat-pres-min">--</span><span class="stat-unit">hPa</span></div>
+            <div class="stat-card"><span class="stat-label">Máx</span><span class="stat-value" id="stat-pres-max">--</span><span class="stat-unit">hPa</span></div>
+            <div class="stat-card"><span class="stat-label">Prom</span><span class="stat-value" id="stat-pres-avg">--</span><span class="stat-unit">hPa</span></div>
+        </div>
+        <div id="chart-pres"></div>
+    </div>
+
+    <!-- COMBINADA -->
+    <div class="chart-box">
+        <h3>📊 Vista combinada</h3>
+        <div id="chart-combined"></div>
+    </div>
+
 </div>
 
-<script src="app.js"></script>
+<script src="/static/app.js"></script>
 </body>
 </html>

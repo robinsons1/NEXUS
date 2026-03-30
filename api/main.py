@@ -1,15 +1,13 @@
 import os
 import sys
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from dotenv import load_dotenv
-import firebase_admin
-from firebase_admin import credentials, firestore
 import os
-import subprocess
 import logging
 from fetch.database.supabase_client import get_supabase
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -42,14 +40,6 @@ scheduler.start()
 
 import atexit
 atexit.register(lambda: scheduler.shutdown(nowait=True))
-
-
-def get_db():
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(os.getenv("FIREBASE_CREDENTIALS"))
-        firebase_admin.initialize_app(cred)
-    return firestore.client()
-
 
 @app.get("/")
 def root():
@@ -135,3 +125,64 @@ def sync():
     except Exception as e:
         logger.error("Error en /sync: %s", str(e), exc_info=True)
         return {"status": "error", "message": str(e)}
+    
+@app.get("/data/stats")
+def get_stats(limit: int = 100, start: Optional[str] = None, end: Optional[str] = None):
+    try:
+        supabase = get_supabase()
+
+        if start and end:
+            all_rows = []
+            page_size = 1000
+            offset = 0
+            while True:
+                result = (
+                    supabase.table("sensor_data")
+                    .select("field1, field2, field3, created_at")
+                    .gte("created_at", start)
+                    .lte("created_at", end)
+                    .order("created_at", desc=False)   # ← asc para que values[-1] sea el más reciente
+                    .range(offset, offset + page_size - 1)
+                    .execute()
+                )
+                all_rows.extend(result.data)
+                if len(result.data) < page_size:
+                    break
+                offset += page_size
+            rows = all_rows
+        else:
+            result = (
+                supabase.table("sensor_data")
+                .select("field1, field2, field3, created_at")
+                .order("created_at", desc=True)
+                .limit(limit)
+                .execute()
+            )
+            rows = result.data
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No hay datos")
+
+        def calc_stats(field):
+            values = [r[field] for r in rows if r.get(field) is not None]
+            if not values:
+                return None
+            return {
+                # rows viene desc=True en limit, asc=False en rango → último siempre es values[-1] para rango
+                "last":  round(values[-1] if (start and end) else values[0], 2),
+                "min":   round(min(values), 2),
+                "max":   round(max(values), 2),
+                "avg":   round(sum(values) / len(values), 2),
+                "count": len(values),
+            }
+
+        return {
+            "temperature": calc_stats("field1"),
+            "humidity":    calc_stats("field2"),
+            "pressure":    calc_stats("field3"),
+        }
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Error calculando estadísticas")
