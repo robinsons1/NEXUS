@@ -9,7 +9,7 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.3.0
+> **En desarrollo activo** — Versión 0.4.0
 
 ---
 
@@ -51,13 +51,13 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Layout: temperatura arriba, humedad y presión lado a lado
 
 ### Fase 3 — Mejoras de visualización
-- [ ] Selector de rango de fechas para filtrar datos históricos
-- [ ] Indicadores en tiempo real (último valor, mínimo, máximo, promedio) sobre las gráficas
-- [ ] Gráfica combinada de los 3 sensores
-- [ ] Descarga de datos en CSV desde el dashboard
-- [ ] Timestamp visible de la última sincronización
-- [ ] Alertas visuales cuando un sensor supera umbrales configurables
-- [ ] Modo oscuro / claro
+- [x] Selector de rango de fechas para filtrar datos históricos
+- [x] Indicadores en tiempo real (último valor, mínimo, máximo, promedio) sobre las gráficas
+- [x] Gráfica combinada de los 3 sensores
+- [x] Descarga de datos en CSV desde el dashboard
+- [x] Timestamp visible de la última sincronización
+- [x] Alertas visuales cuando un sensor supera umbrales configurables
+- [x] Modo oscuro / claro
 
 ### Fase 4 — Mejoras del backend
 - [ ] Endpoint `GET /data/stats` con estadísticas agregadas por día/semana
