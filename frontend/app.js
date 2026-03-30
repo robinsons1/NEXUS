@@ -313,40 +313,33 @@ async function descargarCSV() {
     const inicio = document.getElementById("fecha-inicio").value;
     const fin    = document.getElementById("fecha-fin").value;
 
+    // Construir URL apuntando al nuevo endpoint del backend
+    let url = `${API}/data/export?format=csv`;
+
+    if (inicio && fin) {
+        url += `&start=${inicio}&end=${fin}T23:59:59`;
+    } else if (inicio) {
+        url += `&start=${inicio}`;
+    } else if (fin) {
+        url += `&end=${fin}T23:59:59`;
+    } else {
+        url += `&limit=1000`;
+    }
+
+    // Nombre del archivo con rango o fecha actual
+    const desde = inicio || "inicio";
+    const hasta = fin    || new Date().toISOString().slice(0, 10);
+    const filename = `nexus_${desde}_${hasta}.csv`;
+
     try {
-        let url = `${API}/data?limit=99999`;
-        if (inicio) url += `&start=${inicio}`;
-        if (fin)    url += `&end=${fin}T23:59:59`;
+        const res = await fetch(url);
 
-        const res  = await fetch(url);
-        const json = await res.json();
-        const data = json.data;
-
-        if (!data || data.length === 0) {
+        if (!res.ok) {
             alert("No hay datos para descargar.");
             return;
         }
 
-        // Construir CSV
-        const headers = ["fecha_hora_utc", "temperatura_c", "humedad_pct", "presion_hpa"];
-        const rows = data.map(d => [
-            d.created_at,
-            d.field1 ?? "",
-            d.field2 ?? "",
-            d.field3 ?? ""
-        ]);
-
-        const csv = [headers, ...rows]
-            .map(r => r.join(","))
-            .join("\n");
-
-        // Nombre del archivo con rango o fecha actual
-        const desde = inicio || "inicio";
-        const hasta = fin    || new Date().toISOString().slice(0, 10);
-        const filename = `nexus_${desde}_${hasta}.csv`;
-
-        // Trigger descarga
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const blob = await res.blob();
         const link = document.createElement("a");
         link.href  = URL.createObjectURL(blob);
         link.download = filename;
