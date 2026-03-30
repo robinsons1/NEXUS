@@ -116,6 +116,7 @@ function startAutoRefresh() {
     refreshTimer = setInterval(() => {
         const inicio = document.getElementById("fecha-inicio").value;
         const fin    = document.getElementById("fecha-fin").value;
+        resetCountdown(); // ← sincroniza el countdown con el refresh
         if (inicio && fin) {
             aplicarFiltro();
         } else {
