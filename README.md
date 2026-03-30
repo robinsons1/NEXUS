@@ -3,27 +3,30 @@
 Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real,
 almacenamiento histórico en la nube y sincronización automática cada 5 minutos.
 
-🌐 **Demo en vivo:** [nexus-w0yh.onrender.com/dashboard](https://nexus-w0yh.onrender.com/dashboard)
+🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
 
 ---
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.2.0
+> **En desarrollo activo** — Versión 0.3.0
 
 ---
 
 ## ✅ Lo que funciona actualmente
 
 - Lectura de datos desde ThingSpeak via API REST
-- Almacenamiento histórico en Firebase Firestore (+14,000 puntos)
-- Sincronización incremental automática cada 5 minutos (UptimeRobot + endpoint /sync)
+- Almacenamiento histórico en Supabase (PostgreSQL) — +20,000 puntos
+- Sincronización incremental automática cada 5 minutos (APScheduler interno)
 - API REST con FastAPI que expone los datos
-- Dashboard web con gráficas interactivas (Plotly.js)
+- Dashboard web con gráficas interactivas (Plotly.js) — Layout: temperatura + humedad/presión
 - Visualización de Temperatura, Humedad y Presión
+- Barra de estado con último dato, rango visible y cuenta regresiva
+- Filtro por rango de fechas con paginación automática
 - Ajuste automático de zona horaria Colombia (America/Bogota)
-- Dashboard público desplegado en Render.com
+- Dashboard público desplegado en Render.com — accesible desde la raíz /
 - Auto-refresco del dashboard cada 5 minutos si la página está abierta
+- UptimeRobot en /health para mantener el servidor activo 24/7
 
 ---
 
@@ -38,10 +41,14 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ### Fase 2 — Deploy y disponibilidad (completada ✅)
 - [x] Deploy del backend en Render.com
-- [x] Frontend servido desde FastAPI (ruta /dashboard)
-- [x] UptimeRobot para mantener el servicio activo 24/7
-- [x] Sincronización cada 5 minutos vía endpoint /sync
+- [x] Frontend servido desde FastAPI (ruta raíz /)
+- [x] UptimeRobot en /health para mantener el servicio activo 24/7
+- [x] Sincronización automática cada 5 minutos vía APScheduler interno
 - [x] URL pública permanente
+- [x] Migración de Firestore a Supabase (PostgreSQL)
+- [x] Separación de CSS y JS en archivos independientes
+- [x] Barra de estado con cuenta regresiva visible
+- [x] Layout: temperatura arriba, humedad y presión lado a lado
 
 ### Fase 3 — Mejoras de visualización
 - [ ] Selector de rango de fechas para filtrar datos históricos
@@ -76,15 +83,15 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ## 🛠️ Stack tecnológico
 
-| Capa | Tecnología |
-|---|---|
-| Sensores / Fuente de datos | ThingSpeak |
-| Base de datos | Firebase Firestore |
-| Backend API | Python + FastAPI |
-| Frontend | HTML + CSS + Plotly.js |
-| Sincronización | UptimeRobot + endpoint /sync |
-| Automatización | GitHub Actions (ejecución manual) |
-| Hosting | Render.com |
+| Capa                       | Tecnología                       |
+| -------------------------- | -------------------------------- |
+| Sensores / Fuente de datos | ThingSpeak                       |
+| Base de datos              | Supabase (PostgreSQL)            |
+| Backend API                | Python + FastAPI                 |
+| Frontend                   | HTML + CSS + Plotly.js           |
+| Sincronización             | APScheduler (interno en FastAPI) |
+| Keep-alive                 | UptimeRobot → /health            |
+| Hosting                    | Render.com                       |
 
 ---
 
@@ -109,8 +116,8 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ### Requisitos
 - Python 3.11+
-- Cuenta en Firebase
 - Canal en ThingSpeak
+- Cuenta en Supabase
 
 ### Pasos
 
@@ -128,7 +135,7 @@ pip install -r requirements.txt
 
 # Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus credenciales
+# Agregar: THINGSPEAK_CHANNEL_ID, THINGSPEAK_API_KEY, SUPABASE_URL, SUPABASE_KEY
 ```
 
 ### Correr localmente
