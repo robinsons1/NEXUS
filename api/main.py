@@ -113,5 +113,5 @@ def sync():
         run_sync()
         return {"status": "ok", "message": "Sincronización completada ✅"}
     except Exception as e:
-        logger.error("Error en /sync: %s", str(e), exc_info=True)
-        return {"status": "error", "message": str(e)}
+        logger.error("Error en /sync: %s", str(e), exc_info=True)  # detalle solo en logs
+        return {"status": "error", "message": "Error interno al sincronizar"}  # ← mensaje genérico al usuario
