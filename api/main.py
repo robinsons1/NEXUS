@@ -12,6 +12,8 @@ import os
 import subprocess
 import logging
 from fetch.database.supabase_client import get_supabase
+from apscheduler.schedulers.background import BackgroundScheduler
+from fetch.sync import run_sync
 
 load_dotenv()
 
@@ -36,6 +38,14 @@ app.add_middleware(
 )
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
+
+# ─── SCHEDULER: sync automático cada 5 min ───
+scheduler = BackgroundScheduler()
+scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
+scheduler.start()
+
+import atexit
+atexit.register(lambda: scheduler.shutdown(nowait=True))
 
 
 def get_db():
@@ -124,11 +134,8 @@ def get_latest():
 @app.head("/sync")
 def sync():
     try:
-        result = subprocess.run(
-            ["python", "fetch/sync.py"],
-            capture_output=True, text=True, cwd=BASE_DIR
-        )
-        return {"status": "ok", "output": result.stdout, "error": result.stderr}
+        run_sync()
+        return {"status": "ok", "message": "Sincronización completada ✅"}
     except Exception as e:
         logger.error("Error en /sync: %s", str(e), exc_info=True)
-        return {"status": "error", "message": "Error al ejecutar la sincronización"}
+        return {"status": "error", "message": str(e)}
