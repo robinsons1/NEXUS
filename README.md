@@ -50,34 +50,45 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Barra de estado con cuenta regresiva visible
 - [x] Layout: temperatura arriba, humedad y presión lado a lado
 
-### Fase 3 — Mejoras de visualización
+### Fase 3 — Mejoras de visualización (completada ✅)
 - [x] Selector de rango de fechas para filtrar datos históricos
 - [x] Indicadores en tiempo real (último valor, mínimo, máximo, promedio) sobre las gráficas
-- [x] Gráfica combinada de los 3 sensores
+- [x] Gráfica combinada de los 3 sensores con rolling average
+- [x] Grid 2x2 con las 4 gráficas
 - [x] Descarga de datos en CSV desde el dashboard
 - [x] Timestamp visible de la última sincronización
 - [x] Alertas visuales cuando un sensor supera umbrales configurables
-- [x] Modo oscuro / claro
+- [x] Modo oscuro / claro con persistencia en localStorage
 
 ### Fase 4 — Mejoras del backend
-- [ ] Endpoint `GET /data/stats` con estadísticas agregadas por día/semana
-- [ ] Endpoint `GET /data/export?format=csv` para exportación directa desde Firestore
+- [x] Endpoint `GET /data/stats` con estadísticas (último, mín, máx, promedio)
+- [ ] Endpoint `GET /data/export?format=csv` para exportación directa desde backend
 - [ ] Endpoint `GET /sensors` con metadata de sensores (nombre, unidad, canal ThingSpeak)
 - [ ] Paginación en `/data` con parámetros `?limit=N&offset=N`
 - [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla
 - [ ] Logging estructurado para trazabilidad en Render logs
-- [ ] Índice compuesto en Firestore por `timestamp DESC` para optimizar queries
+- [ ] Índice en Supabase por `created_at DESC` para optimizar queries
 
 ### Fase 5 — Alertas y notificaciones
-- [ ] Alertas por umbral (ej: temperatura > 30°C)
-- [ ] Notificaciones por correo o Telegram
-- [ ] Historial de alertas
+- [ ] Notificaciones por correo o Telegram cuando se supera un umbral
+- [ ] Historial de alertas en Supabase
 
-### Fase 6 — Escalabilidad
-- [ ] Soporte para múltiples canales ThingSpeak
-- [ ] Autenticación de usuarios
+### Fase 6 — Escalabilidad y seguridad
+- [ ] Migración de ThingSpeak a envío directo desde ESP32-S3 via POST a `/ingest`
+- [ ] Autenticación por API key en endpoint `/ingest`
+- [ ] Autenticación JWT para endpoints de lectura
+- [ ] Soporte para múltiples canales / dispositivos
 - [ ] Panel de administración
 - [ ] Soporte para otros protocolos (MQTT, Modbus)
+
+### Fase 7 — Análisis de datos históricos
+- [ ] Heatmap de temperatura por hora del día (perfil térmico del apartamento)
+- [ ] Tendencia semanal — comparar comportamiento por día de la semana
+- [ ] Gráfica de correlación temperatura / humedad (dispersión)
+- [ ] Promedio acumulado por hora — ciclos diarios de los 3 sensores
+- [ ] Detección de anomalías — lecturas fuera del patrón normal
+- [ ] Análisis de presión atmosférica como indicador de clima
+- [ ] Forecast simple de temperatura para las próximas horas
 
 ---
 
