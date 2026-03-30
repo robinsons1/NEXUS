@@ -1,4 +1,4 @@
-const API = "http://localhost:8000";
+const API = "https://nexus-w0yh.onrender.com";
 
 let allData = [];
 let refreshTimer = null;

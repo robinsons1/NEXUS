@@ -26,11 +26,7 @@ app = FastAPI(title="Nexus API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://nexus-w0yh.onrender.com",
-        "http://127.0.0.1:5500",
-        "http://localhost:5500", #eliminar
-        "http://localhost:8000", #eliminar
-        "http://127.0.0.1:8000"
+        "https://nexus-w0yh.onrender.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
