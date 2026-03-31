@@ -28,7 +28,7 @@ app = FastAPI(title="Nexus API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nexus-w0yh.onrender.com"],
+    allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,7 +42,7 @@ scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
 scheduler.start()
 
 import atexit
-atexit.register(lambda: scheduler.shutdown(nowait=True))
+atexit.register(lambda: scheduler.shutdown(wait=False))
 
 
 @app.get("/")
@@ -255,3 +255,12 @@ def get_sensors():
             {"field": "field3", "name": "Presión Atmosférica", "unit": "hPa", "device": "BMP280", "min_expected": 300, "max_expected": 1100}
         ]
     }
+
+@app.get("/alerts")
+async def get_alerts(limit: int = 50):
+    result = supabase.table("alert_history") \
+        .select("*") \
+        .order("created_at", desc=True) \
+        .limit(limit) \
+        .execute()
+    return result.data

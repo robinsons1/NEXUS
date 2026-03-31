@@ -1,10 +1,13 @@
-import os
 from supabase import create_client, Client
+import os
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
+
 _supabase_client: Client = None
+
 
 def get_supabase() -> Client:
     global _supabase_client
@@ -15,3 +18,7 @@ def get_supabase() -> Client:
             raise ValueError("SUPABASE_URL y SUPABASE_KEY deben estar en el .env")
         _supabase_client = create_client(url, key)
     return _supabase_client
+
+
+# Exponer supabase para que el import en notifier funcione
+supabase = get_supabase()

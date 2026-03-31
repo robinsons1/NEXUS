@@ -4,10 +4,18 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 from fetch.database.supabase_client import get_supabase
+from fetch.notifier import check_and_notify
+import asyncio
 
-load_dotenv()
+# --- logging inicial
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
 
 logger = logging.getLogger("nexus.sync")
+
+load_dotenv()
 
 CHANNEL_ID = os.getenv("THINGSPEAK_CHANNEL_ID")
 API_KEY    = os.getenv("THINGSPEAK_API_KEY")
@@ -60,49 +68,106 @@ def fetch_new_data(since):
 
 
 def save_to_supabase(df):
+    if df.empty:
+        logger.info("run_sync: no hay datos nuevos para insertar")
+        return
+
     try:
         supabase = get_supabase()
-        records = [
-            {
+        records = []
+        for _, row in df.iterrows():
+            record = {
                 "created_at": row["created_at"].isoformat(),
                 "field1": float(row["field1"]) if row["field1"] else None,
                 "field2": float(row["field2"]) if row["field2"] else None,
                 "field3": float(row["field3"]) if row["field3"] else None,
             }
-            for _, row in df.iterrows()
-        ]
+            records.append(record)
+
+            # Opcional: disparar alerta por cada registro potencial
+            # asyncio.run(check_and_notify(record))
+
+        # upsert en lote
+        if records:
+            supabase.table("sensor_data").upsert(
+                records, on_conflict="created_at"
+            ).execute()
+            logger.info(f"Insertados/actualizados {len(records)} registros en Supabase")
+
+            # OPCIÓN 1: notificar solo el último registro nuevo (más limpio)
+            last_record = records[-1]
+            asyncio.run(check_and_notify(last_record))
+
+    except Exception as e:
+        logger.error(f"Error guardando en Supabase: {e}", exc_info=True)
+    try:
+        supabase = get_supabase()
+        records = []
+        for _, row in df.iterrows():
+            record = {
+                "created_at": row["created_at"].isoformat(),
+                "field1": float(row["field1"]) if row["field1"] else None,
+                "field2": float(row["field2"]) if row["field2"] else None,
+                "field3": float(row["field3"]) if row["field3"] else None,
+            }
+            records.append(record)
+
+            # MUCHO más eficiente: notificar SOLO cuando el registro es INSERTADO (no cuando se hace upsert)
+            # Pero si quieres una alerta por cada registro potencial, puedes hacer:
+            # asyncio.run(check_and_notify(record))  # solo si quieres disparar X alertas en serie
+
+        # upsert en lote
         supabase.table("sensor_data").upsert(
             records, on_conflict="created_at"
         ).execute()
-        logger.info(f"Insertados {len(records)} registros en Supabase")
+        logger.info(f"Insertados/actualizados {len(records)} registros en Supabase")
+
+        # OPCIÓN 1: notificar solo el último registro nuevo (más limpio)
+        # (asumimos que el más reciente es el último)
+        if records:
+            last_record = records[-1]
+            # Como sync.py es síncrono, usamos asyncio.run:
+            asyncio.run(check_and_notify(last_record))
+
     except Exception as e:
         logger.error(f"Error guardando en Supabase: {e}", exc_info=True)
 
 
 def run_sync():
-    logger.info("Iniciando sincronización incremental...")
+    logger.info("run_sync: started")
     last_ts = get_last_timestamp()
+    logger.info(f"run_sync: last_ts = {last_ts}")
 
     if last_ts is None:
-        logger.warning("No hay datos previos en Supabase")
+        logger.warning("run_sync: no hay datos previos en Supabase")
         return
 
     df = fetch_new_data(since=last_ts)
+    logger.info(f"run_sync: obtenidos {len(df)} registros de ThingSpeak")
 
     if df.empty:
-        logger.info("No hay datos nuevos por sincronizar")
+        logger.info("run_sync: no hay datos nuevos")
         return
 
+    # Convertir las columnas necesarias a Timestamp
     df["created_at"] = pd.to_datetime(df["created_at"])
+
+    # Asegurar que last_ts es Timestamp
+    if last_ts is not None:
+        last_ts = pd.to_datetime(last_ts)
+
+    # Filtrar solo datos nuevos
     df = df[df["created_at"] > last_ts]
+    logger.info(f"run_sync: datos nuevos = {len(df)}")
 
-    if df.empty:
-        logger.info("Todo está actualizado")
-        return
-
-    logger.info(f"Datos nuevos encontrados: {len(df)}")
+    # Guardar
     save_to_supabase(df)
-    logger.info("Sincronización completada ✅")
+    logger.info("run_sync: finalizado ✅")
+
+    # Telegram
+    if not df.empty:
+        last_record = df.iloc[-1].to_dict()
+        asyncio.run(check_and_notify(last_record))
 
 
 if __name__ == "__main__":
