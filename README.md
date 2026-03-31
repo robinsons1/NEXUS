@@ -20,17 +20,23 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - Sincronización incremental automática cada 5 minutos (APScheduler interno)
 - API REST con FastAPI que expone los datos
 - Dashboard web con gráficas interactivas (Plotly.js) — Layout: temperatura + humedad/presión
-- Visualización de Temperatura, Humedad y Presión
+- Visualización de Temperatura (DHT11), Humedad (DHT11) y Presión (BMP280)
 - Barra de estado con último dato, rango visible y cuenta regresiva
 - Filtro por rango de fechas con paginación automática
 - Ajuste automático de zona horaria Colombia (America/Bogota)
-- Dashboard público desplegado en Render.com — accesible desde la raíz /
+- Dashboard público desplegado en Render.com — accesible desde la raíz `/`
 - Auto-refresco del dashboard cada 5 minutos si la página está abierta
-- UptimeRobot en /health para mantener el servidor activo 24/7
+- UptimeRobot en `/health` para mantener el servidor activo 24/7
+- Exportación de datos en CSV directamente desde el backend
+- Estadísticas por sensor (último, mín, máx, promedio) en tiempo real
+- Alertas visuales con umbrales configurables persistentes en localStorage
+- Modo oscuro / claro con persistencia en localStorage
+- Logging estructurado para trazabilidad en Render logs
+- Índice en Supabase por `created_at DESC` para queries optimizadas
 
 ---
 
-## 🗺️ Propuesta y roadmap
+## 🗺️ Roadmap
 
 ### Fase 1 — Base ✅
 - [x] Conexión con ThingSpeak
@@ -41,8 +47,8 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ### Fase 2 — Deploy y disponibilidad ✅
 - [x] Deploy del backend en Render.com
-- [x] Frontend servido desde FastAPI (ruta raíz /)
-- [x] UptimeRobot en /health para mantener el servicio activo 24/7
+- [x] Frontend servido desde FastAPI (ruta raíz `/`)
+- [x] UptimeRobot en `/health` para mantener el servicio activo 24/7
 - [x] Sincronización automática cada 5 minutos vía APScheduler interno
 - [x] URL pública permanente
 - [x] Migración de Firestore a Supabase (PostgreSQL)
@@ -50,9 +56,9 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Barra de estado con cuenta regresiva visible
 - [x] Layout: temperatura arriba, humedad y presión lado a lado
 
-### Fase 3 — Mejoras de visualización (completada ✅)
+### Fase 3 — Visualización ✅
 - [x] Selector de rango de fechas para filtrar datos históricos
-- [x] Indicadores en tiempo real (último valor, mínimo, máximo, promedio) sobre las gráficas
+- [x] Indicadores en tiempo real (último, mín, máx, promedio) sobre las gráficas
 - [x] Gráfica combinada de los 3 sensores con rolling average
 - [x] Grid 2x2 con las 4 gráficas
 - [x] Descarga de datos en CSV desde el dashboard
@@ -60,21 +66,21 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Alertas visuales cuando un sensor supera umbrales configurables
 - [x] Modo oscuro / claro con persistencia en localStorage
 
-### Fase 4 — Mejoras del backend
+### Fase 4 — Backend ✅
 - [x] Endpoint `GET /data/stats` con estadísticas (último, mín, máx, promedio)
-- [ ] Endpoint `GET /data/export?format=csv` para exportación directa desde backend
-- [ ] Endpoint `GET /sensors` con metadata de sensores (nombre, unidad, canal ThingSpeak)
-- [ ] Paginación en `/data` con parámetros `?limit=N&offset=N`
-- [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla
-- [ ] Logging estructurado para trazabilidad en Render logs
-- [ ] Índice en Supabase por `created_at DESC` para optimizar queries
+- [x] Endpoint `GET /data/export?format=csv` para exportación directa desde backend
+- [x] Endpoint `GET /sensors` con metadata de sensores (nombre, unidad, canal ThingSpeak)
+- [x] Logging estructurado para trazabilidad en Render logs
+- [x] Índice en Supabase por `created_at DESC` para optimizar queries
+- [ ] Paginación en `/data` con parámetros `?limit=N&offset=N` *(pendiente ~8 meses)*
+- [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla *(pendiente)*
 
 ### Fase 5 — Alertas y notificaciones
 - [ ] Notificaciones por correo o Telegram cuando se supera un umbral
 - [ ] Historial de alertas en Supabase
 
 ### Fase 6 — Escalabilidad y seguridad
-- [ ] Migración de ThingSpeak a envío directo desde ESP32-S3 via POST a `/ingest`
+- [ ] Migración ThingSpeak → POST directo desde ESP32-S3 a `/ingest`
 - [ ] Autenticación por API key en endpoint `/ingest`
 - [ ] Autenticación JWT para endpoints de lectura
 - [ ] Soporte para múltiples canales / dispositivos
@@ -82,9 +88,9 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [ ] Soporte para otros protocolos (MQTT, Modbus)
 
 ### Fase 7 — Análisis de datos históricos
-- [ ] Heatmap de temperatura por hora del día (perfil térmico del apartamento)
+- [ ] Heatmap de temperatura por hora del día
 - [ ] Tendencia semanal — comparar comportamiento por día de la semana
-- [ ] Gráfica de correlación temperatura / humedad (dispersión)
+- [ ] Correlación temperatura / humedad (dispersión)
 - [ ] Promedio acumulado por hora — ciclos diarios de los 3 sensores
 - [ ] Detección de anomalías — lecturas fuera del patrón normal
 - [ ] Análisis de presión atmosférica como indicador de clima
@@ -94,15 +100,16 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ## 🛠️ Stack tecnológico
 
-| Capa                       | Tecnología                       |
-| -------------------------- | -------------------------------- |
-| Sensores / Fuente de datos | ThingSpeak                       |
-| Base de datos              | Supabase (PostgreSQL)            |
-| Backend API                | Python + FastAPI                 |
-| Frontend                   | HTML + CSS + Plotly.js           |
-| Sincronización             | APScheduler (interno en FastAPI) |
-| Keep-alive                 | UptimeRobot → /health            |
-| Hosting                    | Render.com                       |
+| Capa | Tecnología |
+|---|---|
+| Sensores / Fuente de datos | ESP32-S3 + DHT11 + BMP280 → ThingSpeak |
+| Base de datos | Supabase (PostgreSQL) |
+| Backend API | Python + FastAPI |
+| Frontend | HTML + CSS + Plotly.js |
+| Sincronización | APScheduler (interno en FastAPI) |
+| Keep-alive | UptimeRobot → `/health` |
+| Hosting | Render.com |
+| Control de versiones | Git / GitHub |
 
 ---
 
@@ -110,16 +117,33 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 | Endpoint | Método | Descripción |
 |---|---|---|
-| `/` | GET | Estado de la API |
-| `/dashboard` | GET | Dashboard web |
+| `/` | GET | Dashboard web |
+| `/dashboard` | GET | Dashboard web (alias) |
 | `/data?limit=N` | GET | Últimos N registros |
+| `/data?start=YYYY-MM-DD&end=YYYY-MM-DD` | GET | Registros por rango de fechas |
 | `/data/latest` | GET | Último registro |
-| `/data/stats` | GET | Estadísticas agregadas *(próximamente)* |
-| `/data/export` | GET | Exportar datos en CSV *(próximamente)* |
-| `/sensors` | GET | Metadata de sensores *(próximamente)* |
-| `/sync` | GET/HEAD | Ejecutar sincronización manual |
+| `/data/stats?limit=N` | GET | Estadísticas agregadas |
+| `/data/stats?start=...&end=...` | GET | Estadísticas por rango |
+| `/data/export?format=csv` | GET | Exportar CSV completo |
+| `/data/export?format=csv&start=...&end=...` | GET | Exportar CSV por rango |
+| `/sensors` | GET | Metadata de sensores y canal |
+| `/sync` | GET/HEAD | Sincronización manual |
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
+
+---
+
+## 🗃️ Base de datos — Tabla `sensor_data`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | int | PK autoincremental |
+| `created_at` | timestamptz | Timestamp UTC — constraint UNIQUE |
+| `field1` | float | Temperatura (°C) — DHT11 |
+| `field2` | float | Humedad (%) — DHT11 |
+| `field3` | float | Presión (hPa) — BMP280 |
+
+**Índice:** `idx_sensor_data_created_at` en `created_at DESC`.
 
 ---
 
@@ -152,32 +176,48 @@ cp .env.example .env
 ### Correr localmente
 
 ```bash
-# Sincronizar datos desde ThingSpeak
-python fetch/sync.py
-
-# Iniciar API
-uvicorn api.main:app --reload
+# Iniciar servidor
+python -m uvicorn api.main:app --reload
 
 # Abrir en el navegador
-# http://localhost:8000/dashboard
+# http://localhost:8000
 ```
+
+> Para pruebas offline cambiar `const API = "http://127.0.0.1:8000"` en `frontend/app.js`.
+> Antes de cualquier commit revertir a `const API = "https://nexus-w0yh.onrender.com"`.
 
 ---
 
 ## 📁 Estructura del proyecto
 
 
+
 ```
-NEXUS/
-├── .github/workflows/    # GitHub Actions (sync automático)
-├── api/                  # Backend FastAPI
-├── database/             # Conexión con Firestore
-├── fetch/                # Scripts de ThingSpeak
-├── frontend/             # Dashboard web
-├── .env.example          # Variables de entorno (plantilla)
-├── requirements.txt      # Dependencias Python
+├── api/
+│ └── main.py # FastAPI backend principal
+├── fetch/
+│ ├── sync.py # Sincronización ThingSpeak → Supabase
+│ ├── recover.py # Script para recuperar gaps de datos
+│ └── database/
+│ └── supabase_client.py # Cliente Supabase
+├── frontend/
+│ ├── index.html # Dashboard web
+│ ├── style.css # Estilos
+│ └── app.js # JavaScript
+├── .env.example # Plantilla de variables de entorno
+├── requirements.txt # Dependencias Python
 └── README.md
 ```
+--
+
+## 🌿 Ramas Git
+
+| Rama | Uso |
+|---|---|
+| `main` | Producción (Render) |
+| `dev` | Desarrollo activo |
+
+Flujo: trabajar en `dev` → resolver conflictos → merge a `main`.
 
 ---
 
