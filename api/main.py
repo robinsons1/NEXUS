@@ -47,7 +47,7 @@ atexit.register(lambda: scheduler.shutdown(nowait=True))
 
 @app.get("/")
 def root():
-    return {"status": "Nexus API funcionando ✅"}
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "index.html"))
 
 
 @app.get("/health")
