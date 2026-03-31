@@ -162,6 +162,18 @@ async function loadData() {
     }
 }
 
+// 🔒 Sanitización HTML segura (línea ~10)
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;'
+    };
+    return text.replace(/[&<>"']/g, char => map[char]);
+}
+
 async function loadAlerts() {
     try {
         const response = await fetch(`${API}/alerts?limit=10`);
@@ -179,7 +191,7 @@ async function loadAlerts() {
             html += `
                 <div class="alert-item">
                     <strong>${time}</strong>
-                    <span>${alert.message.replace(/<[^>]*>/g, '')}</span>
+                    <span>${escapeHtml(alert.message)}</span>
                 </div>
             `;
         });

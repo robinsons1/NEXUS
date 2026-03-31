@@ -131,7 +131,7 @@ def sync():
         return {"status": "ok", "message": "Sincronización completada ✅"}
     except Exception as e:
         logger.error(f"Error en /sync: {e}", exc_info=True)
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Error interno del servidor. Intente más tarde."}
 
 
 @app.get("/data/stats")
