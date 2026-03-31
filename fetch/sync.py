@@ -66,7 +66,6 @@ def fetch_new_data(since):
     logger.info(f"Total obtenido de ThingSpeak: {len(all_feeds)} registros")
     return pd.DataFrame(all_feeds) if all_feeds else pd.DataFrame()
 
-
 def save_to_supabase(df):
     if df.empty:
         logger.info("run_sync: no hay datos nuevos para insertar")
@@ -84,54 +83,20 @@ def save_to_supabase(df):
             }
             records.append(record)
 
-            # Opcional: disparar alerta por cada registro potencial
-            # asyncio.run(check_and_notify(record))
-
-        # upsert en lote
+        # upsert en lote (SIN notificación duplicada)
         if records:
             supabase.table("sensor_data").upsert(
                 records, on_conflict="created_at"
             ).execute()
             logger.info(f"Insertados/actualizados {len(records)} registros en Supabase")
 
-            # OPCIÓN 1: notificar solo el último registro nuevo (más limpio)
-            last_record = records[-1]
-            asyncio.run(check_and_notify(last_record))
-
-    except Exception as e:
-        logger.error(f"Error guardando en Supabase: {e}", exc_info=True)
-    try:
-        supabase = get_supabase()
-        records = []
-        for _, row in df.iterrows():
-            record = {
-                "created_at": row["created_at"].isoformat(),
-                "field1": float(row["field1"]) if row["field1"] else None,
-                "field2": float(row["field2"]) if row["field2"] else None,
-                "field3": float(row["field3"]) if row["field3"] else None,
-            }
-            records.append(record)
-
-            # MUCHO más eficiente: notificar SOLO cuando el registro es INSERTADO (no cuando se hace upsert)
-            # Pero si quieres una alerta por cada registro potencial, puedes hacer:
-            # asyncio.run(check_and_notify(record))  # solo si quieres disparar X alertas en serie
-
-        # upsert en lote
-        supabase.table("sensor_data").upsert(
-            records, on_conflict="created_at"
-        ).execute()
-        logger.info(f"Insertados/actualizados {len(records)} registros en Supabase")
-
-        # OPCIÓN 1: notificar solo el último registro nuevo (más limpio)
-        # (asumimos que el más reciente es el último)
+        # ✅ NOTIFICACIÓN ÚNICA: solo el ÚLTIMO registro
         if records:
             last_record = records[-1]
-            # Como sync.py es síncrono, usamos asyncio.run:
             asyncio.run(check_and_notify(last_record))
 
     except Exception as e:
         logger.error(f"Error guardando en Supabase: {e}", exc_info=True)
-
 
 def run_sync():
     logger.info("run_sync: started")
@@ -167,8 +132,6 @@ def run_sync():
     # Telegram
     if not df.empty:
         last_record = df.iloc[-1].to_dict()
-        asyncio.run(check_and_notify(last_record))
-
 
 if __name__ == "__main__":
     run_sync()
