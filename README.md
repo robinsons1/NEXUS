@@ -75,9 +75,13 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [ ] Paginación en `/data` con parámetros `?limit=N&offset=N` *(pendiente ~8 meses)*
 - [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla *(pendiente)*
 
-### Fase 5 — Alertas y notificaciones
-- [ ] Notificaciones por correo o Telegram cuando se supera un umbral
-- [ ] Historial de alertas en Supabase
+### Fase 5 — Alertas y notificaciones ✅
+- [x] Notificaciones por Telegram cuando se supera umbral (`above`/`below`)
+- [x] Notificación "restablecido" cuando vuelve a rango
+- [x] Historial de alertas en Supabase (`alert_history`)
+- [x] Dashboard con últimas alertas (`/alerts`)
+- [x] Hora Bogotá (COT) en alertas
+- [x] Cooldown anti-spam (30 min por sensor/dirección)
 
 ### Fase 6 — Escalabilidad y seguridad
 - [ ] Migración ThingSpeak → POST directo desde ESP32-S3 a `/ingest`
@@ -144,6 +148,18 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 | `field3` | float | Presión (hPa) — BMP280 |
 
 **Índice:** `idx_sensor_data_created_at` en `created_at DESC`.
+
+
+**Tabla `alert_history`:**
+| Campo      | Tipo        | Descripción |
+|------------|-------------|-------------|
+| id         | int         | PK autoincremental |
+| created_at | timestamptz | Timestamp UTC |
+| sensor     | text        | `temperature`/`humidity`/`pressure` |
+| value      | float       | Valor que disparó alerta |
+| threshold  | float       | Umbral configurado |
+| direction  | text        | `above`/`below`/`restored` |
+| message    | text        | Texto enviado a Telegram |
 
 ---
 

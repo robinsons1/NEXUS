@@ -162,17 +162,47 @@ async function loadData() {
     }
 }
 
+async function loadAlerts() {
+    try {
+        const response = await fetch(`${API}/alerts?limit=10`);
+        const alerts = await response.json();
+        
+        const container = document.getElementById('alerts-container');
+        if (!container) {
+            console.log('No se encontró #alerts-container');
+            return;
+        }
+        
+        let html = '';
+        alerts.slice(0, 10).forEach(alert => {
+            const time = new Date(alert.created_at).toLocaleString('es-CO');
+            html += `
+                <div class="alert-item">
+                    <strong>${time}</strong>
+                    <span>${alert.message.replace(/<[^>]*>/g, '')}</span>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html || '<p>No hay alertas recientes</p>';
+    } catch (error) {
+        console.error('Error cargando alertas:', error);
+        document.getElementById('alerts-container').innerHTML = '<p>Error cargando alertas</p>';
+    }
+}
+
 // ── Auto-refresh ──
 function startAutoRefresh() {
     if (refreshTimer) return;
     refreshTimer = setInterval(() => {
         const inicio = document.getElementById("fecha-inicio").value;
         const fin    = document.getElementById("fecha-fin").value;
-        resetCountdown(); // ← sincroniza el countdown con el refresh
+        resetCountdown();
         if (inicio && fin) {
             aplicarFiltro();
         } else {
             loadData();
+            loadAlerts();  // ← AÑADIR ESTA LÍNEA
         }
     }, REFRESH_MS);
     console.log("[Nexus] Auto-refresh iniciado ✅");
@@ -472,5 +502,6 @@ document.addEventListener("visibilitychange", () => {
 applyTheme(localStorage.getItem("nexus_theme") || "dark");
 fillThresholdInputs(loadThresholds());
 loadData();
+loadAlerts();
 startAutoRefresh();
 startCountdown();

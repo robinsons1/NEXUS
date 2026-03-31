@@ -258,6 +258,8 @@ def get_sensors():
 
 @app.get("/alerts")
 async def get_alerts(limit: int = 50):
+    """Últimas alertas de Telegram."""
+    supabase = get_supabase()  # <- USAR get_supabase()
     result = supabase.table("alert_history") \
         .select("*") \
         .order("created_at", desc=True) \
