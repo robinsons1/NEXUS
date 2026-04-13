@@ -63,20 +63,25 @@ def dashboard():
 
 
 @app.get("/data")
-def get_data(limit: int = 100, start: str = None, end: str = None):
+def get_data(
+    limit: int = 100,
+    offset: int = 0,
+    start: str = None,
+    end: str = None
+):
     supabase = get_supabase()
 
     if start or end:
         all_data = []
         page_size = 1000
-        offset = 0
+        page_offset = 0
 
         while True:
             query = (
                 supabase.table("sensor_data")
                 .select("*")
                 .order("created_at", desc=True)
-                .range(offset, offset + page_size - 1)
+                .range(page_offset, page_offset + page_size - 1)
             )
             if start:
                 query = query.gte("created_at", start)
@@ -89,7 +94,7 @@ def get_data(limit: int = 100, start: str = None, end: str = None):
             if len(result.data) < page_size:
                 break
 
-            offset += page_size
+            page_offset += page_size
 
         logger.info(f"GET /data — rango {start} → {end} — {len(all_data)} registros")
         return {"total": len(all_data), "data": all_data}
@@ -99,12 +104,16 @@ def get_data(limit: int = 100, start: str = None, end: str = None):
             supabase.table("sensor_data")
             .select("*")
             .order("created_at", desc=True)
-            .limit(limit)
+            .range(offset, offset + limit - 1)
             .execute()
         )
-        logger.info(f"GET /data — limit={limit} — {len(result.data)} registros")
-        return {"total": len(result.data), "data": result.data}
-
+        logger.info(f"GET /data — limit={limit} offset={offset} — {len(result.data)} registros")
+        return {
+            "total": len(result.data),
+            "offset": offset,
+            "limit": limit,
+            "data": result.data
+        }
 
 @app.get("/data/latest")
 def get_latest():

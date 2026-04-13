@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fetch.database.supabase_client import get_supabase
 from fetch.notifier import check_and_notify
 import asyncio
+import time
 
 # --- logging inicial
 logging.basicConfig(
@@ -42,6 +43,9 @@ def fetch_new_data(since):
     all_feeds = []
     page = 1
 
+    MAX_RETRIES = 4
+    BASE_DELAY  = 2  # segundos: 2, 4, 8, 16
+
     while True:
         params = {
             "api_key": API_KEY,
@@ -49,8 +53,22 @@ def fetch_new_data(since):
             "start": since.strftime("%Y-%m-%d %H:%M:%S"),
             "page": page
         }
-        r = requests.get(url, params=params)
-        feeds = r.json().get("feeds", [])
+
+        feeds = []
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                r = requests.get(url, params=params, timeout=15)
+                r.raise_for_status()
+                feeds = r.json().get("feeds", [])
+                break  # éxito → salir de reintentos
+            except Exception as e:
+                wait = BASE_DELAY ** attempt  # 2, 4, 8, 16
+                if attempt < MAX_RETRIES:
+                    logger.warning(f"ThingSpeak intento {attempt} fallido: {e} — reintentando en {wait}s")
+                    time.sleep(wait)
+                else:
+                    logger.error(f"ThingSpeak falló después de {MAX_RETRIES} intentos: {e}")
+                    return pd.DataFrame(all_feeds) if all_feeds else pd.DataFrame()
 
         if not feeds:
             break

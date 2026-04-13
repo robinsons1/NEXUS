@@ -9,16 +9,18 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.4.0
+> **En desarrollo activo** — Versión 0.5.0
 
 ---
 
 ## ✅ Lo que funciona actualmente
 
 - Lectura de datos desde ThingSpeak via API REST
-- Almacenamiento histórico en Supabase (PostgreSQL) — +20,000 puntos
+- Almacenamiento histórico en Supabase (PostgreSQL) — +30,000 puntos
 - Sincronización incremental automática cada 5 minutos (APScheduler interno)
+- Reintentos con backoff exponencial si ThingSpeak falla (hasta 4 intentos)
 - API REST con FastAPI que expone los datos
+- Paginación en `/data` con parámetros `?limit=N&offset=N`
 - Dashboard web con gráficas interactivas (Plotly.js) — Layout: temperatura + humedad/presión
 - Visualización de Temperatura (DHT11), Humedad (DHT11) y Presión (BMP280)
 - Barra de estado con último dato, rango visible y cuenta regresiva
@@ -33,6 +35,8 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - Modo oscuro / claro con persistencia en localStorage
 - Logging estructurado para trazabilidad en Render logs
 - Índice en Supabase por `created_at DESC` para queries optimizadas
+- RLS habilitado en Supabase — acceso anónimo bloqueado
+- Notificaciones Telegram con lógica de estado (sin spam, sin rebote)
 
 ---
 
@@ -72,8 +76,8 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Endpoint `GET /sensors` con metadata de sensores (nombre, unidad, canal ThingSpeak)
 - [x] Logging estructurado para trazabilidad en Render logs
 - [x] Índice en Supabase por `created_at DESC` para optimizar queries
-- [ ] Paginación en `/data` con parámetros `?limit=N&offset=N` *(pendiente ~8 meses)*
-- [ ] Reintentos con backoff exponencial en `/sync` si ThingSpeak falla *(pendiente)*
+- [x] Paginación en `/data` con parámetros `?limit=N&offset=N`
+- [x] Reintentos con backoff exponencial en sync si ThingSpeak falla
 
 ### Fase 5 — Alertas y notificaciones ✅
 - [x] Notificaciones por Telegram cuando se supera umbral (`above`/`below`)
@@ -82,6 +86,8 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [x] Dashboard con últimas alertas (`/alerts`)
 - [x] Hora Bogotá (COT) en alertas
 - [x] Cooldown anti-spam (30 min por sensor/dirección)
+- [x] Lógica de estado en memoria — sin rebote ni spam por cooldown expirado
+- [x] "Restablecido" se envía una sola vez por evento
 
 ### Fase 6 — Escalabilidad y seguridad
 - [ ] Migración ThingSpeak → POST directo desde ESP32-S3 a `/ingest`
@@ -100,10 +106,11 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [ ] Análisis de presión atmosférica como indicador de clima
 - [ ] Forecast simple de temperatura para las próximas horas
 
-### Fase 8 — Cuentas, registro y perfiles 
-- [ ] Personalizar crear y modificar rangos de alerta
+### Fase 8 — Personalización
+- [ ] Crear y modificar rangos de alerta desde el dashboard
 
-### Fase 9 — Bot Consultas y respuestas telegram 
+### Fase 9 — Bot Telegram
+- [ ] Consultas y respuestas por comando (`/status`, `/stats`, `/alertas`)
 
 ---
 
@@ -112,10 +119,11 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 | Capa | Tecnología |
 |---|---|
 | Sensores / Fuente de datos | ESP32-S3 + DHT11 + BMP280 → ThingSpeak |
-| Base de datos | Supabase (PostgreSQL) |
+| Base de datos | Supabase (PostgreSQL) + RLS |
 | Backend API | Python + FastAPI |
 | Frontend | HTML + CSS + Plotly.js |
 | Sincronización | APScheduler (interno en FastAPI) |
+| Notificaciones | Telegram Bot |
 | Keep-alive | UptimeRobot → `/health` |
 | Hosting | Render.com |
 | Control de versiones | Git / GitHub |
@@ -128,7 +136,7 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 |---|---|---|
 | `/` | GET | Dashboard web |
 | `/dashboard` | GET | Dashboard web (alias) |
-| `/data?limit=N` | GET | Últimos N registros |
+| `/data?limit=N&offset=N` | GET | Registros con paginación |
 | `/data?start=YYYY-MM-DD&end=YYYY-MM-DD` | GET | Registros por rango de fechas |
 | `/data/latest` | GET | Último registro |
 | `/data/stats?limit=N` | GET | Estadísticas agregadas |
@@ -136,6 +144,7 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 | `/data/export?format=csv` | GET | Exportar CSV completo |
 | `/data/export?format=csv&start=...&end=...` | GET | Exportar CSV por rango |
 | `/sensors` | GET | Metadata de sensores y canal |
+| `/alerts` | GET | Últimas alertas Telegram |
 | `/sync` | GET/HEAD | Sincronización manual |
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
@@ -154,17 +163,17 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 
 **Índice:** `idx_sensor_data_created_at` en `created_at DESC`.
 
-
 **Tabla `alert_history`:**
-| Campo      | Tipo        | Descripción |
-|------------|-------------|-------------|
-| id         | int         | PK autoincremental |
-| created_at | timestamptz | Timestamp UTC |
-| sensor     | text        | `temperature`/`humidity`/`pressure` |
-| value      | float       | Valor que disparó alerta |
-| threshold  | float       | Umbral configurado |
-| direction  | text        | `above`/`below`/`restored` |
-| message    | text        | Texto enviado a Telegram |
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | int | PK autoincremental |
+| `created_at` | timestamptz | Timestamp UTC |
+| `sensor` | text | `temperature`/`humidity`/`pressure` |
+| `value` | float | Valor que disparó alerta |
+| `threshold` | float | Umbral configurado |
+| `direction` | text | `above`/`below`/`restored` |
+| `message` | text | Texto enviado a Telegram |
 
 ---
 
@@ -197,14 +206,11 @@ cp .env.example .env
 ### Correr localmente
 
 ```bash
-# Iniciar servidor
 python -m uvicorn api.main:app --reload
-
-# Abrir en el navegador
 # http://localhost:8000
 ```
 
-> Para pruebas offline cambiar `const API = "http://127.0.0.1:8000"` en `frontend/app.js`.
+> Para pruebas locales cambiar `const API = "http://127.0.0.1:8000"` en `frontend/app.js`.
 > Antes de cualquier commit revertir a `const API = "https://nexus-w0yh.onrender.com"`.
 
 ---
@@ -213,20 +219,22 @@ python -m uvicorn api.main:app --reload
 
 
 
+
 ```
 ├── api/
 │ └── main.py # FastAPI backend principal
 ├── fetch/
 │ ├── sync.py # Sincronización ThingSpeak → Supabase
+│ ├── notifier.py # Alertas Telegram
 │ ├── recover.py # Script para recuperar gaps de datos
 │ └── database/
-│ └── supabase_client.py # Cliente Supabase
+│ └── supabase_client.py
 ├── frontend/
 │ ├── index.html # Dashboard web
 │ ├── style.css # Estilos
 │ └── app.js # JavaScript
-├── .env.example # Plantilla de variables de entorno
-├── requirements.txt # Dependencias Python
+├── .env.example
+├── requirements.txt
 └── README.md
 ```
 --
