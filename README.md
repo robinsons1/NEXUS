@@ -100,6 +100,11 @@ almacenamiento histórico en la nube y sincronización automática cada 5 minuto
 - [ ] Análisis de presión atmosférica como indicador de clima
 - [ ] Forecast simple de temperatura para las próximas horas
 
+### Fase 8 — Cuentas, registro y perfiles 
+- [ ] Personalizar crear y modificar rangos de alerta
+
+### Fase 9 — Bot Consultas y respuestas telegram 
+
 ---
 
 ## 🛠️ Stack tecnológico

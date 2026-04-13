@@ -5,24 +5,18 @@ from datetime import datetime, timezone, timedelta
 from fetch.database.supabase_client import supabase
 import pytz
 
-
 logger = logging.getLogger("nexus.notifier")
-
 
 TELEGRAM_TOKEN   = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-
-# Umbrales por defecto (puedes ajustarlos según tu sensor en Bogotá)
 THRESHOLDS = {
-    "temperature": {"above": 23.0, "below": 21.0},  # °C
-    "humidity":    {"above": 70.0, "below": 48.0},  # %
-    "pressure":    {"above": 755.0, "below": 750.0}, # hPa
+    "temperature": {"above": 23.0, "below": 21.0},
+    "humidity":    {"above": 70.0, "below": 48.0},
+    "pressure":    {"above": 755.0, "below": 750.0},
 }
 
-
-COOLDOWN_MINUTES = 30  # No repetir alerta del mismo sensor/dirección en X minutos
-
+COOLDOWN_MINUTES = 30
 
 SENSOR_LABELS = {
     "temperature": ("🌡️", "Temperatura", "°C",  "field1"),
@@ -30,9 +24,16 @@ SENSOR_LABELS = {
     "pressure":    ("🔵", "Presión",      "hPa", "field3"),
 }
 
+# ── Estado en memoria: evita re-alertar sin restored previo ──────────────────
+# Valores posibles por sensor: "ok" | "above" | "below"
+_sensor_state: dict[str, str] = {
+    "temperature": "ok",
+    "humidity":    "ok",
+    "pressure":    "ok",
+}
+
 
 async def send_telegram(message: str) -> bool:
-    """Envía mensaje al bot de Telegram."""
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     try:
         async with httpx.AsyncClient() as client:
@@ -50,7 +51,6 @@ async def send_telegram(message: str) -> bool:
 
 
 def _last_alert_time(sensor: str, direction: str):
-    """Retorna el timestamp de la última alerta para ese sensor+dirección."""
     try:
         result = supabase.table("alert_history") \
             .select("created_at") \
@@ -67,7 +67,6 @@ def _last_alert_time(sensor: str, direction: str):
 
 
 def _in_cooldown(sensor: str, direction: str) -> bool:
-    """Verifica si está en período de cooldown."""
     last = _last_alert_time(sensor, direction)
     if not last:
         return False
@@ -79,7 +78,6 @@ def _in_cooldown(sensor: str, direction: str) -> bool:
 
 def _save_alert(sensor: str, value: float, threshold: float,
                 direction: str, message: str):
-    """Guarda la alerta en Supabase."""
     try:
         supabase.table("alert_history").insert({
             "sensor":    sensor,
@@ -93,11 +91,6 @@ def _save_alert(sensor: str, value: float, threshold: float,
 
 
 async def check_and_notify(record: dict):
-    """
-    Recibe un registro nuevo {field1, field2, field3}
-    y evalúa si algún valor supera umbrales.
-    """
-    # Convertir a float
     mapping = {
         "temperature": float(record.get("field1")) if record.get("field1") else None,
         "humidity":    float(record.get("field2")) if record.get("field2") else None,
@@ -110,47 +103,64 @@ async def check_and_notify(record: dict):
 
         emoji, label, unit, _ = SENSOR_LABELS[sensor]
         limits = THRESHOLDS[sensor]
+        bogota_tz = pytz.timezone('America/Bogota')
+        now_bogota = datetime.now(bogota_tz)
+        timestamp_str = now_bogota.strftime('%Y-%m-%d %H:%M')
 
-        # Verificar estado actual
+        # ── Determinar estado actual del valor ───────────────────────────────
         if value > limits["above"]:
-            attention = "above"
+            current = "above"
         elif value < limits["below"]:
-            attention = "below"
+            current = "below"
         else:
-            attention = "ok"
+            current = "ok"
 
-        # FUERA DE RANGO
-        if attention != "ok":
-            if _in_cooldown(sensor, attention):
-                logger.info(f"Alerta {sensor}/{attention} en cooldown, omitida")
+        prev_state = _sensor_state[sensor]
+
+        # ── FUERA DE RANGO ────────────────────────────────────────────────────
+        if current != "ok":
+            # Solo alerta si:
+            # 1. El estado anterior era "ok" (no re-alertar sin restored previo)
+            # 2. O el estado anterior era igual pero el cooldown ya expiró
+            already_alerting = (prev_state == current)
+
+            if already_alerting and _in_cooldown(sensor, current):
+                logger.info(f"Alerta {sensor}/{current} en cooldown, omitida")
                 continue
 
-            arrow = "🔺" if attention == "above" else "🔻"
-            bogota_tz = pytz.timezone('America/Bogota')
-            now_bogota = datetime.now(bogota_tz)
-            
+            if already_alerting and not _in_cooldown(sensor, current):
+                # Cooldown expiró pero nunca hubo restored → omitir igualmente
+                # Solo re-alerta si el sensor pasó por "ok" primero
+                logger.info(f"Alerta {sensor}/{current}: sensor nunca se restableció, omitida")
+                continue
+
+            arrow = "🔺" if current == "above" else "🔻"
             msg = (
                 f"{emoji} <b>{label} FUERA DE RANGO</b>\n"
                 f"{arrow} {value:.1f} {unit}\n"
-                f"Umbral: {attention} {limits[attention]} {unit}\n"
-                f"📍 Bogotá — {now_bogota.strftime('%Y-%m-%d %H:%M')} COT"
+                f"Umbral: {current} {limits[current]} {unit}\n"
+                f"📍 Bogotá — {timestamp_str} COT"
             )
 
             sent = await send_telegram(msg)
             if sent:
-                _save_alert(sensor, value, limits[attention], attention, msg)
+                _save_alert(sensor, value, limits[current], current, msg)
+                _sensor_state[sensor] = current  # ← actualizar estado
 
-        # RESTABLECIDO (solo si antes estaba fuera de rango)
-        elif _in_cooldown(sensor, "above") or _in_cooldown(sensor, "below"):
-            bogota_tz = pytz.timezone('America/Bogota')
-            now_bogota = datetime.now(bogota_tz)
-            
+        # ── RESTABLECIDO ──────────────────────────────────────────────────────
+        elif current == "ok" and prev_state != "ok":
+            # Solo enviar si NO hay un "restored" reciente (evita duplicados)
+            if _in_cooldown(sensor, "restored"):
+                logger.info(f"Restored {sensor} en cooldown, omitido")
+                continue
+
             msg = (
                 f"{emoji} <b>{label} RESTABLECIDO</b>\n"
                 f"📥 {value:.1f} {unit} (en rango)\n"
-                f"📍 Bogotá — {now_bogota.strftime('%Y-%m-%d %H:%M')} COT"
+                f"📍 Bogotá — {timestamp_str} COT"
             )
 
             sent = await send_telegram(msg)
             if sent:
                 _save_alert(sensor, value, limits["above"], "restored", msg)
+                _sensor_state[sensor] = "ok"  # ← resetear estado
