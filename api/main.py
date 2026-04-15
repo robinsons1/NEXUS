@@ -11,6 +11,8 @@ import csv
 from fetch.database.supabase_client import get_supabase
 from apscheduler.schedulers.background import BackgroundScheduler
 from fetch.sync import run_sync
+import time
+import threading
 
 # ─── LOGGING ───
 logging.basicConfig(
@@ -28,7 +30,7 @@ app = FastAPI(title="Nexus API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -275,3 +277,224 @@ async def get_alerts(limit: int = 50):
         .limit(limit) \
         .execute()
     return result.data
+
+DATA_CACHE = {
+    "timestamp": 0,
+    "days": 0,
+    "data": []
+}
+
+# Candado para evitar estampidas de peticiones simultáneas
+cache_lock = threading.Lock()
+
+def get_cached_sensor_data(days: int):
+    """Obtiene datos. Si el caché está vacío, descarga siempre 60 días para cubrir todo el dashboard."""
+    global DATA_CACHE
+    
+    with cache_lock:
+        current_time = time.time()
+        
+        # ¿Tenemos al menos los días solicitados y pasaron menos de 5 minutos (300 seg)?
+        if DATA_CACHE["days"] >= days and (current_time - DATA_CACHE["timestamp"]) < 300:
+            logger.info(f"⚡ CACHÉ HIT: Extrayendo {days} días (de {DATA_CACHE['days']} en memoria)")
+            
+            # Si piden exactamente lo mismo, devolver tal cual
+            if DATA_CACHE["days"] == days:
+                return DATA_CACHE["data"]
+            
+            # Si piden menos, filtramos la lista en memoria (fracción de segundo)
+            from datetime import datetime, timedelta, timezone
+            cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+            filtered_data = [row for row in DATA_CACHE["data"] if row["created_at"] >= cutoff_date]
+            return filtered_data
+        
+        # EAGER LOADING: Si vamos a descargar, bajamos al menos 60 días para llenar el tanque de una vez
+        download_days = max(days, 60)
+        logger.info(f"☁️ CACHÉ MISS: El tanque está vacío o caducó. Descargando {download_days} días...")
+        
+        supabase = get_supabase()
+        from datetime import datetime, timedelta, timezone
+        since = (datetime.now(timezone.utc) - timedelta(days=download_days)).isoformat()
+
+        all_rows = []
+        page_size = 1000
+        offset = 0
+        while True:
+            result = (
+                supabase.table("sensor_data")
+                .select("created_at, field1, field2, field3")
+                .gte("created_at", since)
+                .order("created_at", desc=False)
+                .range(offset, offset + page_size - 1)
+                .execute()
+            )
+            all_rows.extend(result.data)
+            if len(result.data) < page_size:
+                break
+            offset += page_size
+            time.sleep(0.1) # Pausa anti-Cloudflare
+
+        # Actualizamos la memoria global con el tanque lleno
+        DATA_CACHE["timestamp"] = current_time
+        DATA_CACHE["days"] = download_days
+        DATA_CACHE["data"] = all_rows
+        
+        # Si la gráfica que llamó pedía menos de lo que descargamos, lo recortamos antes de enviárselo
+        cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        filtered_data = [row for row in all_rows if row["created_at"] >= cutoff_date]
+        return filtered_data
+
+@app.get("/analytics")
+def analytics_page():
+    import os
+    return FileResponse(os.path.join(BASE_DIR, "frontend", "analytics.html"))
+
+
+@app.get("/data/heatmap")
+def get_heatmap(days: int = 30):
+    """Promedio por hora del día (0-23h COT) para cada sensor."""
+    try:
+        all_rows = get_cached_sensor_data(days)
+
+        if not all_rows:
+            raise HTTPException(status_code=404, detail="Sin datos")
+
+        import pytz
+        from datetime import datetime
+        bogota_tz = pytz.timezone("America/Bogota")
+        buckets = {h: {"f1": [], "f2": [], "f3": []} for h in range(24)}
+
+        for row in all_rows:
+            try:
+                dt = datetime.fromisoformat(row["created_at"])
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=pytz.utc)
+                hour = dt.astimezone(bogota_tz).hour
+                if row.get("field1") is not None:
+                    buckets[hour]["f1"].append(float(row["field1"]))
+                if row.get("field2") is not None:
+                    buckets[hour]["f2"].append(float(row["field2"]))
+                if row.get("field3") is not None:
+                    buckets[hour]["f3"].append(float(row["field3"]))
+            except Exception:
+                continue
+
+        result_data = []
+        for h in range(24):
+            b = buckets[h]
+            result_data.append({
+                "hour": h,
+                "temperature": round(sum(b["f1"]) / len(b["f1"]), 2) if b["f1"] else None,
+                "humidity":    round(sum(b["f2"]) / len(b["f2"]), 2) if b["f2"] else None,
+                "pressure":    round(sum(b["f3"]) / len(b["f3"]), 2) if b["f3"] else None,
+            })
+
+        logger.info(f"GET /data/heatmap procesado — {days} días")
+        return {"days": days, "data": result_data}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Error en /data/heatmap", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error calculando heatmap")
+
+
+@app.get("/data/weekly")
+def get_weekly(days: int = 60):
+    """Promedio por día de la semana (0=Lun … 6=Dom)."""
+    try:
+        all_rows = get_cached_sensor_data(days)
+
+        if not all_rows:
+            raise HTTPException(status_code=404, detail="Sin datos")
+
+        import pytz
+        from datetime import datetime
+        bogota_tz = pytz.timezone("America/Bogota")
+        DAYS_ES = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"]
+        buckets = {d: {"f1": [], "f2": [], "f3": []} for d in range(7)}
+
+        for row in all_rows:
+            try:
+                dt = datetime.fromisoformat(row["created_at"])
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=pytz.utc)
+                day = dt.astimezone(bogota_tz).weekday()
+                if row.get("field1") is not None:
+                    buckets[day]["f1"].append(float(row["field1"]))
+                if row.get("field2") is not None:
+                    buckets[day]["f2"].append(float(row["field2"]))
+                if row.get("field3") is not None:
+                    buckets[day]["f3"].append(float(row["field3"]))
+            except Exception:
+                continue
+
+        result_data = []
+        for d in range(7):
+            b = buckets[d]
+            result_data.append({
+                "day_index": d,
+                "day_name": DAYS_ES[d],
+                "temperature": round(sum(b["f1"]) / len(b["f1"]), 2) if b["f1"] else None,
+                "humidity":    round(sum(b["f2"]) / len(b["f2"]), 2) if b["f2"] else None,
+                "pressure":    round(sum(b["f3"]) / len(b["f3"]), 2) if b["f3"] else None,
+            })
+
+        logger.info(f"GET /data/weekly procesado — {days} días")
+        return {"days": days, "data": result_data}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Error en /data/weekly", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error calculando tendencia semanal")
+
+
+@app.get("/data/anomalies")
+def get_anomalies(days: int = 7, sigma: float = 2.0):
+    """Lecturas fuera de media ± sigma * desviación estándar."""
+    try:
+        all_rows = get_cached_sensor_data(days)
+
+        if not all_rows:
+            raise HTTPException(status_code=404, detail="Sin datos")
+
+        import math
+
+        def stats(rows, field):
+            vals = [float(r[field]) for r in rows if r.get(field) is not None]
+            if len(vals) < 2:
+                return None, None
+            mean = sum(vals) / len(vals)
+            std  = math.sqrt(sum((v - mean) ** 2 for v in vals) / len(vals))
+            return mean, std
+
+        anomalies = []
+        for field, name in [("field1","temperature"),("field2","humidity"),("field3","pressure")]:
+            mean, std = stats(all_rows, field)
+            if mean is None or std == 0:
+                continue
+            for row in all_rows:
+                val = row.get(field)
+                if val is None:
+                    continue
+                val = float(val)
+                if abs(val - mean) > sigma * std:
+                    anomalies.append({
+                        "created_at": row["created_at"],
+                        "sensor": name,
+                        "value": round(val, 2),
+                        "mean":  round(mean, 2),
+                        "std":   round(std, 2),
+                        "deviation": round(abs(val - mean) / std, 2),
+                    })
+
+        anomalies.sort(key=lambda x: x["created_at"], reverse=True)
+        logger.info(f"GET /data/anomalies procesado — {len(anomalies)} anomalías — {days} días")
+        return {"days": days, "sigma": sigma, "total": len(anomalies), "data": anomalies[:200]}
+
+    except HTTPException:
+        raise
+    except Exception:
+        logger.error("Error en /data/anomalies", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error detectando anomalías")

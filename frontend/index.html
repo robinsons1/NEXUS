@@ -5,24 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-<header>
-    <h1>⬡ NEXUS</h1>
-    <p>Monitor de sensores en tiempo real</p>
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️</button>
-</header>
-
-<section class="top-status">
-    <div class="status-bar">
-        <span>📡 Último dato: <strong id="sb-ultimo">--</strong> (<span id="sb-hace">--</span>)</span>
-        <span>📊 Desde: <strong id="sb-desde">--</strong></span>
-        <span>🔄 Actualizado: <strong id="sb-pagina">--</strong></span>
-        <span>⏱️ Próxima actualización: <span class="countdown" id="sb-countdown">5:00</span></span>
+<div style="margin: 20px 20px 25px 20px; padding: 30px 35px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;">
+    
+    <div style="font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; color: var(--text-main); display: flex; align-items: center; gap: 15px;">
+        <span style="width: 16px; height: 16px; background: #fbbf24; border-radius: 50%; box-shadow: 0 0 20px #fbbf24; animation: pulse 2s infinite;"></span>
+        NEXUS <span style="font-size: 1rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 6px 14px; border-radius: 8px; text-transform: uppercase; letter-spacing: 2px;">PRO</span>
     </div>
-</section>
+
+    <div style="background: var(--bg-card); padding: 8px 12px; border: 1px solid var(--border); border-radius: 20px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <a href="/" class="nav-link active" style="padding: 10px 24px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">Real-Time</a>
+        <a href="/analytics" class="nav-link" style="padding: 10px 24px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">📊 Analytics</a>
+        <div style="width: 1px; height: 24px; background: var(--border); margin: 0 5px;"></div>
+        <button id="theme-toggle" onclick="toggleTheme()" style="background: transparent; border: none; font-size: 1.4rem; cursor: pointer; padding: 5px 10px; transition: transform 0.3s ease;">☀️</button>
+    </div>
+
+</div>
+
+
+<div style="margin: 0 20px 25px 20px; padding: 25px 35px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    
+    <div>
+        <h1 style="margin: 0 0 5px 0; font-size: 2.2rem; font-weight: 800; color: var(--text-main); letter-spacing: -1px;">Dashboard en Vivo</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 12px #10b981; display: inline-block;"></span>
+            <p style="margin: 0; color: var(--text-muted); font-size: 1.05rem; font-weight: 500;">Monitor de sensores en tiempo real</p>
+        </div>
+    </div>
+
+    <div class="status-bar" style="margin: 0; padding: 12px 25px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; display: flex; gap: 20px; align-items: center;">
+        
+        <div style="text-align: center;">
+            <span style="display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Última Lectura</span>
+            <strong id="sb-ultimo" style="font-size: 1rem; color: var(--text-main);">--</strong>
+            <span id="sb-hace" style="display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px;">--</span>
+        </div>
+        
+        <div style="width: 1px; height: 35px; background: var(--border);"></div>
+        
+        <div style="text-align: center;">
+            <span style="display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Actualizado</span>
+            <strong id="sb-pagina" style="font-size: 1rem; color: var(--text-main);">--</strong>
+        </div>
+
+        <div style="width: 1px; height: 35px; background: var(--border);"></div>
+        
+        <div style="text-align: center;">
+            <span style="display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Refresco en</span>
+            <strong class="countdown" id="sb-countdown" style="font-size: 1rem; color: #3b82f6;">5:00</strong>
+        </div>
+
+        <span id="sb-desde" style="display: none;"></span>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+/* Efecto hover para el botón del sol/luna */
+#theme-toggle:hover {
+    transform: scale(1.15) rotate(15deg) !important;
+}
+</style>
 
 <div class="dashboard-layout">
     <!-- COLUMNA PRINCIPAL -->
@@ -145,6 +195,6 @@
     </aside>
 </div>
 
-<script src="/static/app.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
