@@ -1,8 +1,4 @@
-// analytics.js — NEXUS Fase 7
-// ⚠️ Para pruebas locales: cambiar API a "http://127.0.0.1:8000"
-// ⚠️ Para producción:      cambiar API a "https://nexus-w0yh.onrender.com"
-
-const API = "https://nexus-w0yh.onrender.com";
+const API = "";
 
 // ─── TEMA ─────────────────────────────────────────────────────────────────
 const themeToggle = document.getElementById("themeToggle");
