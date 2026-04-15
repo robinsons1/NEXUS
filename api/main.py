@@ -498,3 +498,7 @@ def get_anomalies(days: int = 7, sigma: float = 2.0):
     except Exception:
         logger.error("Error en /data/anomalies", exc_info=True)
         raise HTTPException(status_code=500, detail="Error detectando anomalías")
+    
+#Dejar al final
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
