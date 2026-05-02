@@ -12,12 +12,43 @@ from datetime import datetime, timezone
 # ── Watchdog: timestamp del último dato real ─────────────────────────────────
 _last_data_received: datetime | None = None
 
+def init_last_received() -> None:
+    """Llama una sola vez al arrancar para cargar el último timestamp desde Supabase."""
+    global _last_data_received
+    try:
+        ts = get_last_timestamp()
+        if ts is not None:
+            # get_last_timestamp() retorna pandas Timestamp, convertir a datetime
+            _last_data_received = ts.to_pydatetime().replace(tzinfo=timezone.utc)
+            logger.info(f"watchdog: inicializado con last_ts={_last_data_received}")
+    except Exception as e:
+        logger.error(f"watchdog: error inicializando last_received — {e}")
+
 def update_last_received() -> None:
+    """Se llama después de insertar datos. Actualiza el timestamp en RAM."""
     global _last_data_received
     _last_data_received = datetime.now(timezone.utc)
 
 def get_last_received() -> "datetime | None":
-    return _last_data_received
+    """
+    Retorna el timestamp más reciente entre:
+    - lo que este proceso insertó (_last_data_received en RAM)
+    - el último dato real en Supabase (para cubrir inserciones del otro servidor)
+    """
+    supabase_ts = get_last_timestamp()  # consulta Supabase directamente
+    if supabase_ts is None:
+        return _last_data_received
+
+    # convertir pandas Timestamp → datetime aware
+    supabase_dt = supabase_ts.to_pydatetime()
+    if supabase_dt.tzinfo is None:
+        supabase_dt = supabase_dt.replace(tzinfo=timezone.utc)
+
+    if _last_data_received is None:
+        return supabase_dt
+
+    # retornar el más reciente de los dos
+    return max(_last_data_received, supabase_dt)
 
 # --- logging inicial
 logging.basicConfig(

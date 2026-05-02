@@ -10,7 +10,7 @@ import io
 import csv
 from fetch.database.supabase_client import get_supabase
 from apscheduler.schedulers.background import BackgroundScheduler
-from fetch.sync import run_sync, get_last_received
+from fetch.sync import run_sync, get_last_received, init_last_received
 from fetch.notifier import check_silence
 import time
 import threading
@@ -44,6 +44,8 @@ def watchdog_job():
     """Wrapper síncrono para APScheduler → llama a check_silence async."""
     import asyncio
     asyncio.run(check_silence(get_last_received()))
+
+init_last_received() 
 
 # ─── SCHEDULER ───
 scheduler = BackgroundScheduler()
