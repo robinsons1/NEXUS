@@ -15,6 +15,7 @@ from fetch.notifier import check_silence
 import time
 import threading
 from datetime import datetime, timezone
+from pydantic import BaseModel
 
 # ─── LOGGING ───
 logging.basicConfig(
@@ -513,6 +514,39 @@ def get_anomalies(days: int = 7, sigma: float = 2.0):
     except Exception:
         logger.error("Error en /data/anomalies", exc_info=True)
         raise HTTPException(status_code=500, detail="Error detectando anomalías")
+
+class SensorPayload(BaseModel):
+    field1: float           # Temperatura DHT11 (°C)
+    field2: float           # Humedad DHT11 (%)
+    field3: float | None = None  # Presión BMP280 (hPa) — opcional
+
+@app.post("/ingest")
+def ingest(payload: SensorPayload):
+    """Recibe datos directamente desde la ESP32 y los guarda en Supabase."""
+    try:
+        supabase = get_supabase()
+        row = {
+            "field1": payload.field1,
+            "field2": payload.field2,
+            "field3": payload.field3,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        supabase.table("sensor_data").insert(row).execute()
+
+        from fetch.sync import update_last_received
+        update_last_received()
+
+        with cache_lock:
+            DATA_CACHE["timestamp"] = 0
+
+        logger.info(
+            f"POST /ingest OK — T={payload.field1}°C  H={payload.field2}%  P={payload.field3}hPa"
+        )
+        return {"status": "ok", "message": "Dato guardado"}
+
+    except Exception:
+        logger.error("Error en /ingest", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error guardando dato")
     
 #Dejar al final
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
