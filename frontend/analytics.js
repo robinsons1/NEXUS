@@ -1,5 +1,15 @@
 const API = "";
 
+// Escapa caracteres HTML para evitar XSS al usar innerHTML
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // ─── TEMA ─────────────────────────────────────────────────────────────────
 const themeToggle = document.getElementById("themeToggle");
 let isLight = localStorage.getItem("nexus-theme") === "light";
@@ -321,7 +331,7 @@ async function renderAnomalies() {
         if (d.total === 0) {
             container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--text-dim);">
                 <span style="font-size:2rem;display:block;margin-bottom:8px">✅</span>
-                Sin anomalías en los últimos ${days} días con umbral ${sigma}σ
+                Sin anomalías en los últimos ${escHtml(days)} días con umbral ${escHtml(sigma)}σ
             </div>`;
             return;
         }
@@ -329,18 +339,18 @@ async function renderAnomalies() {
         const ICONS  = { temperature:"🌡️", humidity:"💧", pressure:"🔵" };
         const COLORS = { temperature:"#f87171", humidity:"#34d399", pressure:"#818cf8" };
 
-        container.innerHTML = d.data.slice(0,50).map(a => {
+        container.innerHTML = d.data.slice(0, 50).map(a => {
             const dt = new Date(a.created_at).toLocaleString("es-CO",
-                { timeZone:"America/Bogota", dateStyle:"short", timeStyle:"short" });
+                { timeZone: "America/Bogota", dateStyle: "short", timeStyle: "short" });
             return `<div class="alert-item">
-                <div class="alert-icon" style="background:${COLORS[a.sensor]}20;color:${COLORS[a.sensor]};border:1px solid ${COLORS[a.sensor]}40">
-                    ${ICONS[a.sensor]}
+                <div class="alert-icon" style="background:${escHtml(COLORS[a.sensor])}20;color:${escHtml(COLORS[a.sensor])};border:1px solid ${escHtml(COLORS[a.sensor])}40">
+                    ${escHtml(ICONS[a.sensor])}
                 </div>
                 <div class="alert-content">
-                    <div class="alert-message">${a.sensor} = ${a.value} &nbsp;·&nbsp; ${a.deviation}σ de la media</div>
+                    <div class="alert-message">${escHtml(a.sensor)} = ${escHtml(a.value)} &nbsp;·&nbsp; ${escHtml(a.deviation)}σ de la media</div>
                     <div class="alert-meta">
-                        <span class="alert-time">${dt}</span>
-                        <span class="alert-value">media ${a.mean} ± ${a.std}</span>
+                        <span class="alert-time">${escHtml(dt)}</span>
+                        <span class="alert-value">media ${escHtml(a.mean)} ± ${escHtml(a.std)}</span>
                     </div>
                 </div>
             </div>`;
