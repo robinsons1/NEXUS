@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, PlainTextResponse
+from fetch.database.postgres_client import get_pg, release_pg, pg_available
 from dotenv import load_dotenv
 import os
 import logging
@@ -522,31 +523,50 @@ class SensorPayload(BaseModel):
 
 @app.post("/ingest")
 def ingest(payload: SensorPayload):
-    """Recibe datos directamente desde la ESP32 y los guarda en Supabase."""
+    """Recibe datos de la ESP32. Escribe en Postgres local Y Supabase."""
+    now_iso = datetime.now(timezone.utc).isoformat()
+    row_dict = {
+        "field1": payload.field1,
+        "field2": payload.field2,
+        "field3": payload.field3,
+        "created_at": now_iso,
+    }
+
+    # ── Postgres local (primero) ───────────────────────────────
+    pg_ok = False
     try:
-        supabase = get_supabase()
-        row = {
-            "field1": payload.field1,
-            "field2": payload.field2,
-            "field3": payload.field3,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        supabase.table("sensor_data").insert(row).execute()
-
-        from fetch.sync import update_last_received
-        update_last_received()
-
-        with cache_lock:
-            DATA_CACHE["timestamp"] = 0
-
-        logger.info(
-            f"POST /ingest OK — T={payload.field1}°C  H={payload.field2}%  P={payload.field3}hPa"
-        )
-        return {"status": "ok", "message": "Dato guardado"}
-
+        conn = get_pg()
+        cur  = conn.cursor()
+        cur.execute("""
+            INSERT INTO sensor_data (created_at, field1, field2, field3)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (created_at) DO NOTHING
+        """, (now_iso, payload.field1, payload.field2, payload.field3))
+        conn.commit()
+        cur.close()
+        release_pg(conn)
+        pg_ok = True
+        logger.info("POST /ingest → Postgres local OK ✅")
     except Exception:
-        logger.error("Error en /ingest", exc_info=True)
-        raise HTTPException(status_code=500, detail="Error guardando dato")
+        logger.error("POST /ingest → Postgres local FAIL ❌", exc_info=True)
+
+    # ── Supabase (siempre, como respaldo) ─────────────────────
+    try:
+        get_supabase().table("sensor_data").insert(row_dict).execute()
+        logger.info("POST /ingest → Supabase OK ✅")
+    except Exception:
+        logger.error("POST /ingest → Supabase FAIL ❌", exc_info=True)
+
+    # ── Watchdog + invalidar caché ─────────────────────────────
+    from fetch.sync import update_last_received
+    update_last_received()
+    with cache_lock:
+        DATA_CACHE["timestamp"] = 0
+
+    logger.info(
+        f"POST /ingest — T={payload.field1}°C  H={payload.field2}%  P={payload.field3}hPa"
+    )
+    return {"status": "ok", "message": "Dato guardado", "postgres": pg_ok}
     
 #Dejar al final
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -3,6 +3,7 @@ import httpx
 import logging
 from datetime import datetime, timezone, timedelta
 from fetch.database.supabase_client import supabase
+from fetch.database.postgres_client import get_pg, release_pg
 import pytz
 
 logger = logging.getLogger("nexus.notifier")
@@ -82,16 +83,37 @@ def _in_cooldown(sensor: str, direction: str) -> bool:
 
 def _save_alert(sensor: str, value: float, threshold: float,
                 direction: str, message: str):
+    now_iso = datetime.now(timezone.utc).isoformat()
+    row = {
+        "sensor":     sensor,
+        "value":      value,
+        "threshold":  threshold,
+        "direction":  direction,
+        "message":    message,
+        "created_at": now_iso,
+    }
+
+    # Postgres local
     try:
-        supabase.table("alert_history").insert({
-            "sensor":    sensor,
-            "value":     value,
-            "threshold": threshold,
-            "direction": direction,
-            "message":   message
-        }).execute()
+        conn = get_pg()
+        cur  = conn.cursor()
+        cur.execute("""
+            INSERT INTO alert_history
+                (created_at, sensor, value, threshold, direction, message)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (now_iso, sensor, value, threshold, direction, message))
+        conn.commit()
+        cur.close()
+        release_pg(conn)
+        logger.info("Alerta guardada en Postgres local ✅")
     except Exception as e:
-        logger.error(f"Error guardando alerta: {e}")
+        logger.error(f"Error guardando alerta en Postgres: {e}")
+
+    # Supabase (respaldo)
+    try:
+        supabase.table("alert_history").insert(row).execute()
+    except Exception as e:
+        logger.error(f"Error guardando alerta en Supabase: {e}")
 
 async def check_silence(last_received: datetime | None) -> None:
     """
