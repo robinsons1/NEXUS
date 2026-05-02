@@ -9,7 +9,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.7.0
+> **En desarrollo activo** — Versión 0.7.1
 
 ---
 
@@ -35,6 +35,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - Logging estructurado para trazabilidad en Render logs.
 - RLS habilitado en Supabase e índices optimizados por `created_at DESC`.
 - Notificaciones Telegram con lógica de estado (sin spam, sin rebote).
+- Watchdog de silencio: alerta Telegram si no llegan datos en 10 minutos, con aviso de restablecimiento automático.
+- Sanitización XSS en frontend: escapado de variables dinámicas en `innerHTML` (fix CodeQL #5).
+- Endpoint `/robots.txt` para proteger rutas de API de indexación.
 
 ---
 
@@ -74,8 +77,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Historial de alertas en Supabase (`alert_history`)
 - [x] Dashboard con últimas alertas (`/alerts`)
 - [x] Lógica de estado en memoria (sin rebote ni spam)
+- [x] Watchdog de silencio — alerta si no llegan datos en ≥10 min (APScheduler cada 2 min)
 
-### Fase 7 — Análisis de datos históricos ✅
+### Fase 6 — Análisis de datos históricos ✅
 - [x] Heatmap de temperatura por hora del día
 - [x] Tendencia semanal — comportamiento por día de la semana
 - [x] Correlación temperatura / humedad (dispersión con coeficiente de Pearson)
@@ -84,7 +88,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Forecast predictivo simple de temperatura a 1 hora
 - [x] Optimización de Backend con Caché Ansioso (Eager Loading) para reportes pesados
 
-### Fase 6 — Escalabilidad y seguridad
+### Fase 7 — Escalabilidad y seguridad
 - [ ] Migración ThingSpeak → POST directo desde ESP32-S3 a `/ingest`
 - [ ] Autenticación por API key en endpoint `/ingest`
 - [ ] Autenticación JWT para endpoints de lectura
@@ -130,6 +134,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | `/sync` | GET/HEAD | Sincronización manual |
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
+| `/robots.txt` | GET | Directivas de indexación para crawlers |
 
 ---
 
