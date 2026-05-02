@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, PlainTextResponse
 from dotenv import load_dotenv
 import os
 import logging
@@ -54,6 +54,11 @@ scheduler.start()
 import atexit
 atexit.register(lambda: scheduler.shutdown(wait=False))
 
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return PlainTextResponse(
+        "User-agent: *\nDisallow: /data\nDisallow: /sync\nAllow: /\n"
+    )
 
 @app.get("/")
 def root():
