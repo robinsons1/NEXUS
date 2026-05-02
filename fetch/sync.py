@@ -8,6 +8,16 @@ from fetch.notifier import check_and_notify
 import asyncio
 import time
 
+# ── Watchdog: timestamp del último dato real ─────────────────────────────────
+_last_data_received: datetime | None = None
+
+def update_last_received() -> None:
+    global _last_data_received
+    _last_data_received = datetime.now(timezone.utc)
+
+def get_last_received() -> "datetime | None":
+    return _last_data_received
+
 # --- logging inicial
 logging.basicConfig(
     level=logging.INFO,
@@ -107,6 +117,7 @@ def save_to_supabase(df):
                 records, on_conflict="created_at"
             ).execute()
             logger.info(f"Insertados/actualizados {len(records)} registros en Supabase")
+            update_last_received()
 
         # ✅ NOTIFICACIÓN ÚNICA: solo el ÚLTIMO registro
         if records:

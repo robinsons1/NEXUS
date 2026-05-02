@@ -10,9 +10,11 @@ import io
 import csv
 from fetch.database.supabase_client import get_supabase
 from apscheduler.schedulers.background import BackgroundScheduler
-from fetch.sync import run_sync
+from fetch.sync import run_sync, get_last_received
+from fetch.notifier import check_silence
 import time
 import threading
+from datetime import datetime, timezone
 
 # ─── LOGGING ───
 logging.basicConfig(
@@ -41,10 +43,16 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), 
 # ─── SCHEDULER ───
 scheduler = BackgroundScheduler()
 scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
+scheduler.add_job(watchdog_job, "interval", minutes=2, id="watchdog")
 scheduler.start()
 
 import atexit
 atexit.register(lambda: scheduler.shutdown(wait=False))
+
+def watchdog_job():
+    """Wrapper síncrono para APScheduler → llama a check_silence async."""
+    import asyncio
+    asyncio.run(check_silence(get_last_received()))
 
 
 @app.get("/")

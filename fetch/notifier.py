@@ -32,6 +32,10 @@ _sensor_state: dict[str, str] = {
     "pressure":    "ok",
 }
 
+# ── Estado watchdog: silencio de datos ──────────────────────────────────────
+SILENCE_THRESHOLD_MINUTES = 10   # minutos sin datos para alertar
+_watchdog_state: str = "ok"      # "ok" | "silent"
+
 
 async def send_telegram(message: str) -> bool:
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -88,6 +92,57 @@ def _save_alert(sensor: str, value: float, threshold: float,
         }).execute()
     except Exception as e:
         logger.error(f"Error guardando alerta: {e}")
+
+async def check_silence(last_received: datetime | None) -> None:
+    """
+    Llama a esto cada 2 min desde el scheduler.
+    Alerta si llevan >= SILENCE_THRESHOLD_MINUTES sin datos nuevos.
+    Avisa cuando se restablecen.
+    """
+    global _watchdog_state
+
+    bogota_tz = pytz.timezone("America/Bogota")
+    now_bogota = datetime.now(bogota_tz)
+    timestamp_str = now_bogota.strftime("%Y-%m-%d %H:%M")
+
+    # Servidor recién arrancó — no hay dato previo aún, no alertar
+    if last_received is None:
+        return
+
+    elapsed = (datetime.now(timezone.utc) - last_received).total_seconds() / 60
+
+    # ── SIN DATOS ────────────────────────────────────────────────────────────
+    if elapsed >= SILENCE_THRESHOLD_MINUTES:
+        if _watchdog_state == "silent":
+            logger.info("Watchdog: sin datos, alerta ya enviada — omitiendo")
+            return
+
+        msg = (
+            f"📡 <b>NEXUS — Sin datos</b>\n"
+            f"⏱ Llevan <b>{int(elapsed)} min</b> sin recibirse lecturas.\n"
+            f"Último dato: {last_received.strftime('%Y-%m-%d %H:%M')} UTC\n"
+            f"📍 Bogotá — {timestamp_str} COT\n"
+            f"Verifica el ESP32 o ThingSpeak."
+        )
+        sent = await send_telegram(msg)
+        if sent:
+            _save_alert("watchdog", elapsed, SILENCE_THRESHOLD_MINUTES, "silent", msg)
+            _watchdog_state = "silent"
+            logger.warning(f"Watchdog: alerta enviada — {int(elapsed)} min sin datos")
+
+    # ── DATOS RESTABLECIDOS ───────────────────────────────────────────────────
+    else:
+        if _watchdog_state == "silent":
+            msg = (
+                f"✅ <b>NEXUS — Datos restablecidos</b>\n"
+                f"📥 Se recibieron lecturas nuevamente.\n"
+                f"📍 Bogotá — {timestamp_str} COT"
+            )
+            sent = await send_telegram(msg)
+            if sent:
+                _save_alert("watchdog", 0, SILENCE_THRESHOLD_MINUTES, "restored", msg)
+                logger.info("Watchdog: datos restablecidos — estado reseteado")
+            _watchdog_state = "ok"
 
 
 async def check_and_notify(record: dict):
