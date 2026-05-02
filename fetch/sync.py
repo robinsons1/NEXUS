@@ -7,6 +7,7 @@ from fetch.database.supabase_client import get_supabase
 from fetch.notifier import check_and_notify
 import asyncio
 import time
+from datetime import datetime, timezone
 
 # ── Watchdog: timestamp del último dato real ─────────────────────────────────
 _last_data_received: datetime | None = None
