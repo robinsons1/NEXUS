@@ -40,6 +40,11 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
 
+def watchdog_job():
+    """Wrapper síncrono para APScheduler → llama a check_silence async."""
+    import asyncio
+    asyncio.run(check_silence(get_last_received()))
+
 # ─── SCHEDULER ───
 scheduler = BackgroundScheduler()
 scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
@@ -48,11 +53,6 @@ scheduler.start()
 
 import atexit
 atexit.register(lambda: scheduler.shutdown(wait=False))
-
-def watchdog_job():
-    """Wrapper síncrono para APScheduler → llama a check_silence async."""
-    import asyncio
-    asyncio.run(check_silence(get_last_received()))
 
 
 @app.get("/")
