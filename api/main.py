@@ -12,7 +12,7 @@ import csv
 from fetch.database.supabase_client import get_supabase
 from apscheduler.schedulers.background import BackgroundScheduler
 from fetch.sync import run_sync, get_last_received, init_last_received
-from fetch.notifier import check_silence
+from fetch.notifier import check_silence, check_and_notify
 import time
 import threading
 from datetime import datetime, timezone
@@ -522,7 +522,7 @@ class SensorPayload(BaseModel):
     field3: float | None = None  # Presión BMP280 (hPa) — opcional
 
 @app.post("/ingest")
-def ingest(payload: SensorPayload):
+async def ingest(payload: SensorPayload):
     """Recibe datos de la ESP32. Escribe en Postgres local Y Supabase."""
     now_iso = datetime.now(timezone.utc).isoformat()
     row_dict = {
@@ -550,7 +550,7 @@ def ingest(payload: SensorPayload):
     except Exception:
         logger.error("POST /ingest → Postgres local FAIL ❌", exc_info=True)
 
-    # ── Supabase (siempre, como respaldo) ─────────────────────
+    # ── Supabase (respaldo) ────────────────────────────────────
     try:
         get_supabase().table("sensor_data").insert(row_dict).execute()
         logger.info("POST /ingest → Supabase OK ✅")
@@ -563,11 +563,14 @@ def ingest(payload: SensorPayload):
     with cache_lock:
         DATA_CACHE["timestamp"] = 0
 
+    # ── Evaluación de umbrales → Telegram ─────────────────────
+    await check_and_notify(row_dict)
+
     logger.info(
         f"POST /ingest — T={payload.field1}°C  H={payload.field2}%  P={payload.field3}hPa"
     )
     return {"status": "ok", "message": "Dato guardado", "postgres": pg_ok}
-    
+
 #Dejar al final
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
