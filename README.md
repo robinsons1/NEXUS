@@ -4,12 +4,13 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 almacenamiento histórico en la nube, análisis de tendencias y sincronización automática.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
+🖥️ **Servidor local:** [https://lincoln-happening-accept-blog.trycloudflare.com/] (https://lincoln-happening-accept-blog.trycloudflare.com/)
 
 ---
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.7.1
+> **En desarrollo activo** — Versión 0.8.0
 
 ---
 
@@ -38,6 +39,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - Watchdog de silencio: alerta Telegram si no llegan datos en 10 minutos, con aviso de restablecimiento automático.
 - Sanitización XSS en frontend: escapado de variables dinámicas en `innerHTML` (fix CodeQL #5).
 - Endpoint `/robots.txt` para proteger rutas de API de indexación.
+- **Almacenamiento primario en PostgreSQL local** (Docker) — dual-write con fallback
+- **Recepción directa desde ESP32** via `POST /ingest` — sin depender de ThingSpeak
+- **Historial de alertas guardado en PostgreSQL local Y Supabase simultáneamente.**
 
 ---
 
@@ -88,17 +92,29 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Forecast predictivo simple de temperatura a 1 hora
 - [x] Optimización de Backend con Caché Ansioso (Eager Loading) para reportes pesados
 
-### Fase 7 — Escalabilidad y seguridad
-- [ ] Migración ThingSpeak → POST directo desde ESP32-S3 a `/ingest`
-- [ ] Autenticación por API key en endpoint `/ingest`
-- [ ] Autenticación JWT para endpoints de lectura
-- [ ] Panel de administración multi-dispositivo
+### Fase 7 — Infraestructura local ✅
+- [x] Endpoint `POST /ingest` — recepción directa desde ESP32
+- [x] PostgreSQL local en Docker (`nexus_postgres`) como BD primaria
+- [x] Dual-write: escribe en Postgres local + Supabase simultáneamente
+- [x] `alert_history` replicada en Postgres local
+- [x] Migración histórica completa: 41,622 registros + 687 alertas
+- [x] Red Docker compartida (`nexus_net`) entre contenedores
+- [x] ESP32 envía datos a ThingSpeak Y al servidor local en paralelo
 
-### Fase 8 — Personalización
-- [ ] Crear y modificar rangos de alerta desde el dashboard hacia el backend
+### Fase 8 — Lectura desde local (PENDIENTE)
+- [ ] Migrar endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, etc.) a PostgreSQL local
+- [ ] Fallback automático a Supabase si Postgres local no está disponible
+- [ ] Migrar lectura de `/alerts` a Postgres local con fallback
 
-### Fase 9 — Bot Telegram
-- [ ] Consultas y respuestas por comando (`/status`, `/stats`, `/alertas`)
+### Fase 9 — Seguridad (PENDIENTE)
+- [ ] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura
+- [ ] JWT para endpoints de lectura — proteger dashboard
+- [ ] Cloudflare Access como capa de red antes del servidor
+
+### Fase 10 — Dominio y servidor fijo (PENDIENTE)
+- [ ] Comprar dominio y gestionar DNS en Cloudflare
+- [ ] Crear Named Tunnel permanente (reemplaza trycloudflare.com temporal)
+- [ ] Migrar de Render.com al servidor doméstico como hosting principal
 
 ---
 
@@ -106,13 +122,16 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 
 | Capa | Tecnología |
 |---|---|
-| Sensores / Fuente | ESP32-S3 + DHT11 + BMP280 → ThingSpeak |
-| Base de datos | Supabase (PostgreSQL) + RLS |
+| Sensores / Fuente | ESP32-S3 + DHT11 + BMP280 |
+| Envío de datos | ThingSpeak (buffer) + POST directo al servidor local |
+| Base de datos primaria | PostgreSQL local (Docker `nexus_postgres`) |
+| Base de datos respaldo | Supabase (PostgreSQL cloud) |
 | Backend API | Python + FastAPI |
 | Frontend | HTML5 + CSS3 + Vanilla JS + Plotly.js |
 | Sincronización | APScheduler + Threading Locks |
 | Notificaciones | Telegram Bot API |
-| Hosting | Render.com |
+| Hosting actual | Render.com + Servidor doméstico (Debian 12) |
+| Túnel público | Cloudflare Tunnel (trycloudflare.com — temporal) |
 
 ---
 
@@ -135,6 +154,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
+| `/ingest` | POST | Recepción directa desde ESP32 (JSON: field1, field2, field3) |
 
 ---
 
@@ -178,23 +198,20 @@ python -m uvicorn api.main:app --reload
 
 ## 📁 Estructura del proyecto
 
-
-
-
 ```
 ├── api/
-│   └── main.py              # FastAPI backend y Sistema de Caché
+│   └── main.py                  # FastAPI backend, caché, /ingest dual-write
 ├── fetch/
-│   ├── sync.py              # Sincronización ThingSpeak → Supabase
-│   ├── notifier.py          # Alertas Telegram
+│   ├── sync.py                  # Sincronización ThingSpeak → Supabase
+│   ├── notifier.py              # Alertas Telegram + dual-write alert_history
 │   └── database/
-│       └── supabase_client.py
+│       ├── supabase_client.py   # Cliente Supabase (respaldo cloud)
+│       └── postgres_client.py   # Cliente PostgreSQL local (primario)
 ├── frontend/
-│   ├── index.html           # UI Real-Time
-│   ├── analytics.html       # UI Histórico (Fase 7)
-│   ├── style.css            # Hoja de estilos unificada
-│   ├── app.js               # Lógica Real-Time
-│   └── analytics.js         # Lógica Matemática y Gráficas Históricas
+├── docker-compose.yml           # nexus_app + nexus_tunnel
+├── docker-compose.postgres.yml  # nexus_postgres (BD local)
+├── init_db.sql                  # Schema inicial de PostgreSQL local
+├── migrate_to_local.py          # Script de migración única (ya ejecutado)
 ├── .env.example
 ├── requirements.txt
 └── README.md
