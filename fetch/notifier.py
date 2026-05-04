@@ -205,12 +205,6 @@ async def check_and_notify(record: dict):
                 logger.info(f"Alerta {sensor}/{current} en cooldown, omitida")
                 continue
 
-            if already_alerting and not _in_cooldown(sensor, current):
-                # Cooldown expiró pero nunca hubo restored → omitir igualmente
-                # Solo re-alerta si el sensor pasó por "ok" primero
-                logger.info(f"Alerta {sensor}/{current}: sensor nunca se restableció, omitida")
-                continue
-
             arrow = "🔺" if current == "above" else "🔻"
             msg = (
                 f"{emoji} <b>{label} FUERA DE RANGO</b>\n"
