@@ -116,6 +116,27 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [ ] Crear Named Tunnel permanente (reemplaza trycloudflare.com temporal)
 - [ ] Migrar de Render.com al servidor doméstico como hosting principal
 
+### Fase 11 — Resiliencia y reconciliación de datos (PENDIENTE)
+
+> Garantizar consistencia entre PostgreSQL local y Supabase ante fallos de red,
+> DNS o contenedor. Sincronización bidireccional automática.
+
+#### 11.1 — Reconciliación PUSH (local → Supabase)
+- [ ] Agregar columna `synced_to_supabase BOOLEAN DEFAULT FALSE` en `sensor_data` local
+- [ ] Agregar columna `synced_to_supabase BOOLEAN DEFAULT FALSE` en `alert_history` local
+- [ ] En `/ingest`: si Supabase falla, la fila queda con `synced_to_supabase = FALSE`
+- [ ] Job APScheduler cada hora: busca `WHERE synced_to_supabase = FALSE` → push a Supabase → marca `TRUE`
+- [ ] Mismo mecanismo para `alert_history`
+
+#### 11.2 — Reconciliación PULL (Supabase → local)
+- [ ] Job diario (03:00 COT): compara últimas 24h entre Supabase y Postgres local por `created_at`
+- [ ] Filas en Supabase que no existen en local → INSERT local (recupera fallos del Postgres local)
+- [ ] Mismo mecanismo para `alert_history`
+
+#### 11.3 — Observabilidad del sync
+- [ ] Endpoint `/sync/status` — retorna cuántos registros tienen `synced_to_supabase = FALSE`
+- [ ] Alerta Telegram si hay más de N registros pendientes de sync por más de 1 hora
+
 ---
 
 ## 🛠️ Stack tecnológico
