@@ -395,9 +395,9 @@ async function descargarCSV() {
 }
 
 const DEFAULT_THRESHOLDS = {
-    temp: { min: 18, max: 28 },
-    hum:  { min: 35, max: 80 },
-    pres: { min: 720, max: 770 }
+    temp: { min: 20, max: 26 },
+    hum:  { min: 40, max: 75 },
+    pres: { min: 750, max: 756 }
 };
 
 function loadThresholds() {

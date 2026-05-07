@@ -49,6 +49,36 @@ def watchdog_job():
 
 init_last_received() 
 
+# ── Helpers lectura dual Postgres → Supabase ─────────────────────────────────
+
+def pg_fetch_all(query: str, params: tuple = ()) -> list | None:
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute(query, params)
+        cols = [desc[0] for desc in cur.description]
+        rows = [dict(zip(cols, row)) for row in cur.fetchall()]
+        cur.close()
+        release_pg(conn)
+        return rows
+    except Exception as e:
+        logger.warning(f"pg_fetch_all falló: {e}")
+        return None
+
+def pg_fetch_one(query: str, params: tuple = ()) -> dict | None:
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute(query, params)
+        cols = [desc[0] for desc in cur.description]
+        row = cur.fetchone()
+        cur.close()
+        release_pg(conn)
+        return dict(zip(cols, row)) if row else None
+    except Exception as e:
+        logger.warning(f"pg_fetch_one falló: {e}")
+        return None
+
 # ─── SCHEDULER ───
 scheduler = BackgroundScheduler()
 scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
@@ -82,68 +112,62 @@ def dashboard():
 
 
 @app.get("/data")
-def get_data(
-    limit: int = 100,
-    offset: int = 0,
-    start: str = None,
-    end: str = None
-):
-    supabase = get_supabase()
-
+def get_data(limit: int = 100, offset: int = 0, start: str = None, end: str = None):
+    # ── Postgres local ──
     if start or end:
-        all_data = []
-        page_size = 1000
-        page_offset = 0
+        conditions, params = [], []
+        if start:
+            conditions.append("created_at >= %s")
+            params.append(start)
+        if end:
+            conditions.append("created_at <= %s")
+            params.append(end)
+        where = "WHERE " + " AND ".join(conditions)
+        rows = pg_fetch_all(
+            f"SELECT * FROM sensor_data {where} ORDER BY created_at DESC",
+            tuple(params)
+        )
+    else:
+        rows = pg_fetch_all(
+            "SELECT * FROM sensor_data ORDER BY created_at DESC LIMIT %s OFFSET %s",
+            (limit, offset)
+        )
+    if rows is not None:
+        logger.info(f"GET /data ← Postgres local ✅ ({len(rows)} registros)")
+        return {"total": len(rows), "data": rows}
 
+    # ── Fallback Supabase ──
+    logger.warning("GET /data ← fallback Supabase")
+    supabase = get_supabase()
+    if start or end:
+        all_data, page_size, page_offset = [], 1000, 0
         while True:
-            query = (
-                supabase.table("sensor_data")
-                .select("*")
-                .order("created_at", desc=True)
-                .range(page_offset, page_offset + page_size - 1)
-            )
-            if start:
-                query = query.gte("created_at", start)
-            if end:
-                query = query.lte("created_at", end)
-
+            query = supabase.table("sensor_data").select("*").order("created_at", desc=True).range(page_offset, page_offset + page_size - 1)
+            if start: query = query.gte("created_at", start)
+            if end:   query = query.lte("created_at", end)
             result = query.execute()
             all_data.extend(result.data)
-
-            if len(result.data) < page_size:
-                break
-
+            if len(result.data) < page_size: break
             page_offset += page_size
-
         logger.info(f"GET /data — rango {start} → {end} — {len(all_data)} registros")
         return {"total": len(all_data), "data": all_data}
-
     else:
-        result = (
-            supabase.table("sensor_data")
-            .select("*")
-            .order("created_at", desc=True)
-            .range(offset, offset + limit - 1)
-            .execute()
-        )
+        result = supabase.table("sensor_data").select("*").order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         logger.info(f"GET /data — limit={limit} offset={offset} — {len(result.data)} registros")
-        return {
-            "total": len(result.data),
-            "offset": offset,
-            "limit": limit,
-            "data": result.data
-        }
+        return {"total": len(result.data), "offset": offset, "limit": limit, "data": result.data}
 
 @app.get("/data/latest")
 def get_latest():
+    # ── Postgres local ──
+    row = pg_fetch_one("SELECT * FROM sensor_data ORDER BY created_at DESC LIMIT 1")
+    if row:
+        logger.info("GET /data/latest ← Postgres local ✅")
+        return row
+
+    # ── Fallback Supabase ──
+    logger.warning("GET /data/latest ← fallback Supabase")
     supabase = get_supabase()
-    result = (
-        supabase.table("sensor_data")
-        .select("*")
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+    result = supabase.table("sensor_data").select("*").order("created_at", desc=True).limit(1).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="No hay datos disponibles")
     logger.info("GET /data/latest OK")
@@ -165,44 +189,58 @@ def sync():
 @app.get("/data/stats")
 def get_stats(limit: int = 100, start: Optional[str] = None, end: Optional[str] = None):
     try:
-        supabase = get_supabase()
+        # ── Postgres local ──
+        conditions, params = [], []
+        if start:
+            conditions.append("created_at >= %s")
+            params.append(start)
+        if end:
+            conditions.append("created_at <= %s")
+            params.append(end)
+        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+        order = "ASC" if (start and end) else "DESC"
+        limit_clause = "" if (start and end) else f"LIMIT {limit}"
 
+        rows = pg_fetch_all(
+            f"SELECT field1, field2, field3, created_at FROM sensor_data {where} ORDER BY created_at {order} {limit_clause}",
+            tuple(params)
+        )
+
+        if rows is not None:
+            logger.info("GET /data/stats ← Postgres local ✅")
+            if not rows:
+                raise HTTPException(status_code=404, detail="No hay datos")
+            def calc(field):
+                vals = [r[field] for r in rows if r.get(field) is not None]
+                if not vals: return None
+                return {
+                    "last":  round(vals[-1] if (start and end) else vals[0], 2),
+                    "min":   round(min(vals), 2),
+                    "max":   round(max(vals), 2),
+                    "avg":   round(sum(vals) / len(vals), 2),
+                    "count": len(vals),
+                }
+            return {"temperature": calc("field1"), "humidity": calc("field2"), "pressure": calc("field3")}
+
+        # ── Fallback Supabase ──
+        logger.warning("GET /data/stats ← fallback Supabase")
+        supabase = get_supabase()
         if start and end:
-            all_rows = []
-            page_size = 1000
-            offset = 0
+            all_rows, page_size, off = [], 1000, 0
             while True:
-                result = (
-                    supabase.table("sensor_data")
-                    .select("field1, field2, field3, created_at")
-                    .gte("created_at", start)
-                    .lte("created_at", end)
-                    .order("created_at", desc=False)
-                    .range(offset, offset + page_size - 1)
-                    .execute()
-                )
+                result = supabase.table("sensor_data").select("field1, field2, field3, created_at").gte("created_at", start).lte("created_at", end).order("created_at", desc=False).range(off, off + page_size - 1).execute()
                 all_rows.extend(result.data)
-                if len(result.data) < page_size:
-                    break
-                offset += page_size
+                if len(result.data) < page_size: break
+                off += page_size
             rows = all_rows
         else:
-            result = (
-                supabase.table("sensor_data")
-                .select("field1, field2, field3, created_at")
-                .order("created_at", desc=True)
-                .limit(limit)
-                .execute()
-            )
+            result = supabase.table("sensor_data").select("field1, field2, field3, created_at").order("created_at", desc=True).limit(limit).execute()
             rows = result.data
-
         if not rows:
             raise HTTPException(status_code=404, detail="No hay datos")
-
         def calc_stats(field):
             values = [r[field] for r in rows if r.get(field) is not None]
-            if not values:
-                return None
+            if not values: return None
             return {
                 "last":  round(values[-1] if (start and end) else values[0], 2),
                 "min":   round(min(values), 2),
@@ -210,13 +248,8 @@ def get_stats(limit: int = 100, start: Optional[str] = None, end: Optional[str] 
                 "avg":   round(sum(values) / len(values), 2),
                 "count": len(values),
             }
-
         logger.info(f"GET /data/stats — start={start} end={end} limit={limit}")
-        return {
-            "temperature": calc_stats("field1"),
-            "humidity":    calc_stats("field2"),
-            "pressure":    calc_stats("field3"),
-        }
+        return {"temperature": calc_stats("field1"), "humidity": calc_stats("field2"), "pressure": calc_stats("field3")}
 
     except HTTPException:
         raise
@@ -287,19 +320,20 @@ def get_sensors():
 @app.get("/alerts")
 async def get_alerts(limit: int = 50):
     """Últimas alertas de Telegram."""
-    supabase = get_supabase()  # <- USAR get_supabase()
-    result = supabase.table("alert_history") \
-        .select("*") \
-        .order("created_at", desc=True) \
-        .limit(limit) \
-        .execute()
-    return result.data
+    # ── Postgres local ──
+    rows = pg_fetch_all(
+        "SELECT * FROM alert_history ORDER BY created_at DESC LIMIT %s",
+        (limit,)
+    )
+    if rows is not None:
+        logger.info(f"GET /alerts ← Postgres local ✅ ({len(rows)} alertas)")
+        return rows
 
-DATA_CACHE = {
-    "timestamp": 0,
-    "days": 0,
-    "data": []
-}
+    # ── Fallback Supabase ──
+    logger.warning("GET /alerts ← fallback Supabase")
+    supabase = get_supabase()
+    result = supabase.table("alert_history").select("*").order("created_at", desc=True).limit(limit).execute()
+    return result.data
 
 # Candado para evitar estampidas de peticiones simultáneas
 cache_lock = threading.Lock()
@@ -326,38 +360,43 @@ def get_cached_sensor_data(days: int):
             return filtered_data
         
         # EAGER LOADING: Si vamos a descargar, bajamos al menos 60 días para llenar el tanque de una vez
-        download_days = max(days, 60)
-        logger.info(f"☁️ CACHÉ MISS: El tanque está vacío o caducó. Descargando {download_days} días...")
-        
-        supabase = get_supabase()
+        logger.info(f"☁️ CACHÉ MISS: descargando {download_days} días...")
         from datetime import datetime, timedelta, timezone
         since = (datetime.now(timezone.utc) - timedelta(days=download_days)).isoformat()
 
-        all_rows = []
-        page_size = 1000
-        offset = 0
-        while True:
-            result = (
-                supabase.table("sensor_data")
-                .select("created_at, field1, field2, field3")
-                .gte("created_at", since)
-                .order("created_at", desc=False)
-                .range(offset, offset + page_size - 1)
-                .execute()
-            )
-            all_rows.extend(result.data)
-            if len(result.data) < page_size:
-                break
-            offset += page_size
-            time.sleep(0.1) # Pausa anti-Cloudflare
+        # ── Postgres local ──
+        all_rows = pg_fetch_all(
+            "SELECT created_at, field1, field2, field3 FROM sensor_data WHERE created_at >= %s ORDER BY created_at ASC",
+            (since,)
+        )
 
-        # Actualizamos la memoria global con el tanque lleno
+        if all_rows is None:
+            # ── Fallback Supabase ──
+            logger.warning("get_cached_sensor_data ← fallback Supabase")
+            supabase = get_supabase()
+            all_rows = []
+            page_size = 1000
+            offset = 0
+            while True:
+                result = (
+                    supabase.table("sensor_data")
+                    .select("created_at, field1, field2, field3")
+                    .gte("created_at", since)
+                    .order("created_at", desc=False)
+                    .range(offset, offset + page_size - 1)
+                    .execute()
+                )
+                all_rows.extend(result.data)
+                if len(result.data) < page_size:
+                    break
+                offset += page_size
+                time.sleep(0.1)
+
         DATA_CACHE["timestamp"] = current_time
-        DATA_CACHE["days"] = download_days
-        DATA_CACHE["data"] = all_rows
-        
-        # Si la gráfica que llamó pedía menos de lo que descargamos, lo recortamos antes de enviárselo
-        cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        DATA_CACHE["days"]      = download_days
+        DATA_CACHE["data"]      = all_rows
+
+        cutoff_date   = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
         filtered_data = [row for row in all_rows if row["created_at"] >= cutoff_date]
         return filtered_data
 
