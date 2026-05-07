@@ -8,34 +8,40 @@ import pytz
 
 logger = logging.getLogger("nexus.notifier")
 
-TELEGRAM_TOKEN   = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 THRESHOLDS = {
-    "temperature": {"above": 23.0, "below": 21.0},
-    "humidity":    {"above": 70.0, "below": 48.0},
-    "pressure":    {"above": 755.0, "below": 750.0},
+    "temperature": {"above": 24.0, "below": 21.0},
+    "humidity":    {"above": 75.0, "below": 45.0},
+    "pressure":    {"above": 758.0, "below": 748.0},
+}
+
+# Histéresis: el valor debe alejarse N unidades del umbral para "restablecido"
+HYSTERESIS = {
+    "temperature": 1.0,
+    "humidity":    2.0,
+    "pressure":    3.0,
 }
 
 COOLDOWN_MINUTES = 30
 
 SENSOR_LABELS = {
     "temperature": ("🌡️", "Temperatura", "°C",  "field1"),
-    "humidity":    ("💧", "Humedad",      "%",   "field2"),
-    "pressure":    ("🔵", "Presión",      "hPa", "field3"),
+    "humidity":    ("💧", "Humedad",     "%",   "field2"),
+    "pressure":    ("🔵", "Presión",     "hPa", "field3"),
 }
 
-# ── Estado en memoria: evita re-alertar sin restored previo ──────────────────
-# Valores posibles por sensor: "ok" | "above" | "below"
+# ── Estado en memoria ────────────────────────────────────────────────────────
 _sensor_state: dict[str, str] = {
     "temperature": "ok",
     "humidity":    "ok",
     "pressure":    "ok",
 }
 
-# ── Estado watchdog: silencio de datos ──────────────────────────────────────
-SILENCE_THRESHOLD_MINUTES = 10   # minutos sin datos para alertar
-_watchdog_state: str = "ok"      # "ok" | "silent"
+# ── Estado watchdog ──────────────────────────────────────────────────────────
+SILENCE_THRESHOLD_MINUTES = 10
+_watchdog_state: str = "ok"
 
 
 async def send_telegram(message: str) -> bool:
@@ -47,7 +53,7 @@ async def send_telegram(message: str) -> bool:
                 "text": message,
                 "parse_mode": "HTML"
             }, timeout=10)
-        r.raise_for_status()
+            r.raise_for_status()
         logger.info(f"Telegram enviado: {message[:60]}...")
         return True
     except Exception as e:
@@ -93,13 +99,13 @@ def _save_alert(sensor: str, value: float, threshold: float,
         "created_at": now_iso,
     }
 
-    # Postgres local
+    # Postgres local (sin cambios)
     try:
         conn = get_pg()
-        cur  = conn.cursor()
+        cur = conn.cursor()
         cur.execute("""
             INSERT INTO alert_history
-                (created_at, sensor, value, threshold, direction, message)
+            (created_at, sensor, value, threshold, direction, message)
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (now_iso, sensor, value, threshold, direction, message))
         conn.commit()
@@ -115,19 +121,14 @@ def _save_alert(sensor: str, value: float, threshold: float,
     except Exception as e:
         logger.error(f"Error guardando alerta en Supabase: {e}")
 
+
 async def check_silence(last_received: datetime | None) -> None:
-    """
-    Llama a esto cada 2 min desde el scheduler.
-    Alerta si llevan >= SILENCE_THRESHOLD_MINUTES sin datos nuevos.
-    Avisa cuando se restablecen.
-    """
     global _watchdog_state
 
     bogota_tz = pytz.timezone("America/Bogota")
     now_bogota = datetime.now(bogota_tz)
     timestamp_str = now_bogota.strftime("%Y-%m-%d %H:%M")
 
-    # Servidor recién arrancó — no hay dato previo aún, no alertar
     if last_received is None:
         return
 
@@ -140,8 +141,8 @@ async def check_silence(last_received: datetime | None) -> None:
             return
 
         msg = (
-            f"📡 <b>NEXUS — Sin datos</b>\n"
-            f"⏱ Llevan <b>{int(elapsed)} min</b> sin recibirse lecturas.\n"
+            f"📡 NEXUS — Sin datos\n"
+            f"⏱ Llevan {int(elapsed)} min sin recibirse lecturas.\n"
             f"Último dato: {last_received.strftime('%Y-%m-%d %H:%M')} UTC\n"
             f"📍 Bogotá — {timestamp_str} COT\n"
             f"Verifica el ESP32 o ThingSpeak."
@@ -156,7 +157,7 @@ async def check_silence(last_received: datetime | None) -> None:
     else:
         if _watchdog_state == "silent":
             msg = (
-                f"✅ <b>NEXUS — Datos restablecidos</b>\n"
+                f"✅ NEXUS — Datos restablecidos\n"
                 f"📥 Se recibieron lecturas nuevamente.\n"
                 f"📍 Bogotá — {timestamp_str} COT"
             )
@@ -179,12 +180,13 @@ async def check_and_notify(record: dict):
             continue
 
         emoji, label, unit, _ = SENSOR_LABELS[sensor]
-        limits = THRESHOLDS[sensor]
-        bogota_tz = pytz.timezone('America/Bogota')
-        now_bogota = datetime.now(bogota_tz)
-        timestamp_str = now_bogota.strftime('%Y-%m-%d %H:%M')
+        limits        = THRESHOLDS[sensor]
+        hyst          = HYSTERESIS[sensor]
+        bogota_tz     = pytz.timezone("America/Bogota")
+        now_bogota    = datetime.now(bogota_tz)
+        timestamp_str = now_bogota.strftime("%Y-%m-%d %H:%M")
 
-        # ── Determinar estado actual del valor ───────────────────────────────
+        # ── Determinar estado actual ──────────────────────────────────────
         if value > limits["above"]:
             current = "above"
         elif value < limits["below"]:
@@ -194,13 +196,9 @@ async def check_and_notify(record: dict):
 
         prev_state = _sensor_state[sensor]
 
-        # ── FUERA DE RANGO ────────────────────────────────────────────────────
+        # ── FUERA DE RANGO ────────────────────────────────────────────────
         if current != "ok":
-            # Solo alerta si:
-            # 1. El estado anterior era "ok" (no re-alertar sin restored previo)
-            # 2. O el estado anterior era igual pero el cooldown ya expiró
             already_alerting = (prev_state == current)
-
             if already_alerting and _in_cooldown(sensor, current):
                 logger.info(f"Alerta {sensor}/{current} en cooldown, omitida")
                 continue
@@ -212,15 +210,21 @@ async def check_and_notify(record: dict):
                 f"Umbral: {current} {limits[current]} {unit}\n"
                 f"📍 Bogotá — {timestamp_str} COT"
             )
-
             sent = await send_telegram(msg)
             if sent:
                 _save_alert(sensor, value, limits[current], current, msg)
-                _sensor_state[sensor] = current  # ← actualizar estado
+                _sensor_state[sensor] = current
 
-        # ── RESTABLECIDO ──────────────────────────────────────────────────────
+        # ── RESTABLECIDO con histéresis ───────────────────────────────────
         elif current == "ok" and prev_state != "ok":
-            # Solo enviar si NO hay un "restored" reciente (evita duplicados)
+            # Exigir que el valor se aleje del umbral antes de notificar
+            if prev_state == "above" and value > (limits["above"] - hyst):
+                logger.info(f"{sensor} en zona de histéresis ({value:.1f}), esperando...")
+                continue
+            if prev_state == "below" and value < (limits["below"] + hyst):
+                logger.info(f"{sensor} en zona de histéresis ({value:.1f}), esperando...")
+                continue
+
             if _in_cooldown(sensor, "restored"):
                 logger.info(f"Restored {sensor} en cooldown, omitido")
                 continue
@@ -230,8 +234,7 @@ async def check_and_notify(record: dict):
                 f"📥 {value:.1f} {unit} (en rango)\n"
                 f"📍 Bogotá — {timestamp_str} COT"
             )
-
             sent = await send_telegram(msg)
             if sent:
                 _save_alert(sensor, value, limits["above"], "restored", msg)
-                _sensor_state[sensor] = "ok"  # ← resetear estado
+                _sensor_state[sensor] = "ok"
