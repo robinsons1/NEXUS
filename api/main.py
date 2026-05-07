@@ -423,7 +423,8 @@ def get_heatmap(days: int = 30):
 
         for row in all_rows:
             try:
-                dt = datetime.fromisoformat(row["created_at"])
+                ca = row["created_at"]
+                dt = ca if hasattr(ca, 'hour') else datetime.fromisoformat(str(ca))
                 if dt.tzinfo is None:
                     dt = dt.replace(tzinfo=pytz.utc)
                 hour = dt.astimezone(bogota_tz).hour
@@ -473,7 +474,8 @@ def get_weekly(days: int = 60):
 
         for row in all_rows:
             try:
-                dt = datetime.fromisoformat(row["created_at"])
+                ca = row["created_at"]
+                dt = ca if hasattr(ca, 'hour') else datetime.fromisoformat(str(ca))
                 if dt.tzinfo is None:
                     dt = dt.replace(tzinfo=pytz.utc)
                 day = dt.astimezone(bogota_tz).weekday()
