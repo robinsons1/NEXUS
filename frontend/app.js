@@ -395,9 +395,9 @@ async function descargarCSV() {
 }
 
 const DEFAULT_THRESHOLDS = {
-    temp: { min: 21,   max: 23   },
-    hum:  { min: 48,   max: 70   },
-    pres: { min: 750, max: 755 }
+    temp: { min: 18, max: 28 },
+    hum:  { min: 35, max: 80 },
+    pres: { min: 720, max: 770 }
 };
 
 function loadThresholds() {
@@ -511,7 +511,24 @@ document.addEventListener("visibilitychange", () => {
 
 // ── Inicio ──
 applyTheme(localStorage.getItem("nexus_theme") || "dark");
-fillThresholdInputs(loadThresholds());
+
+// Cargar umbrales desde el backend; si falla, usar DEFAULT_THRESHOLDS
+(async () => {
+    try {
+        const res = await fetch(`${API}/config/thresholds`);
+        if (res.ok) {
+            const remote = await res.json();
+            // Solo sobreescribir si NO hay umbrales guardados manualmente
+            if (!localStorage.getItem("nexus_thresholds")) {
+                saveThresholds(remote);
+            }
+        }
+    } catch (e) {
+        console.warn("No se pudieron cargar umbrales del backend, usando locales:", e);
+    }
+    fillThresholdInputs(loadThresholds());
+})();
+
 loadData();
 loadAlerts();
 startAutoRefresh();

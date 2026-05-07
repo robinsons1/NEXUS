@@ -571,6 +571,15 @@ async def ingest(payload: SensorPayload):
     )
     return {"status": "ok", "message": "Dato guardado", "postgres": pg_ok}
 
+@app.get("/config/thresholds")
+def get_thresholds():
+    from fetch.notifier import THRESHOLDS
+    return {
+        "temp": {"min": THRESHOLDS["temperature"]["below"], "max": THRESHOLDS["temperature"]["above"]},
+        "hum":  {"min": THRESHOLDS["humidity"]["below"],    "max": THRESHOLDS["humidity"]["above"]},
+        "pres": {"min": THRESHOLDS["pressure"]["below"],    "max": THRESHOLDS["pressure"]["above"]},
+    }
+
 #Dejar al final
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app.mount("/", StaticFiles(directory=os.path.join(BASE_DIR, "frontend")), name="static")
