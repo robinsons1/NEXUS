@@ -12,9 +12,9 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 THRESHOLDS = {
-    "temperature": {"above": 24.0, "below": 21.0},
-    "humidity":    {"above": 75.0, "below": 45.0},
-    "pressure":    {"above": 758.0, "below": 748.0},
+    "temperature": {"above": 26.0, "below": 20.0},
+    "humidity":    {"above": 75.0, "below": 40.0},
+    "pressure":    {"above": 756.0, "below": 750.0},
 }
 
 # Histéresis: el valor debe alejarse N unidades del umbral para "restablecido"
