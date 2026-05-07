@@ -335,43 +335,44 @@ async def get_alerts(limit: int = 50):
     result = supabase.table("alert_history").select("*").order("created_at", desc=True).limit(limit).execute()
     return result.data
 
-# Candado para evitar estampidas de peticiones simultáneas
+# ── Caché en memoria ─────────────────────────────────────────────────────────
+DATA_CACHE = {
+    "timestamp": 0,
+    "days": 0,
+    "data": []
+}
 cache_lock = threading.Lock()
 
 def get_cached_sensor_data(days: int):
-    """Obtiene datos. Si el caché está vacío, descarga siempre 60 días para cubrir todo el dashboard."""
+    """Obtiene datos. Descarga siempre 60 días para cubrir todo el dashboard."""
     global DATA_CACHE
-    
+
     with cache_lock:
         current_time = time.time()
-        
-        # ¿Tenemos al menos los días solicitados y pasaron menos de 5 minutos (300 seg)?
+
+        # ── CACHÉ HIT ────────────────────────────────────────────────────────
         if DATA_CACHE["days"] >= days and (current_time - DATA_CACHE["timestamp"]) < 300:
             logger.info(f"⚡ CACHÉ HIT: Extrayendo {days} días (de {DATA_CACHE['days']} en memoria)")
-            
-            # Si piden exactamente lo mismo, devolver tal cual
             if DATA_CACHE["days"] == days:
                 return DATA_CACHE["data"]
-            
-            # Si piden menos, filtramos la lista en memoria (fracción de segundo)
             from datetime import datetime, timedelta, timezone
             cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-            filtered_data = [row for row in DATA_CACHE["data"] if row["created_at"] >= cutoff_date]
-            return filtered_data
-        
-        # EAGER LOADING: Si vamos a descargar, bajamos al menos 60 días para llenar el tanque de una vez
+            return [row for row in DATA_CACHE["data"] if row["created_at"] >= cutoff_date]
+
+        # ── CACHÉ MISS ───────────────────────────────────────────────────────
+        download_days = max(days, 60)
         logger.info(f"☁️ CACHÉ MISS: descargando {download_days} días...")
         from datetime import datetime, timedelta, timezone
         since = (datetime.now(timezone.utc) - timedelta(days=download_days)).isoformat()
 
-        # ── Postgres local ──
+        # Postgres local primero
         all_rows = pg_fetch_all(
             "SELECT created_at, field1, field2, field3 FROM sensor_data WHERE created_at >= %s ORDER BY created_at ASC",
             (since,)
         )
 
         if all_rows is None:
-            # ── Fallback Supabase ──
+            # Fallback Supabase
             logger.warning("get_cached_sensor_data ← fallback Supabase")
             supabase = get_supabase()
             all_rows = []
