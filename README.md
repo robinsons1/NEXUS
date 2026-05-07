@@ -4,13 +4,13 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 almacenamiento histórico en la nube, análisis de tendencias y sincronización automática.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
-🖥️ **Servidor local:** [https://lincoln-happening-accept-blog.trycloudflare.com/] (https://lincoln-happening-accept-blog.trycloudflare.com/)
+🖥️ **Servidor local:** [https://mutual-located-growth-athens.trycloudflare.com] (https://mutual-located-growth-athens.trycloudflare.com)
 
 ---
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.8.0
+> **En desarrollo activo** — Versión 0.9.0
 
 ---
 
@@ -42,6 +42,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - **Almacenamiento primario en PostgreSQL local** (Docker) — dual-write con fallback
 - **Recepción directa desde ESP32** via `POST /ingest` — sin depender de ThingSpeak
 - **Historial de alertas guardado en PostgreSQL local Y Supabase simultáneamente.**
+- **Backup automatizado a Google Drive** con rclone en contenedor Docker, cron diario a las 9:10 PM COT con notificación Telegram al completar.
+- **Fallback automático Postgres → Supabase** en todos los endpoints de lectura con caché en RAM (Eager Loading, 5 min TTL).
+- **Logs del cron visibles** en `docker logs rclone_sync` via redirección a `/proc/1/fd/1`.
 
 ---
 
@@ -101,10 +104,17 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Red Docker compartida (`nexus_net`) entre contenedores
 - [x] ESP32 envía datos a ThingSpeak Y al servidor local en paralelo
 
-### Fase 8 — Lectura desde local (PENDIENTE)
-- [ ] Migrar endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, etc.) a PostgreSQL local
-- [ ] Fallback automático a Supabase si Postgres local no está disponible
-- [ ] Migrar lectura de `/alerts` a Postgres local con fallback
+### Fase 8 — Lectura desde local ✅
+- [x] Todos los endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, `/data/heatmap`, `/data/weekly`, `/data/anomalies`, `/alerts`) leen desde PostgreSQL local
+- [x] Fallback automático a Supabase si Postgres local no está disponible
+- [x] Caché en RAM con Eager Loading — descarga 60 días de una vez, TTL 5 min, Thread Lock anti-stampede
+- [x] Compatible con `created_at` como `datetime` (Postgres) o `str` (Supabase) sin romper los endpoints
+
+### Fase 8.1 — Backup automatizado ✅
+- [x] Contenedor `rclone_sync` en Docker con credenciales OAuth2 Google Drive
+- [x] Cron diario 9:10 PM COT — sube backups de Postgres y Vaultwarden a `NEXUS-Backups/` en Drive
+- [x] Notificación Telegram al completar con conteo de archivos nuevos y total en Drive
+- [x] Logs del cron visibles en `docker logs rclone_sync`
 
 ### Fase 9 — Seguridad (PENDIENTE)
 - [ ] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura
@@ -153,6 +163,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | Notificaciones | Telegram Bot API |
 | Hosting actual | Render.com + Servidor doméstico (Debian 12) |
 | Túnel público | Cloudflare Tunnel (trycloudflare.com — temporal) |
+| Backup / Sync | rclone + Google Drive + Docker cron |
 
 ---
 
@@ -183,8 +194,10 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 
 ### Requisitos
 - Python 3.11+
+- Docker + Docker Compose
 - Canal en ThingSpeak
 - Cuenta en Supabase
+- Cuenta en Google Drive (para backup con rclone — opcional)
 
 ### Pasos
 
