@@ -357,7 +357,7 @@ def get_cached_sensor_data(days: int):
                 return DATA_CACHE["data"]
             from datetime import datetime, timedelta, timezone
             cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-            return [row for row in DATA_CACHE["data"] if row["created_at"] >= cutoff_date]
+            return [row for row in DATA_CACHE["data"] if str(row["created_at"]) >= cutoff_date]
 
         # ── CACHÉ MISS ───────────────────────────────────────────────────────
         download_days = max(days, 60)
@@ -398,7 +398,7 @@ def get_cached_sensor_data(days: int):
         DATA_CACHE["data"]      = all_rows
 
         cutoff_date   = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-        filtered_data = [row for row in all_rows if row["created_at"] >= cutoff_date]
+        filtered_data = [row for row in all_rows if str(row["created_at"]) >= cutoff_date]
         return filtered_data
 
 @app.get("/analytics")
