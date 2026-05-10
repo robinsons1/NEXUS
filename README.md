@@ -46,6 +46,8 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - **Fallback automático Postgres → Supabase** en todos los endpoints de lectura con caché en RAM (Eager Loading, 5 min TTL).
 - **Logs del cron visibles** en `docker logs rclone_sync` via redirección a `/proc/1/fd/1`.
 - Protección de escritura en `POST /ingest` mediante `X-API-Key` header — solo el ESP32 autorizado puede insertar datos
+- Caché incremental — primera carga descarga 60 días, actualizaciones posteriores solo traen registros nuevos desde el último `created_at`
+- Endpoint `GET /status` — estado en tiempo real de PostgreSQL local y Supabase con conteo de registros y detección de desincronización
 
 ---
 
@@ -116,6 +118,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Cron diario 9:10 PM COT — sube backups de Postgres y Vaultwarden a `NEXUS-Backups/` en Drive
 - [x] Notificación Telegram al completar con conteo de archivos nuevos y total en Drive
 - [x] Logs del cron visibles en `docker logs rclone_sync`
+
+### Fase 8.2 — Optimización de caché (incremental)
+- [x] Caché incremental — descarga solo registros nuevos tras la carga inicial
 
 ### Fase 9 — Seguridad
 - [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
@@ -188,6 +193,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | `/docs` | GET | Documentación Swagger |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
 | `ingest` | POST | Recepción directa desde ESP32 — requiere header `X-API-Key` |
+| `status` | GET | Estado en tiempo real de ambas BDs — registros, diff y flag `in_sync` |
 
 ---
 
