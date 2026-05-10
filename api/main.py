@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Header  
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -563,9 +563,20 @@ class SensorPayload(BaseModel):
     field2: float           # Humedad DHT11 (%)
     field3: float | None = None  # Presión BMP280 (hPa) — opcional
 
+
+INGEST_API_KEY = os.getenv("INGEST_API_KEY")
+
 @app.post("/ingest")
-async def ingest(payload: SensorPayload):
+async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
     """Recibe datos de la ESP32. Escribe en Postgres local Y Supabase."""
+
+    # ── Validación API Key ──────────────────────────────────
+    if not INGEST_API_KEY:
+        logger.warning("⚠️ INGEST_API_KEY no configurada — endpoint desprotegido")
+    elif x_api_key != INGEST_API_KEY:
+        logger.warning(f"🚫 /ingest bloqueado — API Key inválida")
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
     now_iso = datetime.now(timezone.utc).isoformat()
     row_dict = {
         "field1": payload.field1,
