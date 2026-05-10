@@ -654,6 +654,7 @@ async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
         "field2": payload.field2,
         "field3": payload.field3,
         "created_at": now_iso,
+        "tenant_id": "default",
     }
 
     # ── Postgres local (primero) ───────────────────────────────
@@ -662,10 +663,10 @@ async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
         conn = get_pg()
         cur  = conn.cursor()
         cur.execute("""
-            INSERT INTO sensor_data (created_at, field1, field2, field3)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO sensor_data (created_at, field1, field2, field3, tenant_id)
+            VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT (created_at) DO NOTHING
-        """, (now_iso, payload.field1, payload.field2, payload.field3))
+        """, (now_iso, payload.field1, payload.field2, payload.field3, "default"))
         conn.commit()
         cur.close()
         release_pg(conn)
