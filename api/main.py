@@ -381,41 +381,76 @@ DATA_CACHE = {
 }
 cache_lock = threading.Lock()
 
+# ── Caché en memoria ─────────────────────────────────────────────────────────
+DATA_CACHE = {
+    "timestamp": 0,
+    "days": 0,
+    "data": [],
+    "last_created_at": None   # ← nuevo campo
+}
+cache_lock = threading.Lock()
+
 def get_cached_sensor_data(days: int):
-    """Obtiene datos. Descarga siempre 60 días para cubrir todo el dashboard."""
+    """Caché incremental: primera vez descarga 60 días, luego solo registros nuevos."""
     global DATA_CACHE
 
     with cache_lock:
         current_time = time.time()
-
-        # ── CACHÉ HIT ────────────────────────────────────────────────────────
-        if DATA_CACHE["days"] >= days and (current_time - DATA_CACHE["timestamp"]) < 300:
-            logger.info(f"⚡ CACHÉ HIT: Extrayendo {days} días (de {DATA_CACHE['days']} en memoria)")
-            if DATA_CACHE["days"] == days:
-                return DATA_CACHE["data"]
-            from datetime import datetime, timedelta, timezone
-            cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-            return [row for row in DATA_CACHE["data"] if str(row["created_at"]) >= cutoff_date]
-
-        # ── CACHÉ MISS ───────────────────────────────────────────────────────
-        download_days = max(days, 60)
-        logger.info(f"☁️ CACHÉ MISS: descargando {download_days} días...")
         from datetime import datetime, timedelta, timezone
-        since = (datetime.now(timezone.utc) - timedelta(days=download_days)).isoformat()
 
-        # Postgres local primero
+        # ── CACHÉ HIT: datos frescos (menos de 5 min) ────────────────────────
+        if DATA_CACHE["days"] >= days and (current_time - DATA_CACHE["timestamp"]) < 300:
+            logger.info(f"⚡ CACHÉ HIT: {len(DATA_CACHE['data'])} registros en memoria")
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+            return [r for r in DATA_CACHE["data"] if str(r["created_at"]) >= cutoff]
+
+        # ── CACHÉ INCREMENTAL: ya tenemos datos, solo traer los nuevos ────────
+        if DATA_CACHE["data"] and DATA_CACHE["last_created_at"]:
+            since = DATA_CACHE["last_created_at"]
+            logger.info(f"🔄 CACHÉ INCREMENTAL: descargando desde {since}...")
+
+            new_rows = pg_fetch_all(
+                "SELECT created_at, field1, field2, field3 FROM sensor_data "
+                "WHERE created_at > %s ORDER BY created_at ASC",
+                (since,)
+            )
+
+            if new_rows is None:  # fallback Supabase
+                logger.warning("get_cached_sensor_data incremental ← fallback Supabase")
+                try:
+                    sb = get_supabase()
+                    res = sb.table("sensor_data") \
+                        .select("created_at, field1, field2, field3") \
+                        .gt("created_at", since) \
+                        .order("created_at", desc=False).execute()
+                    new_rows = res.data
+                except Exception:
+                    new_rows = []
+
+            if new_rows:
+                DATA_CACHE["data"].extend(new_rows)
+                DATA_CACHE["last_created_at"] = str(new_rows[-1]["created_at"])
+                logger.info(f"🔄 INCREMENTAL: +{len(new_rows)} nuevos — total {len(DATA_CACHE['data'])}")
+
+            DATA_CACHE["timestamp"] = current_time
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+            return [r for r in DATA_CACHE["data"] if str(r["created_at"]) >= cutoff]
+
+        # ── CACHÉ MISS INICIAL: primera carga, descarga 60 días completos ─────
+        download_days = max(days, 60)
+        since = (datetime.now(timezone.utc) - timedelta(days=download_days)).isoformat()
+        logger.info(f"☁️ CACHÉ MISS INICIAL: descargando {download_days} días...")
+
         all_rows = pg_fetch_all(
-            "SELECT created_at, field1, field2, field3 FROM sensor_data WHERE created_at >= %s ORDER BY created_at ASC",
+            "SELECT created_at, field1, field2, field3 FROM sensor_data "
+            "WHERE created_at >= %s ORDER BY created_at ASC",
             (since,)
         )
 
-        if all_rows is None:
-            # Fallback Supabase
-            logger.warning("get_cached_sensor_data ← fallback Supabase")
+        if all_rows is None:  # fallback Supabase
+            logger.warning("get_cached_sensor_data inicial ← fallback Supabase")
             supabase = get_supabase()
-            all_rows = []
-            page_size = 1000
-            offset = 0
+            all_rows, page_size, offset = [], 1000, 0
             while True:
                 result = (
                     supabase.table("sensor_data")
@@ -431,14 +466,14 @@ def get_cached_sensor_data(days: int):
                 offset += page_size
                 time.sleep(0.1)
 
-        DATA_CACHE["timestamp"] = current_time
-        DATA_CACHE["days"]      = download_days
-        DATA_CACHE["data"]      = all_rows
+        DATA_CACHE["timestamp"]       = current_time
+        DATA_CACHE["days"]            = download_days
+        DATA_CACHE["data"]            = all_rows
+        DATA_CACHE["last_created_at"] = str(all_rows[-1]["created_at"]) if all_rows else None
 
-        cutoff_date   = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-        filtered_data = [row for row in all_rows if str(row["created_at"]) >= cutoff_date]
-        return filtered_data
-
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        return [r for r in all_rows if str(r["created_at"]) >= cutoff]
+    
 @app.get("/analytics")
 def analytics_page():
     import os
