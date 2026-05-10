@@ -48,6 +48,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - Protección de escritura en `POST /ingest` mediante `X-API-Key` header — solo el ESP32 autorizado puede insertar datos
 - Caché incremental — primera carga descarga 60 días, actualizaciones posteriores solo traen registros nuevos desde el último `created_at`
 - Endpoint `GET /status` — estado en tiempo real de PostgreSQL local y Supabase con conteo de registros y detección de desincronización
+- `tenant_id` en `sensor_data` y `alert_history` — columna multi-tenant preparada, valor `'default'` en PostgreSQL local y Supabase
 
 ---
 
@@ -119,8 +120,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Notificación Telegram al completar con conteo de archivos nuevos y total en Drive
 - [x] Logs del cron visibles en `docker logs rclone_sync`
 
-### Fase 8.2 — Optimización de caché (incremental)
+### Fase 8.2 — Optimización de caché (incremental) y Multi-tenant preparación
 - [x] Caché incremental — descarga solo registros nuevos tras la carga inicial
+- [x] Columna `tenant_id TEXT DEFAULT 'default'` en `sensor_data` y `alert_history` — PostgreSQL local y Supabase ✅
 
 ### Fase 9 — Seguridad
 - [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
@@ -161,7 +163,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 |---|---|
 | Sensores / Fuente | ESP32-S3 + DHT11 + BMP280 |
 | Envío de datos | ThingSpeak (buffer) + POST directo al servidor local |
-| Base de datos primaria | PostgreSQL local (Docker `nexus_postgres`) |
+| Base de datos primaria | PostgreSQL local Docker `nexus_postgres` — multi-tenant ready (`tenant_id`) |
 | Base de datos respaldo | Supabase (PostgreSQL cloud) |
 | Backend API | Python + FastAPI |
 | Frontend | HTML5 + CSS3 + Vanilla JS + Plotly.js |
