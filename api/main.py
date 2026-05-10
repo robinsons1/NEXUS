@@ -91,7 +91,7 @@ atexit.register(lambda: scheduler.shutdown(wait=False))
 @app.get("/robots.txt", include_in_schema=False)
 def robots():
     return PlainTextResponse(
-        "User-agent: *\nDisallow: /data\nDisallow: /sync\nAllow: /\n"
+        "User-agent: *\nDisallow: /data\nDisallow: /sync\nDisallow: /ingest\nDisallow: /alerts\nAllow: /\n"
     )
 
 @app.get("/")
@@ -104,6 +104,44 @@ def root():
 def health():
     logger.info("Health check OK")
     return JSONResponse({"status": "ok"})
+
+@app.get("/status")
+def get_status():
+    """Estado en tiempo real de ambas bases de datos."""
+    result = {
+        "postgres_local": {"ok": False, "records": None, "error": None},
+        "supabase":       {"ok": False, "records": None, "error": None},
+    }
+
+    # ── Postgres local ──
+    try:
+        row = pg_fetch_one("SELECT COUNT(*) AS total FROM sensor_data")
+        result["postgres_local"]["ok"]      = True
+        result["postgres_local"]["records"] = row["total"] if row else 0
+    except Exception as e:
+        result["postgres_local"]["error"] = str(e)
+
+    # ── Supabase ──
+    try:
+        sb  = get_supabase()
+        res = sb.table("sensor_data").select("id", count="exact").limit(1).execute()
+        result["supabase"]["ok"]      = True
+        result["supabase"]["records"] = res.count
+    except Exception as e:
+        result["supabase"]["error"] = str(e)
+
+    # ── Diferencia de registros ──
+    pg_total = result["postgres_local"]["records"]
+    sb_total = result["supabase"]["records"]
+    if pg_total is not None and sb_total is not None:
+        result["diff"] = abs(pg_total - sb_total)
+        result["in_sync"] = result["diff"] < 10  # margen de tolerancia
+    else:
+        result["diff"]    = None
+        result["in_sync"] = False
+
+    logger.info(f"GET /status — PG:{pg_total} SB:{sb_total} diff:{result.get('diff')}")
+    return result
 
 
 @app.get("/dashboard")
