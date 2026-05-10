@@ -571,10 +571,8 @@ async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
     """Recibe datos de la ESP32. Escribe en Postgres local Y Supabase."""
 
     # ── Validación API Key ──────────────────────────────────
-    if not INGEST_API_KEY:
-        logger.warning("⚠️ INGEST_API_KEY no configurada — endpoint desprotegido")
-    elif x_api_key != INGEST_API_KEY:
-        logger.warning(f"🚫 /ingest bloqueado — API Key inválida")
+    if x_api_key != INGEST_API_KEY:
+        logger.warning("🚫 /ingest bloqueado — API Key inválida o ausente")
         raise HTTPException(status_code=403, detail="Forbidden")
     
     now_iso = datetime.now(timezone.utc).isoformat()

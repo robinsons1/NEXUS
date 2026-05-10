@@ -45,6 +45,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - **Backup automatizado a Google Drive** con rclone en contenedor Docker, cron diario a las 9:10 PM COT con notificación Telegram al completar.
 - **Fallback automático Postgres → Supabase** en todos los endpoints de lectura con caché en RAM (Eager Loading, 5 min TTL).
 - **Logs del cron visibles** en `docker logs rclone_sync` via redirección a `/proc/1/fd/1`.
+- Protección de escritura en `POST /ingest` mediante `X-API-Key` header — solo el ESP32 autorizado puede insertar datos
 
 ---
 
@@ -116,8 +117,8 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Notificación Telegram al completar con conteo de archivos nuevos y total en Drive
 - [x] Logs del cron visibles en `docker logs rclone_sync`
 
-### Fase 9 — Seguridad (PENDIENTE)
-- [ ] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura
+### Fase 9 — Seguridad
+- [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
 - [ ] JWT para endpoints de lectura — proteger dashboard
 - [ ] Cloudflare Access como capa de red antes del servidor
 
@@ -186,7 +187,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | `/health` | GET/HEAD | Health check |
 | `/docs` | GET | Documentación Swagger |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
-| `/ingest` | POST | Recepción directa desde ESP32 (JSON: field1, field2, field3) |
+| `ingest` | POST | Recepción directa desde ESP32 — requiere header `X-API-Key` |
 
 ---
 
@@ -215,7 +216,7 @@ pip install -r requirements.txt
 
 # Configurar variables de entorno
 cp .env.example .env
-# Agregar: THINGSPEAK_CHANNEL_ID, API_KEY, SUPABASE_URL, SUPABASE_KEY
+# Agregar `THINGSPEAK_CHANNEL_ID`, `API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `INGEST_API_KEY`
 ```
 
 ### Correr localmente
