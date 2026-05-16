@@ -13,18 +13,20 @@ logger = logging.getLogger("nexus.router.data")
 @router.get("/data")
 def get_data(limit: int = 100, offset: int = 0, start: str = None, end: str = None):
     # ── Postgres local ──
-    if start or end:
-        conditions, params = [], []
-        if start:
-            conditions.append("created_at >= %s")
-            params.append(start)
-        if end:
-            conditions.append("created_at <= %s")
-            params.append(end)
-        where = "WHERE " + " AND ".join(conditions)
+    if start and end:
         rows = pg_fetch_all(
-            f"SELECT * FROM sensor_data {where} ORDER BY created_at DESC",
-            tuple(params)
+            "SELECT * FROM sensor_data WHERE created_at >= %s AND created_at <= %s ORDER BY created_at DESC",
+            (start, end)
+        )
+    elif start:
+        rows = pg_fetch_all(
+            "SELECT * FROM sensor_data WHERE created_at >= %s ORDER BY created_at DESC",
+            (start,)
+        )
+    elif end:
+        rows = pg_fetch_all(
+            "SELECT * FROM sensor_data WHERE created_at <= %s ORDER BY created_at DESC",
+            (end,)
         )
     else:
         rows = pg_fetch_all(
@@ -77,21 +79,26 @@ def get_latest():
 def get_stats(limit: int = 100, start: Optional[str] = None, end: Optional[str] = None):
     try:
         # ── Postgres local ──
-        conditions, params = [], []
-        if start:
-            conditions.append("created_at >= %s")
-            params.append(start)
-        if end:
-            conditions.append("created_at <= %s")
-            params.append(end)
-        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
-        order = "ASC" if (start and end) else "DESC"
-        limit_clause = "" if (start and end) else f"LIMIT {limit}"
-
-        rows = pg_fetch_all(
-            f"SELECT field1, field2, field3, created_at FROM sensor_data {where} ORDER BY created_at {order} {limit_clause}",
-            tuple(params)
-        )
+        if start and end:
+            rows = pg_fetch_all(
+                "SELECT field1, field2, field3, created_at FROM sensor_data WHERE created_at >= %s AND created_at <= %s ORDER BY created_at ASC",
+                (start, end)
+            )
+        elif start:
+            rows = pg_fetch_all(
+                "SELECT field1, field2, field3, created_at FROM sensor_data WHERE created_at >= %s ORDER BY created_at DESC LIMIT %s",
+                (start, limit)
+            )
+        elif end:
+            rows = pg_fetch_all(
+                "SELECT field1, field2, field3, created_at FROM sensor_data WHERE created_at <= %s ORDER BY created_at DESC LIMIT %s",
+                (end, limit)
+            )
+        else:
+            rows = pg_fetch_all(
+                "SELECT field1, field2, field3, created_at FROM sensor_data ORDER BY created_at DESC LIMIT %s",
+                (limit,)
+            )
 
         if rows is not None:
             logger.info("GET /data/stats ← Postgres local ✅")
