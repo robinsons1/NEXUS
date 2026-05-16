@@ -159,6 +159,9 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [ ] Endpoint `/sync/status` — retorna cuántos registros tienen `synced_to_supabase = FALSE`
 - [ ] Alerta Telegram si hay más de N registros pendientes de sync por más de 1 hora
 
+#### 11.4 - Alertas desde base de datos
+- [ ] Antes de realizar una alerta revise si ya fue enviada, no con datos en python, sino con datos de la base de datos
+
 ---
 
 ## 🛠️ Stack tecnológico
