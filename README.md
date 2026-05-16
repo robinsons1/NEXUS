@@ -124,6 +124,10 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Caché incremental — descarga solo registros nuevos tras la carga inicial
 - [x] Columna `tenant_id TEXT DEFAULT 'default'` en `sensor_data` y `alert_history` — PostgreSQL local y Supabase ✅
 
+### Fase 8.3 — Refactorización y Arquitectura ✅
+- [x] Modularización de `api/main.py` utilizando `APIRouter` de FastAPI.
+- [x] Separación de responsabilidades en `routers/` (analytics, data, ingest, system) y `services/` (cache, db_helpers).
+
 ### Fase 9 — Seguridad
 - [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
 - [ ] JWT para endpoints de lectura — proteger dashboard
@@ -243,7 +247,9 @@ python -m uvicorn api.main:app --reload
 
 ```
 ├── api/
-│   └── main.py                  # FastAPI backend, caché, /ingest dual-write
+│   ├── routers/                 # Rutas modulares (analytics, data, ingest, system)
+│   ├── services/                # Lógica de caché y helpers de base de datos
+│   └── main.py                  # FastAPI app principal e inicialización
 ├── fetch/
 │   ├── sync.py                  # Sincronización ThingSpeak → Supabase
 │   ├── notifier.py              # Alertas Telegram + dual-write alert_history
