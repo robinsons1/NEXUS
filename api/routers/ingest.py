@@ -48,21 +48,29 @@ async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
 
     # ── Postgres local (primario) ───────────────────────────────
     pg_ok = False
+    conn = None
     try:
         conn = get_pg()
         cur  = conn.cursor()
         cur.execute("""
             INSERT INTO sensor_data (created_at, field1, field2, field3, tenant_id, synced_to_supabase)
             VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (created_at) DO NOTHING
+            ON CONFLICT (created_at, tenant_id) DO NOTHING
         """, (now_iso, payload.field1, payload.field2, payload.field3, "default", synced_to_supabase))
         conn.commit()
         cur.close()
-        release_pg(conn)
         pg_ok = True
         logger.info(f"POST /ingest → Postgres local OK ✅ (synced={synced_to_supabase})")
     except Exception:
         logger.error("POST /ingest → Postgres local FAIL ❌", exc_info=True)
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+    finally:
+        if conn:
+            release_pg(conn)
 
     # ── Watchdog + invalidar caché ─────────────────────────────
     update_last_received()
