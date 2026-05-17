@@ -11,11 +11,11 @@ def push_reconciliation():
     Los inserta (upsert) en Supabase por lotes y luego marca TRUE en local.
     """
     logger.info("Iniciando PUSH de reconciliación...")
-    push_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"])
-    push_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message"])
+    push_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], on_conflict="created_at")
+    push_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message"], on_conflict=None)
     logger.info("Finalizado PUSH de reconciliación.")
 
-def push_table_data(table_name: str, columns: list[str]):
+def push_table_data(table_name: str, columns: list[str], on_conflict: str | None = "created_at"):
     conn = get_pg()
     if not conn:
         return
@@ -47,7 +47,10 @@ def push_table_data(table_name: str, columns: list[str]):
                 created_ats.append(record["created_at"])
                 
             try:
-                get_supabase().table(table_name).upsert(records, on_conflict="created_at").execute()
+                if on_conflict:
+                    get_supabase().table(table_name).upsert(records, on_conflict=on_conflict).execute()
+                else:
+                    get_supabase().table(table_name).insert(records).execute()
                 
                 # Marcar como sincronizados en Postgres
                 format_strings = ','.join(['%s'] * len(created_ats))
