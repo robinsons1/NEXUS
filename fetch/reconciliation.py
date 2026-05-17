@@ -11,8 +11,8 @@ def push_reconciliation():
     Los inserta (upsert) en Supabase por lotes y luego marca TRUE en local.
     """
     logger.info("Iniciando PUSH de reconciliación...")
-    push_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], on_conflict="created_at")
-    push_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message"], on_conflict=None)
+    push_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], on_conflict="created_at,tenant_id")
+    push_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message", "tenant_id"], on_conflict="created_at,sensor,tenant_id")
     logger.info("Finalizado PUSH de reconciliación.")
 
 def push_table_data(table_name: str, columns: list[str], on_conflict: str | None = "created_at"):
@@ -80,11 +80,11 @@ def pull_reconciliation():
     now = datetime.now(timezone.utc)
     yesterday = (now - timedelta(days=1)).isoformat()
     
-    pull_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], yesterday, use_on_conflict=True)
-    pull_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message"], yesterday, use_on_conflict=False)
+    pull_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], yesterday, on_conflict="created_at, tenant_id")
+    pull_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message", "tenant_id"], yesterday, on_conflict="created_at, sensor, tenant_id")
     logger.info("Finalizado PULL de reconciliación.")
 
-def pull_table_data(table_name: str, columns: list[str], since_iso: str, use_on_conflict: bool):
+def pull_table_data(table_name: str, columns: list[str], since_iso: str, on_conflict: str):
     try:
         res = get_supabase().table(table_name).select("*").gte("created_at", since_iso).execute()
         records = res.data
@@ -105,23 +105,13 @@ def pull_table_data(table_name: str, columns: list[str], since_iso: str, use_on_
                 vals_str = ", ".join(["%s"] * len(columns))
                 values = tuple(record.get(c) for c in columns)
                 
-                if use_on_conflict:
-                    # Asume que created_at tiene UNIQUE constraint
-                    cur.execute(f"""
-                        INSERT INTO {table_name} ({cols_str}, synced_to_supabase)
-                        VALUES ({vals_str}, TRUE)
-                        ON CONFLICT (created_at) DO NOTHING
-                    """, values)
-                    inserted_count += cur.rowcount
-                else:
-                    # Para tablas sin constraint UNIQUE o si no estamos seguros
-                    cur.execute(f"SELECT created_at FROM {table_name} WHERE created_at = %s", (record["created_at"],))
-                    if not cur.fetchone():
-                        cur.execute(f"""
-                            INSERT INTO {table_name} ({cols_str}, synced_to_supabase)
-                            VALUES ({vals_str}, TRUE)
-                        """, values)
-                        inserted_count += cur.rowcount
+                # Se utiliza la cláusula ON CONFLICT DO NOTHING de Postgres para ignorar duplicados
+                cur.execute(f"""
+                    INSERT INTO {table_name} ({cols_str}, synced_to_supabase)
+                    VALUES ({vals_str}, TRUE)
+                    ON CONFLICT ({on_conflict}) DO NOTHING
+                """, values)
+                inserted_count += cur.rowcount
             
             conn.commit()
             cur.close()
