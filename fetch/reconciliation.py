@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timezone, timedelta
 from fetch.database.postgres_client import get_pg, release_pg
 from fetch.database.supabase_client import get_supabase
+from api.services.cache import DATA_CACHE, cache_lock
 
 logger = logging.getLogger("nexus.reconciliation")
 
@@ -13,6 +14,9 @@ def push_reconciliation():
     logger.info("Iniciando PUSH de reconciliación...")
     push_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], on_conflict="created_at,tenant_id")
     push_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message", "tenant_id"], on_conflict="created_at,sensor,tenant_id")
+    # Invalidar caché para que la próxima consulta recargue datos reconciliados
+    with cache_lock:
+        DATA_CACHE["timestamp"] = 0
     logger.info("Finalizado PUSH de reconciliación.")
 
 def push_table_data(table_name: str, columns: list[str], on_conflict: str | None = "created_at"):
@@ -82,6 +86,9 @@ def pull_reconciliation():
     
     pull_table_data("sensor_data", ["created_at", "field1", "field2", "field3", "tenant_id"], yesterday, on_conflict="created_at, tenant_id")
     pull_table_data("alert_history", ["created_at", "sensor", "value", "threshold", "direction", "message", "tenant_id"], yesterday, on_conflict="created_at, sensor, tenant_id")
+    # Invalidar caché para que la próxima consulta recargue datos reconciliados
+    with cache_lock:
+        DATA_CACHE["timestamp"] = 0
     logger.info("Finalizado PULL de reconciliación.")
 
 def pull_table_data(table_name: str, columns: list[str], since_iso: str, on_conflict: str):
