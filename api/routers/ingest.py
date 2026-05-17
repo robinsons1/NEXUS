@@ -37,30 +37,32 @@ async def ingest(payload: SensorPayload, x_api_key: str = Header(default=None)):
         "tenant_id": "default",
     }
 
-    # ── Postgres local (primero) ───────────────────────────────
+    # ── Supabase (intentar primero para bandera) ───────────────
+    synced_to_supabase = False
+    try:
+        get_supabase().table("sensor_data").insert(row_dict).execute()
+        synced_to_supabase = True
+        logger.info("POST /ingest → Supabase OK ✅")
+    except Exception:
+        logger.error("POST /ingest → Supabase FAIL ❌", exc_info=True)
+
+    # ── Postgres local (primario) ───────────────────────────────
     pg_ok = False
     try:
         conn = get_pg()
         cur  = conn.cursor()
         cur.execute("""
-            INSERT INTO sensor_data (created_at, field1, field2, field3, tenant_id)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO sensor_data (created_at, field1, field2, field3, tenant_id, synced_to_supabase)
+            VALUES (%s, %s, %s, %s, %s, %s)
             ON CONFLICT (created_at) DO NOTHING
-        """, (now_iso, payload.field1, payload.field2, payload.field3, "default"))
+        """, (now_iso, payload.field1, payload.field2, payload.field3, "default", synced_to_supabase))
         conn.commit()
         cur.close()
         release_pg(conn)
         pg_ok = True
-        logger.info("POST /ingest → Postgres local OK ✅")
+        logger.info(f"POST /ingest → Postgres local OK ✅ (synced={synced_to_supabase})")
     except Exception:
         logger.error("POST /ingest → Postgres local FAIL ❌", exc_info=True)
-
-    # ── Supabase (respaldo) ────────────────────────────────────
-    try:
-        get_supabase().table("sensor_data").insert(row_dict).execute()
-        logger.info("POST /ingest → Supabase OK ✅")
-    except Exception:
-        logger.error("POST /ingest → Supabase FAIL ❌", exc_info=True)
 
     # ── Watchdog + invalidar caché ─────────────────────────────
     update_last_received()

@@ -46,6 +46,11 @@ scheduler = BackgroundScheduler()
 from fetch.sync import run_sync
 scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
 scheduler.add_job(watchdog_job, "interval", minutes=2, id="watchdog")
+
+from fetch.reconciliation import push_reconciliation, pull_reconciliation
+scheduler.add_job(push_reconciliation, "interval", hours=1, id="push_reconciliation")
+scheduler.add_job(pull_reconciliation, "cron", hour=3, minute=0, timezone="America/Bogota", id="pull_reconciliation")
+
 scheduler.start()
 
 atexit.register(lambda: scheduler.shutdown(wait=False))

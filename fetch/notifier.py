@@ -99,27 +99,29 @@ def _save_alert(sensor: str, value: float, threshold: float,
         "created_at": now_iso,
     }
 
-    # Postgres local (sin cambios)
+    # Supabase (intentar primero para bandera)
+    synced_to_supabase = False
+    try:
+        supabase.table("alert_history").insert(row).execute()
+        synced_to_supabase = True
+    except Exception as e:
+        logger.error(f"Error guardando alerta en Supabase: {e}")
+
+    # Postgres local (primario)
     try:
         conn = get_pg()
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO alert_history
-            (created_at, sensor, value, threshold, direction, message)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (now_iso, sensor, value, threshold, direction, message))
+            (created_at, sensor, value, threshold, direction, message, synced_to_supabase)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (now_iso, sensor, value, threshold, direction, message, synced_to_supabase))
         conn.commit()
         cur.close()
         release_pg(conn)
-        logger.info("Alerta guardada en Postgres local ✅")
+        logger.info(f"Alerta guardada en Postgres local ✅ (synced={synced_to_supabase})")
     except Exception as e:
         logger.error(f"Error guardando alerta en Postgres: {e}")
-
-    # Supabase (respaldo)
-    try:
-        supabase.table("alert_history").insert(row).execute()
-    except Exception as e:
-        logger.error(f"Error guardando alerta en Supabase: {e}")
 
 
 async def check_silence(last_received: datetime | None) -> None:

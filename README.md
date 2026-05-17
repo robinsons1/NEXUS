@@ -4,13 +4,13 @@ Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo re
 almacenamiento histórico en la nube, análisis de tendencias y sincronización automática.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
-🖥️ **Servidor local:** [https://mutual-located-growth-athens.trycloudflare.com] (https://mutual-located-growth-athens.trycloudflare.com)
+🖥️ **Servidor local:** [https://mechanisms-ave-invention-stakeholders.trycloudflare.com]
 
 ---
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.9.0
+> **En desarrollo activo** — Versión 0.9.1
 
 ---
 
@@ -49,6 +49,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - Caché incremental — primera carga descarga 60 días, actualizaciones posteriores solo traen registros nuevos desde el último `created_at`
 - Endpoint `GET /status` — estado en tiempo real de PostgreSQL local y Supabase con conteo de registros y detección de desincronización
 - `tenant_id` en `sensor_data` y `alert_history` — columna multi-tenant preparada, valor `'default'` en PostgreSQL local y Supabase
+- **Reconciliación Automática (PUSH/PULL)** — garantiza la consistencia bidireccional entre la base local y Supabase ante fallos de red.
 
 ---
 
@@ -108,59 +109,35 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] Red Docker compartida (`nexus_net`) entre contenedores
 - [x] ESP32 envía datos a ThingSpeak Y al servidor local en paralelo
 
-### Fase 8 — Lectura desde local ✅
-- [x] Todos los endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, `/data/heatmap`, `/data/weekly`, `/data/anomalies`, `/alerts`) leen desde PostgreSQL local
-- [x] Fallback automático a Supabase si Postgres local no está disponible
-- [x] Caché en RAM con Eager Loading — descarga 60 días de una vez, TTL 5 min, Thread Lock anti-stampede
-- [x] Compatible con `created_at` como `datetime` (Postgres) o `str` (Supabase) sin romper los endpoints
-
-### Fase 8.1 — Backup automatizado ✅
-- [x] Contenedor `rclone_sync` en Docker con credenciales OAuth2 Google Drive
-- [x] Cron diario 9:10 PM COT — sube backups de Postgres y Vaultwarden a `NEXUS-Backups/` en Drive
-- [x] Notificación Telegram al completar con conteo de archivos nuevos y total en Drive
-- [x] Logs del cron visibles en `docker logs rclone_sync`
-
-### Fase 8.2 — Optimización de caché (incremental) y Multi-tenant preparación
-- [x] Caché incremental — descarga solo registros nuevos tras la carga inicial
-- [x] Columna `tenant_id TEXT DEFAULT 'default'` en `sensor_data` y `alert_history` — PostgreSQL local y Supabase ✅
-
-### Fase 8.3 — Refactorización y Arquitectura ✅
-- [x] Modularización de `api/main.py` utilizando `APIRouter` de FastAPI.
-- [x] Separación de responsabilidades en `routers/` (analytics, data, ingest, system) y `services/` (cache, db_helpers).
+### Fase 8 — Lectura local, Caché, Backup y Refactorización ✅
+- [x] Todos los endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, `/data/heatmap`, `/data/weekly`, `/data/anomalies`, `/alerts`) leen desde PostgreSQL local con fallback a Supabase.
+- [x] Caché en RAM optimizada (incremental y Eager Loading) con descarga de registros nuevos, TTL 5 min y Thread Lock anti-stampede.
+- [x] Compatible con `created_at` como `datetime` (Postgres) o `str` (Supabase).
+- [x] Contenedor `rclone_sync` para backup automatizado (cron diario) a Google Drive y alertas en Telegram de la operación.
+- [x] Preparación Multi-tenant: columna `tenant_id TEXT DEFAULT 'default'` agregada en PostgreSQL local y Supabase.
+- [x] Modularización de la API usando `APIRouter` de FastAPI, separando `routers/` y `services/`.
 
 ### Fase 9 — Seguridad
 - [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
 - [ ] JWT para endpoints de lectura — proteger dashboard
 - [ ] Cloudflare Access como capa de red antes del servidor
 
-### Fase 10 — Dominio y servidor fijo (PENDIENTE)
-- [ ] Comprar dominio y gestionar DNS en Cloudflare
-- [ ] Crear Named Tunnel permanente (reemplaza trycloudflare.com temporal)
-- [ ] Migrar de Render.com al servidor doméstico como hosting principal
+### Fase 10 — Resiliencia y reconciliación de datos (PENDIENTE)
+> Garantizar consistencia entre PostgreSQL local y Supabase ante fallos de red, DNS o contenedor. Sincronización bidireccional automática.
+- [x] **Reconciliación PUSH (local → Supabase):** Agregar bandera `synced_to_supabase` en `sensor_data` y `alert_history`. En `/ingest` y con un Job horario, empujar datos pendientes hacia Supabase.
+- [x] **Reconciliación PULL (Supabase → local):** Job diario para comparar últimas 24h e insertar registros faltantes en Postgres local.
+- [ ] **Observabilidad del sync:** Endpoint `/sync/status` y alertas de Telegram si hay registros desfasados por más de una hora.
+- [ ] **Alertas desde base de datos:** Validar estados previos de alerta directamente desde los registros de base de datos para prevenir envíos duplicados.
 
-### Fase 11 — Resiliencia y reconciliación de datos (PENDIENTE)
+### Fase 11 — Análisis Histórico Avanzado y Épocas (PENDIENTE)
+- [ ] Ampliar gráficos analíticos incluyendo promedios detallados por horas, días, semanas y meses.
+- [ ] Herramientas para comparar periodos históricos o temporadas (ej. meses secos vs meses de lluvia, años anteriores).
+- [ ] Agregar visualizaciones relevantes para análisis a largo plazo, máximos/mínimos absolutos y tendencias estacionales.
 
-> Garantizar consistencia entre PostgreSQL local y Supabase ante fallos de red,
-> DNS o contenedor. Sincronización bidireccional automática.
-
-#### 11.1 — Reconciliación PUSH (local → Supabase)
-- [ ] Agregar columna `synced_to_supabase BOOLEAN DEFAULT FALSE` en `sensor_data` local
-- [ ] Agregar columna `synced_to_supabase BOOLEAN DEFAULT FALSE` en `alert_history` local
-- [ ] En `/ingest`: si Supabase falla, la fila queda con `synced_to_supabase = FALSE`
-- [ ] Job APScheduler cada hora: busca `WHERE synced_to_supabase = FALSE` → push a Supabase → marca `TRUE`
-- [ ] Mismo mecanismo para `alert_history`
-
-#### 11.2 — Reconciliación PULL (Supabase → local)
-- [ ] Job diario (03:00 COT): compara últimas 24h entre Supabase y Postgres local por `created_at`
-- [ ] Filas en Supabase que no existen en local → INSERT local (recupera fallos del Postgres local)
-- [ ] Mismo mecanismo para `alert_history`
-
-#### 11.3 — Observabilidad del sync
-- [ ] Endpoint `/sync/status` — retorna cuántos registros tienen `synced_to_supabase = FALSE`
-- [ ] Alerta Telegram si hay más de N registros pendientes de sync por más de 1 hora
-
-#### 11.4 - Alertas desde base de datos
-- [ ] Antes de realizar una alerta revise si ya fue enviada, no con datos en python, sino con datos de la base de datos
+### Fase 12 — Dominio y servidor principal (PENDIENTE)
+- [ ] Comprar dominio y gestionar DNS en Cloudflare.
+- [ ] Crear Named Tunnel permanente (reemplaza trycloudflare.com temporal).
+- [ ] Migrar de Render.com al servidor doméstico como hosting principal.
 
 ---
 
@@ -249,24 +226,30 @@ python -m uvicorn api.main:app --reload
 ## 📁 Estructura del proyecto
 
 ```
+├── .github/                     # Workflows y configuración de GitHub
 ├── api/
-│   ├── routers/                 # Rutas modulares (analytics, data, ingest, system)
-│   ├── services/                # Lógica de caché y helpers de base de datos
-│   └── main.py                  # FastAPI app principal e inicialización
+│   ├── routers/                 # Rutas de la API (analytics, data, ingest, system)
+│   ├── services/                # Servicios de caché y base de datos
+│   └── main.py                  # Punto de entrada de FastAPI
 ├── fetch/
-│   ├── sync.py                  # Sincronización ThingSpeak → Supabase
-│   ├── notifier.py              # Alertas Telegram + dual-write alert_history
-│   └── database/
-│       ├── supabase_client.py   # Cliente Supabase (respaldo cloud)
-│       └── postgres_client.py   # Cliente PostgreSQL local (primario)
+│   ├── database/                # Clientes de BD (Postgres, Supabase, Firestore)
+│   ├── load_history.py          # Scripts de migración y utilidades
+│   ├── load_history_supabase.py # Scripts de migración y utilidades
+│   ├── notifier.py              # Gestión de alertas (Telegram y DB)
+│   ├── reconciliation.py        # Jobs de reconciliación (PUSH/PULL)
+│   ├── recover.py               # Scripts de recuperación
+│   ├── sync.py                  # Job principal de sincronización (ThingSpeak)
+│   └── thingspeak.py            # Cliente de ThingSpeak
 ├── frontend/
-├── docker-compose.yml           # nexus_app + nexus_tunnel
-├── docker-compose.postgres.yml  # nexus_postgres (BD local)
-├── init_db.sql                  # Schema inicial de PostgreSQL local
-├── migrate_to_local.py          # Script de migración única (ya ejecutado)
-├── .env.example
-├── requirements.txt
-└── README.md
+│   ├── analytics.html           # Vista de análisis histórico
+│   ├── analytics.js             # Lógica del dashboard de análisis
+│   ├── app.js                   # Lógica del dashboard principal
+│   ├── index.html               # Vista del dashboard principal
+│   └── style.css                # Estilos globales
+├── .env.example                 # Variables de entorno de ejemplo
+├── p.py                         # Utilidad extra
+├── render.yaml                  # Configuración de despliegue en Render
+└── requirements.txt             # Dependencias de Python
 ```
 --
 
