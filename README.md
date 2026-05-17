@@ -127,8 +127,8 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - [x] **Reconciliación PUSH (local → Supabase):** Agregar bandera `synced_to_supabase` en `sensor_data` y `alert_history`. En `/ingest` y con un Job horario, empujar datos pendientes hacia Supabase.
 - [x] **Reconciliación PULL (Supabase → local):** Job diario para comparar últimas 24h e insertar registros faltantes en Postgres local.
 - [x] **Idempotencia y Unicidad:** Implementación de restricciones únicas compuestas en BD (`tenant_id` + `created_at` + `sensor`) para garantizar Upserts bidireccionales sin duplicados.
-- [ ] **Observabilidad del sync:** Endpoint `/sync/status` y alertas de Telegram si hay registros desfasados por más de una hora.
-- [ ] **Alertas desde base de datos:** Validar estados previos de alerta directamente desde los registros de base de datos para prevenir envíos duplicados.
+- [x] **Observabilidad del sync:** Endpoint `GET /sync/status` (público) con conteo de registros pendientes, desfase en minutos y estado (`sincronizado` / `pendiente` / `desfasado`). Job horario `check_sync_health` envía alerta Telegram si el desfase supera 60 minutos y otra de restablecimiento cuando se corrige.
+- [x] **Alertas desde base de datos:** `init_sensor_states()` carga el último estado de alerta por sensor desde Postgres al arrancar, evitando duplicados tras reinicios. `_last_alert_time()` consulta Postgres primero y Supabase como fallback para el cooldown, garantizando robustez en modo offline.
 
 ### Fase 11 — Análisis Histórico Avanzado y Épocas (PENDIENTE)
 - [ ] Ampliar gráficos analíticos incluyendo promedios detallados por horas, días, semanas y meses.

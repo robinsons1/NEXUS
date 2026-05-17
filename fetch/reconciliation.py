@@ -133,3 +133,100 @@ def pull_table_data(table_name: str, columns: list[str], since_iso: str, on_conf
             
     except Exception as e:
         logger.error(f"PULL: Error obteniendo de Supabase ({table_name}): {e}")
+
+
+# ── Estado de salud del sync en memoria ──────────────────────────────────────
+_sync_health_state: str = "ok"   # "ok" | "desfasado"
+
+
+def check_sync_health():
+    """
+    Comprueba si hay registros sin sincronizar con Supabase por más de 60 min.
+    Envía alerta Telegram si se detecta desfase y otra cuando se corrige.
+    Se ejecuta cada hora desde el scheduler.
+    """
+    import asyncio
+    from fetch.notifier import send_telegram
+    global _sync_health_state
+
+    now = datetime.now(timezone.utc)
+    conn = get_pg()
+    if not conn:
+        logger.warning("check_sync_health: Postgres no disponible, omitiendo")
+        return
+
+    oldest = None
+    count = 0
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT MIN(t.created_at) AS oldest, COUNT(*) AS cnt
+            FROM (
+                SELECT created_at FROM sensor_data   WHERE synced_to_supabase = FALSE
+                UNION ALL
+                SELECT created_at FROM alert_history WHERE synced_to_supabase = FALSE
+            ) AS t
+        """)
+        row = cur.fetchone()
+        cur.close()
+        if row:
+            oldest, count = row[0], row[1]
+    except Exception as e:
+        logger.error(f"check_sync_health: error consultando Postgres: {e}")
+        return
+    finally:
+        release_pg(conn)
+
+    # ── Sin pendientes ────────────────────────────────────────────────────────
+    if not oldest or count == 0:
+        if _sync_health_state == "desfasado":
+            msg = (
+                "✅ <b>NEXUS Sync — Sincronización restablecida</b>\n"
+                "Todos los registros han sido sincronizados con Supabase."
+            )
+            asyncio.run(send_telegram(msg))
+            _sync_health_state = "ok"
+            logger.info("check_sync_health: sincronización restablecida ✅")
+        return
+
+    # Normalizar timestamp
+    if isinstance(oldest, str):
+        oldest = datetime.fromisoformat(
+            oldest.replace("+00:00", "").rstrip()
+        ).replace(tzinfo=timezone.utc)
+    elif oldest.tzinfo is None:
+        oldest = oldest.replace(tzinfo=timezone.utc)
+
+    desfase_min = (now - oldest).total_seconds() / 60
+
+    # ── Desfase > 60 min ─────────────────────────────────────────────────────
+    if desfase_min > 60:
+        if _sync_health_state == "desfasado":
+            logger.info(
+                f"check_sync_health: desfase {int(desfase_min)}min — alerta ya enviada"
+            )
+            return
+        msg = (
+            f"⚠️ <b>NEXUS Sync — Desfase detectado</b>\n"
+            f"📦 {int(count)} registros sin sincronizar con Supabase.\n"
+            f"⏱ Desfase: {int(desfase_min)} min (umbral: 60 min)\n"
+            f"🕐 Más antiguo: {oldest.strftime('%Y-%m-%d %H:%M')} UTC\n"
+            f"Verifica la conexión a Supabase o fuerza una reconciliación."
+        )
+        asyncio.run(send_telegram(msg))
+        _sync_health_state = "desfasado"
+        logger.warning(
+            f"check_sync_health: alerta enviada — "
+            f"{int(count)} pendientes, {int(desfase_min)}min de desfase"
+        )
+    else:
+        # Desfase < 60 min pero había estado desfasado → restablecido
+        if _sync_health_state == "desfasado":
+            msg = (
+                "✅ <b>NEXUS Sync — Desfase corregido</b>\n"
+                f"Los registros han sido sincronizados. Desfase actual: {int(desfase_min)} min."
+            )
+            asyncio.run(send_telegram(msg))
+            _sync_health_state = "ok"
+            logger.info("check_sync_health: desfase corregido ✅")
+

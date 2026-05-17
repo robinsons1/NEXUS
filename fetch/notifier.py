@@ -61,7 +61,42 @@ async def send_telegram(message: str) -> bool:
         return False
 
 
-def _last_alert_time(sensor: str, direction: str):
+def _last_alert_time_pg(sensor: str, direction: str) -> datetime | None:
+    """Consulta Postgres local para el último tiempo de alerta. Robusto en modo offline."""
+    conn = None
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT created_at FROM alert_history "
+            "WHERE sensor = %s AND direction = %s "
+            "ORDER BY created_at DESC LIMIT 1",
+            (sensor, direction)
+        )
+        row = cur.fetchone()
+        cur.close()
+        if row and row[0]:
+            val = row[0]
+            if isinstance(val, datetime):
+                return val if val.tzinfo else val.replace(tzinfo=timezone.utc)
+            return datetime.fromisoformat(
+                str(val).replace("+00:00", "").rstrip()
+            ).replace(tzinfo=timezone.utc)
+        return None
+    except Exception as e:
+        logger.warning(f"_last_alert_time_pg({sensor}/{direction}): {e}")
+        return None
+    finally:
+        if conn:
+            release_pg(conn)
+
+
+def _last_alert_time(sensor: str, direction: str) -> datetime | None:
+    """Devuelve el timestamp de la última alerta. Postgres primero, Supabase como fallback."""
+    ts = _last_alert_time_pg(sensor, direction)
+    if ts is not None:
+        return ts
+    # Fallback Supabase (cuando Postgres no está disponible)
     try:
         result = supabase.table("alert_history") \
             .select("created_at") \
@@ -73,7 +108,7 @@ def _last_alert_time(sensor: str, direction: str):
         if result.data:
             return datetime.fromisoformat(result.data[0]["created_at"])
     except Exception as e:
-        logger.error(f"Error consultando historial: {e}")
+        logger.error(f"Error consultando historial Supabase: {e}")
     return None
 
 
@@ -85,6 +120,43 @@ def _in_cooldown(sensor: str, direction: str) -> bool:
     if last.tzinfo is None:
         last = last.replace(tzinfo=timezone.utc)
     return (now - last) < timedelta(minutes=COOLDOWN_MINUTES)
+
+
+def init_sensor_states() -> None:
+    """
+    Al arrancar el servidor, lee el último estado de alerta por sensor desde
+    Postgres local para inicializar _sensor_state y _watchdog_state.
+    Evita envíos duplicados tras un reinicio del proceso.
+    """
+    global _sensor_state, _watchdog_state
+    sensors_to_check = list(SENSOR_LABELS.keys()) + ["watchdog"]
+    for sensor in sensors_to_check:
+        conn = None
+        try:
+            conn = get_pg()
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT direction FROM alert_history "
+                "WHERE sensor = %s ORDER BY created_at DESC LIMIT 1",
+                (sensor,)
+            )
+            row = cur.fetchone()
+            cur.close()
+            if row:
+                direction = row[0]
+                if sensor == "watchdog":
+                    _watchdog_state = "silent" if direction == "silent" else "ok"
+                else:
+                    _sensor_state[sensor] = direction if direction in ("above", "below") else "ok"
+        except Exception as e:
+            logger.warning(f"init_sensor_states: no se pudo cargar '{sensor}': {e}")
+        finally:
+            if conn:
+                release_pg(conn)
+    logger.info(
+        f"Estados de alerta cargados desde BD — "
+        f"sensores={_sensor_state}, watchdog={_watchdog_state}"
+    )
 
 
 def _save_alert(sensor: str, value: float, threshold: float,
@@ -108,6 +180,7 @@ def _save_alert(sensor: str, value: float, threshold: float,
         logger.error(f"Error guardando alerta en Supabase: {e}")
 
     # Postgres local (primario)
+    conn = None
     try:
         conn = get_pg()
         cur = conn.cursor()
@@ -118,10 +191,17 @@ def _save_alert(sensor: str, value: float, threshold: float,
         """, (now_iso, sensor, value, threshold, direction, message, synced_to_supabase))
         conn.commit()
         cur.close()
-        release_pg(conn)
         logger.info(f"Alerta guardada en Postgres local ✅ (synced={synced_to_supabase})")
     except Exception as e:
         logger.error(f"Error guardando alerta en Postgres: {e}")
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+    finally:
+        if conn:
+            release_pg(conn)
 
 
 async def check_silence(last_received: datetime | None) -> None:

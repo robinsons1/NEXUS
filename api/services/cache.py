@@ -7,6 +7,15 @@ from api.services.db_helpers import pg_fetch_all
 
 logger = logging.getLogger("nexus.cache")
 
+def _normalize_ts(val) -> str:
+    """Convierte created_at (datetime o str) a ISO UTC normalizado sin offset '+00:00'."""
+    if isinstance(val, datetime):
+        return val.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    if isinstance(val, str):
+        # quitar offset +00:00 o Z para comparación uniforme
+        return val.replace("+00:00", "").replace("Z", "").rstrip()
+    return str(val)
+
 DATA_CACHE = {
     "timestamp": 0,
     "days": 0,
@@ -26,7 +35,7 @@ def get_cached_sensor_data(days: int):
         if DATA_CACHE["days"] >= days and (current_time - DATA_CACHE["timestamp"]) < 300:
             logger.info(f"⚡ CACHÉ HIT: {len(DATA_CACHE['data'])} registros en memoria")
             cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-            return [r for r in DATA_CACHE["data"] if str(r["created_at"]) >= cutoff]
+            return [r for r in DATA_CACHE["data"] if _normalize_ts(r["created_at"]) >= cutoff]
 
         # ── CACHÉ INCREMENTAL: ya tenemos datos, solo traer los nuevos ────────
         if DATA_CACHE["data"] and DATA_CACHE["last_created_at"]:
@@ -53,12 +62,12 @@ def get_cached_sensor_data(days: int):
 
             if new_rows:
                 DATA_CACHE["data"].extend(new_rows)
-                DATA_CACHE["last_created_at"] = str(new_rows[-1]["created_at"])
+                DATA_CACHE["last_created_at"] = _normalize_ts(new_rows[-1]["created_at"])
                 logger.info(f"🔄 INCREMENTAL: +{len(new_rows)} nuevos — total {len(DATA_CACHE['data'])}")
 
             DATA_CACHE["timestamp"] = current_time
-            cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-            return [r for r in DATA_CACHE["data"] if str(r["created_at"]) >= cutoff]
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S.%f")
+            return [r for r in DATA_CACHE["data"] if _normalize_ts(r["created_at"]) >= cutoff]
 
         # ── CACHÉ MISS INICIAL: primera carga, descarga 60 días completos ─────
         download_days = max(days, 60)
@@ -93,7 +102,7 @@ def get_cached_sensor_data(days: int):
         DATA_CACHE["timestamp"]       = current_time
         DATA_CACHE["days"]            = download_days
         DATA_CACHE["data"]            = all_rows
-        DATA_CACHE["last_created_at"] = str(all_rows[-1]["created_at"]) if all_rows else None
+        DATA_CACHE["last_created_at"] = _normalize_ts(all_rows[-1]["created_at"]) if all_rows else None
 
-        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-        return [r for r in all_rows if str(r["created_at"]) >= cutoff]
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%S.%f")
+        return [r for r in all_rows if _normalize_ts(r["created_at"]) >= cutoff]

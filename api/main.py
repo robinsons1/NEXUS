@@ -9,8 +9,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 
 from fetch.sync import get_last_received, init_last_received
-from fetch.notifier import check_silence
-from api.routers import data, analytics, ingest, system
+from fetch.notifier import check_silence, init_sensor_states
+from api.routers import data, analytics, ingest, system, sync
 
 # ─── LOGGING ───
 logging.basicConfig(
@@ -39,7 +39,8 @@ def watchdog_job():
     import asyncio
     asyncio.run(check_silence(get_last_received()))
 
-init_last_received() 
+init_last_received()
+init_sensor_states()
 
 # ─── SCHEDULER ───
 scheduler = BackgroundScheduler()
@@ -47,9 +48,10 @@ from fetch.sync import run_sync
 scheduler.add_job(run_sync, "interval", minutes=5, id="auto_sync")
 scheduler.add_job(watchdog_job, "interval", minutes=2, id="watchdog")
 
-from fetch.reconciliation import push_reconciliation, pull_reconciliation
-scheduler.add_job(push_reconciliation, "interval", hours=1, id="push_reconciliation")
-scheduler.add_job(pull_reconciliation, "cron", hour=3, minute=0, timezone="America/Bogota", id="pull_reconciliation")
+from fetch.reconciliation import push_reconciliation, pull_reconciliation, check_sync_health
+scheduler.add_job(push_reconciliation,  "interval", hours=1,  id="push_reconciliation")
+scheduler.add_job(pull_reconciliation,  "cron", hour=3, minute=0, timezone="America/Bogota", id="pull_reconciliation")
+scheduler.add_job(check_sync_health,    "interval", hours=1,  id="check_sync_health")
 
 scheduler.start()
 
@@ -60,6 +62,7 @@ app.include_router(data.router)
 app.include_router(analytics.router)
 app.include_router(ingest.router)
 app.include_router(system.router)
+app.include_router(sync.router)
 
 # ─── VIEWS (HTML) ───
 @app.get("/")
