@@ -10,7 +10,7 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 
 ## 🚀 Estado del proyecto
 
-> **En desarrollo activo** — Versión 0.9.1
+> **En desarrollo activo** — Versión 0.9.2
 
 ---
 
@@ -50,6 +50,16 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 - Endpoint `GET /status` — estado en tiempo real de PostgreSQL local y Supabase con conteo de registros y detección de desincronización
 - `tenant_id` en `sensor_data` y `alert_history` — columna multi-tenant preparada, valor `'default'` en PostgreSQL local y Supabase
 - **Reconciliación Automática (PUSH/PULL)** — garantiza la consistencia bidireccional entre la base local y Supabase ante fallos de red.
+- **Idempotencia y Unicidad** — restricciones únicas compuestas (`tenant_id` + `created_at`) en BD garantizan Upserts bidireccionales sin duplicados.
+- **Endpoint `GET /sync/status`** — observabilidad del sync: conteo de registros pendientes, desfase en minutos y estado (`sincronizado` / `pendiente` / `desfasado`).
+- **Job horario `check_sync_health`** — envía alerta Telegram si el desfase supera 60 minutos y otra de restablecimiento cuando se corrige.
+- **`init_sensor_states()`** — carga el último estado de alerta por sensor desde Postgres al arrancar, evitando duplicados tras reinicios.
+- **`_last_alert_time()`** — consulta Postgres primero y Supabase como fallback para el cooldown, garantizando robustez en modo offline.
+- **ESP32 envía datos a ThingSpeak Y al servidor local en paralelo** — redundancia de envío garantizada.
+- Compatibilidad dual de `created_at`: maneja `datetime` (Postgres local) y `str` (Supabase) en todos los endpoints.
+- **Red Docker compartida** (`nexus_net`) entre contenedores — comunicación interna sin exponer puertos.
+- **Modularización de la API** con `APIRouter` de FastAPI — separación en `routers/` y `services/` para mejor mantenibilidad.
+- Endpoint `GET /config/thresholds` — consulta los umbrales de alerta activos (temperatura, humedad, presión) desde la API.
 
 ---
 
@@ -165,22 +175,25 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | Endpoint | Método | Descripción |
 |---|---|---|
 | `/` | GET | Dashboard web Real-Time |
+| `/dashboard` | GET | Alias de `/` — mismo dashboard principal |
 | `/analytics` | GET | Dashboard de Análisis Histórico |
-| `/data?limit=N` | GET | Registros con paginación |
-| `/data/latest` | GET | Último registro |
-| `/data/stats` | GET | Estadísticas agregadas |
-| `/data/export?format=csv` | GET | Exportar CSV |
-| `/data/heatmap?days=N` | GET | Agrupación térmica por horas del día |
-| `/data/weekly?days=N` | GET | Agrupación promedio por día de la semana |
-| `/data/anomalies?days=N&sigma=N` | GET | Detección estadística de atípicos |
-| `/sensors` | GET | Metadata de sensores |
-| `/alerts` | GET | Últimas alertas Telegram |
-| `/sync` | GET/HEAD | Sincronización manual |
-| `/health` | GET/HEAD | Health check |
-| `/docs` | GET | Documentación Swagger |
+| `/data` | GET | Registros del sensor. Params: `limit` (def. 100), `offset` (def. 0), `start` (ISO), `end` (ISO) |
+| `/data/latest` | GET | Último registro insertado |
+| `/data/stats` | GET | Estadísticas agregadas (min/max/avg/last). Params: `limit` (def. 100), `start` (ISO), `end` (ISO) |
+| `/data/export` | GET | Exportar datos. Params: `format` (def. `csv`), `start` (ISO), `end` (ISO), `limit` (def. 1000) |
+| `/data/heatmap` | GET | Promedio por hora del día (0-23 h COT). Params: `days` (def. 30) |
+| `/data/weekly` | GET | Promedio por día de la semana. Params: `days` (def. 60) |
+| `/data/anomalies` | GET | Lecturas fuera de media ± σ·std. Params: `days` (def. 7), `sigma` (def. 2.0) |
+| `/sensors` | GET | Metadata del canal y sensores (DHT11, BMP280) |
+| `/alerts` | GET | Historial de alertas Telegram. Params: `limit` (def. 50) |
+| `/config/thresholds` | GET | Umbrales de alerta configurados (temperatura, humedad, presión) |
+| `/sync` | GET/HEAD | Sincronización manual ThingSpeak → BDs |
+| `/sync/status` | GET | Observabilidad del sync local→Supabase: pendientes, desfase en minutos y estado (`sincronizado`/`pendiente`/`desfasado`) |
+| `/status` | GET | Estado en tiempo real de PostgreSQL local y Supabase: conteo de registros, diff e `in_sync` |
+| `/ingest` | POST | Recepción directa desde ESP32. Requiere header `X-API-Key`. Body: `field1` (°C), `field2` (%), `field3` (hPa, opcional) |
+| `/health` | GET/HEAD | Health check — usado por UptimeRobot |
+| `/docs` | GET | Documentación interactiva Swagger UI |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
-| `ingest` | POST | Recepción directa desde ESP32 — requiere header `X-API-Key` |
-| `status` | GET | Estado en tiempo real de ambas BDs — registros, diff y flag `in_sync` |
 
 ---
 
