@@ -1,6 +1,24 @@
 # 🚀 Deployment e Infraestructura — NEXUS
 
+**Versión**: v0.9.3 | **Última actualización**: 2026-05-19
+
 Documentación técnica completa de despliegue, infraestructura, sincronización, servicios auxiliares y mantenimiento del proyecto NEXUS.
+
+> 🔗 **Índice de documentación**:
+> - [README Principal](../../README.md) — Visión general y quick start
+> - [Arquitectura](../architecture/readme.md) — Análisis técnico profundo
+> - **Deployment (TÚ ESTÁS AQUÍ)** — Guía operacional
+
+## 📋 Índice rápido
+
+- [Requisitos previos](#-requisitos-previos)
+- [Instalación](#-instalación) — Python, entorno, dependencias
+- [Configuración](#-configuración) — Variables de entorno, PostgreSQL
+- [Deploy](#-deploy) — Render.com, Cloudflare Tunnel
+- [Sincronización](#-sincronización-automática) — APScheduler, PUSH/PULL
+- [Operación](#-operación) — Backup, ESP32, observabilidad
+- [Seguridad](#-seguridad) — Implementada vs pendiente
+- [Mantenimiento](#-mantenimiento) — Updates, troubleshooting
 
 ***
 
@@ -188,19 +206,44 @@ trycloudflare.com
 
 NEXUS utiliza **APScheduler** integrado en el backend para ejecutar tareas programadas:
 
-| Job | Frecuencia | Función |
-|---|---|---|
-| Sincronización ThingSpeak | Cada 5 minutos | Descarga datos nuevos |
-| Watchdog de silencio | Cada 2 minutos | Alerta si no llegan datos en ≥10 min |
-| Health check sync | Cada hora | Alerta Telegram si desfase > 60 min |
-| Reconciliación PULL | Diario | Supabase → PostgreSQL local |
-| Backup rclone | Diario (9:10 PM COT) | PostgreSQL → Google Drive |
+| Job | Frecuencia | Función | Referencia |
+|---|---|---|---|
+| Sincronización ThingSpeak | Cada 5 minutos | Descarga datos nuevos | `fetch/sync.py` |
+| Watchdog de silencio | Cada 2 minutos | Alerta si no llegan datos en ≥10 min | `fetch/notifier.py` |
+| Health check sync | Cada hora | Alerta Telegram si desfase > 60 min | `fetch/sync.py` |
+| Reconciliación PULL | Diario | Supabase → PostgreSQL local | `fetch/reconciliation.py` |
+| Backup rclone | Diario (9:10 PM COT) | PostgreSQL → Google Drive | Docker `rclone_sync` |
+
+> 📖 Para más detalles, ver [docs/architecture/readme.md → Estrategias de resiliencia](../architecture/readme.md#-estrategias-de-resiliencia)
 
 ***
 
 ## 🔄 Reconciliación de datos PUSH/PULL
 
 El sistema garantiza consistencia bidireccional entre PostgreSQL local y Supabase ante fallos de red, DNS o contenedor.
+
+### Arquitectura de sincronización
+
+```text
+┌─────────────────────────────────────┐
+│      FastAPI /ingest (ESP32)        │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+        ┌──────────────┐
+        │ PostgreSQL   │
+        │  (PRIMARIO)  │
+        └──────┬───────┘
+               │
+        PUSH/PULL
+        (automático)
+               │
+               ▼
+        ┌──────────────┐
+        │  Supabase    │
+        │  (RESPALDO)  │
+        └──────────────┘
+```
 
 ### PUSH (Local → Supabase)
 
@@ -225,10 +268,19 @@ Supabase → PostgreSQL local
 
 ```bash
 # Estado en tiempo real
-GET /sync/status
-# Retorna: pendientes, desfase en minutos, estado (sincronizado / pendiente / desfasado)
+curl https://nexus-w0yh.onrender.com/sync/status
 
-GET /status
+# Retorna:
+# {
+#   "postgresql_count": 42500,
+#   "supabase_count": 42498,
+#   "pending_count": 2,
+#   "delay_minutes": 15,
+#   "status": "pendiente"
+# }
+
+curl https://nexus-w0yh.onrender.com/status
+
 # Retorna: conteo de registros en ambas BDs, diff e in_sync
 ```
 
@@ -290,12 +342,27 @@ X-API-Key: TU_INGEST_API_KEY
 
 ## 📊 Observabilidad — Endpoints clave
 
+> 📖 **Tabla completa de endpoints**: Ver [README Principal → Endpoints disponibles](../../README.md#-endpoints-disponibles)
+
 | Endpoint | Función |
 |---|---|
 | `/health` | Health check — usado por UptimeRobot |
 | `/status` | Estado PostgreSQL/Supabase con conteo y `in_sync` |
 | `/sync/status` | Estado de sincronización: pendientes, desfase y estado |
 | `/alerts` | Historial de alertas Telegram |
+
+**Debugging de sincronización:**
+
+```bash
+# Ver estado general
+curl https://nexus-w0yh.onrender.com/status
+
+# Ver detalles del sync local↔cloud
+curl https://nexus-w0yh.onrender.com/sync/status
+
+# Ver historial de alertas
+curl https://nexus-w0yh.onrender.com/alerts?limit=10
+```
 
 ***
 
@@ -402,6 +469,16 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 ```
+
+### 🆘 Troubleshooting rápido
+
+| Problema | Causa probable | Solución |
+|----------|---|---|
+| `ConnectionError` en PostgreSQL | Contenedor no levantado | Ejecutar `docker run` (ver [Requisitos](#-requisitos-previos)) |
+| `/sync/status` muestra `desfasado` | Retraso en sincronización cloud | Esperar 60 min o ejecutar `/sync` manual |
+| Alertas Telegram no llegan | Bot token inválido o chat_id | Revisar `.env`: `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` |
+| Dashboard blanco en local | API apunta a producción | Cambiar `const API` en `frontend/app.js` a `http://127.0.0.1:8000` |
+| `docker logs rclone_sync` vacío | Servicio no inició | Verificar Google Drive config: `rclone config` |
 
 ***
 

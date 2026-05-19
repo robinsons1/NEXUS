@@ -1,6 +1,13 @@
 # 🧠 Arquitectura y análisis técnico — NEXUS
 
+**Versión**: v0.9.3 | **Última actualización**: 2026-05-19
+
 Documentación técnica interna del proyecto NEXUS. Esta sección contiene el análisis arquitectónico completo, estructura modular, relaciones internas, análisis Graphify, comunidades funcionales, observabilidad, sincronización híbrida y dependencias críticas.
+
+> 🔗 **Índice de documentación**:
+> - [README Principal](../../README.md) — Visión general y quick start
+> - [Deployment](../deployment/readme.md) — Guía operacional
+> - **Arquitectura (TÚ ESTÁS AQUÍ)** — Análisis técnico
 
 ***
 
@@ -107,7 +114,7 @@ docs/architecture/
 **Instalar dependencias:**
 
 ```bash
-pip install graphifyy openai pyvis
+pip install graphify openai pyvis
 ```
 
 **Configurar API Key:**
@@ -124,6 +131,20 @@ graphify .
 graphify cluster-only .
 graphify tree
 ```
+
+---
+
+## 📚 Referencias rápidas
+
+| Sección | Para quién | Descripción |
+|---------|-----------|-------------|
+| [Filosofía de diseño](#-filosofía-de-diseño) | Arquitectos | Principios fundamentales |
+| [Análisis con Graphify](#-análisis-con-graphify) | Dev seniors | Herramientas y métodos |
+| [Comunidades funcionales](#-comunidades-funcionales-detectadas) | Developers | Cómo está organizado el código |
+| [God Nodes](#-god-nodes-detectados) | DevOps | Componentes críticos |
+| [Estrategias de rendimiento](#-estrategias-de-rendimiento) | SRE/Performance | Optimizaciones implementadas |
+| [Estrategias de resiliencia](#-estrategias-de-resiliencia) | SRE/Security | Tolerancia a fallos |
+| [Escalabilidad futura](#-escalabilidad-futura) | Product / Tech leads | Hoja de ruta técnica |
 
 ***
 

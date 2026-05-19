@@ -5,7 +5,16 @@ Sistema IoT híbrido edge/cloud para monitoreo ambiental en tiempo real, analít
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
 🖥️ **Servidor local:** [mechanisms-ave-invention-stakeholders.trycloudflare.com](https://mechanisms-ave-invention-stakeholders.trycloudflare.com)
 
-> **En desarrollo activo** — Versión 0.9.3
+> **En desarrollo activo** — Versión 0.9.3 | [Historial de cambios](#-roadmap)
+
+***
+
+## 🧭 Acceso rápido
+
+- ⚡ **Principiante** → Ve a [Instalación rápida](#-instalación-rápida)
+- 🧑‍💻 **Desarrollador** → Lee [Arquitectura técnica](docs/architecture/readme.md)
+- 🔧 **DevOps** → Lee [Deployment e infraestructura](docs/deployment/readme.md)
+- 📚 **Todo** → Explora [Documentación técnica](#-documentación-técnica)
 
 ***
 
@@ -93,6 +102,8 @@ Dashboard + Analytics + Telegram
 | Arquitectura | Graphify, NetworkX |
 
 ## ⚡ Instalación rápida
+
+**[📖 Guía completa en `docs/deployment/readme.md`](docs/deployment/readme.md)**
 
 ### 1. Clonar repositorio
 
@@ -187,11 +198,15 @@ Servidor disponible en: `http://localhost:8000`
 
 ## 🔌 Endpoints disponibles
 
+> 📖 **Referencia completa**: Ver [`docs/deployment/readme.md#observabilidad`](docs/deployment/readme.md#-observabilidad--endpoints-clave) para más detalles sobre sincronización y debugging.
+
 | Endpoint | Método | Descripción |
 |---|---|---|
+| **Dashboard** |
 | `/` | GET | Dashboard web Real-Time |
 | `/dashboard` | GET | Alias de `/` — mismo dashboard principal |
 | `/analytics` | GET | Dashboard de Análisis Histórico |
+| **Datos** |
 | `/data` | GET | Registros del sensor. Params: `limit` (def. 100), `offset` (def. 0), `start` (ISO), `end` (ISO) |
 | `/data/latest` | GET | Último registro insertado |
 | `/data/stats` | GET | Estadísticas agregadas (min/max/avg/last). Params: `limit` (def. 100), `start` (ISO), `end` (ISO) |
@@ -200,13 +215,17 @@ Servidor disponible en: `http://localhost:8000`
 | `/data/weekly` | GET | Promedio por día de la semana. Params: `days` (def. 60) |
 | `/data/anomalies` | GET | Lecturas fuera de media ± σ·std. Params: `days` (def. 7), `sigma` (def. 2.0) |
 | `/sensors` | GET | Metadata del canal y sensores (DHT11, BMP280) |
+| **Alertas & Monitoreo** |
 | `/alerts` | GET | Historial de alertas Telegram. Params: `limit` (def. 50) |
 | `/config/thresholds` | GET | Umbrales de alerta configurados (temperatura, humedad, presión) |
+| `/health` | GET/HEAD | Health check — usado por UptimeRobot |
+| **Sincronización & Estado** |
 | `/sync` | GET/HEAD | Sincronización manual ThingSpeak → BDs |
 | `/sync/status` | GET | Observabilidad del sync local→Supabase: pendientes, desfase en minutos y estado |
 | `/status` | GET | Estado en tiempo real de PostgreSQL local y Supabase: conteo de registros, diff e `in_sync` |
+| **Ingestión de datos** |
 | `/ingest` | POST | Recepción directa desde ESP32. Requiere header `X-API-Key`. Body: `field1` (°C), `field2` (%), `field3` (hPa, opcional) |
-| `/health` | GET/HEAD | Health check — usado por UptimeRobot |
+| **Documentación** |
 | `/docs` | GET | Documentación interactiva Swagger UI |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
 
@@ -223,7 +242,7 @@ NEXUS/
 │   └── main.py                  # Punto de entrada de FastAPI
 ├── fetch/
 │   ├── database/                # Clientes de BD (Postgres, Supabase)
-│   ├── load_history.py          # Scripts de migración y utilidades
+│   ├── load_history.py          # Scripts de migración
 │   ├── load_history_supabase.py
 │   ├── notifier.py              # Gestión de alertas (Telegram y DB)
 │   ├── reconciliation.py        # Jobs de reconciliación (PUSH/PULL)
@@ -237,15 +256,22 @@ NEXUS/
 │   ├── index.html               # Vista del dashboard principal
 │   └── style.css                # Estilos globales
 ├── docs/
-│   ├── architecture/            # Arquitectura interna y análisis Graphify
-│   ├── deployment/              # Infraestructura, Docker y deployment
+│   ├── architecture/            # 🧠 Análisis técnico y Graphify
+│   │   └── readme.md
+│   ├── deployment/              # 🚀 Guía operacional y deploy
+│   │   └── readme.md
 │   └── images/                  # Capturas del dashboard
 ├── docker/
 ├── backups/
 ├── .env.example                 # Variables de entorno de ejemplo
 ├── render.yaml                  # Configuración de despliegue en Render
-└── requirements.txt             # Dependencias de Python
+├── requirements.txt             # Dependencias de Python
+└── LICENSE
 ```
+
+> 📍 **Documentación detallada**:
+> - [`docs/architecture/readme.md`](docs/architecture/readme.md) — Análisis arquitectónico profundo
+> - [`docs/deployment/readme.md`](docs/deployment/readme.md) — Setup, Docker, deployment y mantenimiento
 
 ***
 
@@ -323,10 +349,15 @@ Flujo: trabajar en `dev` → resolver conflictos → merge a `main`.
 
 ## 📚 Documentación técnica
 
+> 📌 **Guía de lectura**: Comienza por el README raíz, luego elige según tu rol:
+> - **Desarrollador backend** → [`docs/architecture/readme.md`](docs/architecture/readme.md)
+> - **DevOps / Operador** → [`docs/deployment/readme.md`](docs/deployment/readme.md)
+> - **Todos** → Ver sección **Endpoints disponibles** abajo
+
 | Documento | Descripción |
 |---|---|
-| [`docs/architecture/`](docs/architecture/) | Arquitectura interna, análisis Graphify, comunidades funcionales y God Nodes |
-| [`docs/deployment/`](docs/deployment/) | Infraestructura completa, Docker, deployment en Render y mantenimiento |
+| [`docs/architecture/readme.md`](docs/architecture/readme.md) | Análisis técnico: Graphify, comunidades funcionales, God Nodes, resiliencia y estrategias de rendimiento |
+| [`docs/deployment/readme.md`](docs/deployment/readme.md) | Guía operacional: Setup, Docker, PostgreSQL, deployment en Render, sincronización PUSH/PULL y mantenimiento |
 
 ***
 
