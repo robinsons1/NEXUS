@@ -1,0 +1,4362 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "p.py",
+      "file_type": "code",
+      "source_file": "p.py",
+      "source_location": "L1",
+      "community": 11,
+      "norm_label": "p.py",
+      "id": "p_py"
+    },
+    {
+      "label": "main.py",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": "L1",
+      "community": 3,
+      "norm_label": "main.py",
+      "id": "api_main_py"
+    },
+    {
+      "label": "watchdog_job()",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": "L37",
+      "community": 3,
+      "norm_label": "watchdog_job()",
+      "id": "api_main_watchdog_job"
+    },
+    {
+      "label": "root()",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": "L69",
+      "community": 3,
+      "norm_label": "root()",
+      "id": "api_main_root"
+    },
+    {
+      "label": "dashboard()",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": "L73",
+      "community": 3,
+      "norm_label": "dashboard()",
+      "id": "api_main_dashboard"
+    },
+    {
+      "label": "analytics_page()",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": "L77",
+      "community": 3,
+      "norm_label": "analytics_page()",
+      "id": "api_main_analytics_page"
+    },
+    {
+      "label": "Wrapper s\u00edncrono para APScheduler \u2192 llama a check_silence async.",
+      "file_type": "rationale",
+      "source_file": "api/main.py",
+      "source_location": "L38",
+      "community": 3,
+      "norm_label": "wrapper sincrono para apscheduler \u2192 llama a check_silence async.",
+      "id": "api_main_rationale_38"
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "api/__init__.py",
+      "source_location": "L1",
+      "community": 12,
+      "norm_label": "__init__.py",
+      "id": "api_init_py"
+    },
+    {
+      "label": "get_heatmap()",
+      "file_type": "code",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L12",
+      "community": 6,
+      "norm_label": "get_heatmap()",
+      "id": "routers_analytics_get_heatmap"
+    },
+    {
+      "label": "get_weekly()",
+      "file_type": "code",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L60",
+      "community": 6,
+      "norm_label": "get_weekly()",
+      "id": "routers_analytics_get_weekly"
+    },
+    {
+      "label": "get_anomalies()",
+      "file_type": "code",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L110",
+      "community": 6,
+      "norm_label": "get_anomalies()",
+      "id": "routers_analytics_get_anomalies"
+    },
+    {
+      "label": "Promedio por hora del d\u00eda (0-23h COT) para cada sensor.",
+      "file_type": "rationale",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L13",
+      "community": 6,
+      "norm_label": "promedio por hora del dia (0-23h cot) para cada sensor.",
+      "id": "routers_analytics_rationale_13"
+    },
+    {
+      "label": "Promedio por d\u00eda de la semana (0=Lun \u2026 6=Dom).",
+      "file_type": "rationale",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L61",
+      "community": 6,
+      "norm_label": "promedio por dia de la semana (0=lun ... 6=dom).",
+      "id": "routers_analytics_rationale_61"
+    },
+    {
+      "label": "Lecturas fuera de media \u00b1 sigma * desviaci\u00f3n est\u00e1ndar.",
+      "file_type": "rationale",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L111",
+      "community": 6,
+      "norm_label": "lecturas fuera de media \u00b1 sigma * desviacion estandar.",
+      "id": "routers_analytics_rationale_111"
+    },
+    {
+      "label": "data.py",
+      "file_type": "code",
+      "source_file": "api/routers/data.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "data.py",
+      "id": "api_routers_data_py"
+    },
+    {
+      "label": "get_data()",
+      "file_type": "code",
+      "source_file": "api/routers/data.py",
+      "source_location": "L14",
+      "community": 2,
+      "norm_label": "get_data()",
+      "id": "routers_data_get_data"
+    },
+    {
+      "label": "get_latest()",
+      "file_type": "code",
+      "source_file": "api/routers/data.py",
+      "source_location": "L61",
+      "community": 2,
+      "norm_label": "get_latest()",
+      "id": "routers_data_get_latest"
+    },
+    {
+      "label": "get_stats()",
+      "file_type": "code",
+      "source_file": "api/routers/data.py",
+      "source_location": "L79",
+      "community": 2,
+      "norm_label": "get_stats()",
+      "id": "routers_data_get_stats"
+    },
+    {
+      "label": "export_data()",
+      "file_type": "code",
+      "source_file": "api/routers/data.py",
+      "source_location": "L156",
+      "community": 2,
+      "norm_label": "export_data()",
+      "id": "routers_data_export_data"
+    },
+    {
+      "label": "ingest.py",
+      "file_type": "code",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L1",
+      "community": 9,
+      "norm_label": "ingest.py",
+      "id": "api_routers_ingest_py"
+    },
+    {
+      "label": "SensorPayload",
+      "file_type": "code",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L15",
+      "community": 9,
+      "norm_label": "sensorpayload",
+      "id": "routers_ingest_sensorpayload"
+    },
+    {
+      "label": "BaseModel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "community": 9,
+      "norm_label": "basemodel",
+      "id": "basemodel"
+    },
+    {
+      "label": "ingest()",
+      "file_type": "code",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L23",
+      "community": 1,
+      "norm_label": "ingest()",
+      "id": "routers_ingest_ingest"
+    },
+    {
+      "label": "Recibe datos de la ESP32. Escribe en Postgres local Y Supabase.",
+      "file_type": "rationale",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L24",
+      "community": 1,
+      "norm_label": "recibe datos de la esp32. escribe en postgres local y supabase.",
+      "id": "routers_ingest_rationale_24"
+    },
+    {
+      "label": "sync.py",
+      "file_type": "code",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L1",
+      "community": 8,
+      "norm_label": "sync.py",
+      "id": "api_routers_sync_py"
+    },
+    {
+      "label": "_to_utc()",
+      "file_type": "code",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L10",
+      "community": 8,
+      "norm_label": "_to_utc()",
+      "id": "routers_sync_to_utc"
+    },
+    {
+      "label": "sync_status()",
+      "file_type": "code",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L25",
+      "community": 8,
+      "norm_label": "sync_status()",
+      "id": "routers_sync_sync_status"
+    },
+    {
+      "label": "Convierte un timestamp (datetime o str) a datetime UTC-aware.",
+      "file_type": "rationale",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L11",
+      "community": 8,
+      "norm_label": "convierte un timestamp (datetime o str) a datetime utc-aware.",
+      "id": "routers_sync_rationale_11"
+    },
+    {
+      "label": "Observabilidad del estado de sincronizaci\u00f3n local \u2192 Supabase.     Muestra cu\u00e1nt",
+      "file_type": "rationale",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L26",
+      "community": 8,
+      "norm_label": "observabilidad del estado de sincronizacion local \u2192 supabase.     muestra cuant",
+      "id": "routers_sync_rationale_26"
+    },
+    {
+      "label": "system.py",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "system.py",
+      "id": "api_routers_system_py"
+    },
+    {
+      "label": "robots()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L14",
+      "community": 2,
+      "norm_label": "robots()",
+      "id": "routers_system_robots"
+    },
+    {
+      "label": "health()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L21",
+      "community": 2,
+      "norm_label": "health()",
+      "id": "routers_system_health"
+    },
+    {
+      "label": "get_status()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L26",
+      "community": 2,
+      "norm_label": "get_status()",
+      "id": "routers_system_get_status"
+    },
+    {
+      "label": "sync()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L65",
+      "community": 2,
+      "norm_label": "sync()",
+      "id": "routers_system_sync"
+    },
+    {
+      "label": "get_sensors()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L75",
+      "community": 2,
+      "norm_label": "get_sensors()",
+      "id": "routers_system_get_sensors"
+    },
+    {
+      "label": "get_alerts()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L98",
+      "community": 2,
+      "norm_label": "get_alerts()",
+      "id": "routers_system_get_alerts"
+    },
+    {
+      "label": "get_thresholds()",
+      "file_type": "code",
+      "source_file": "api/routers/system.py",
+      "source_location": "L116",
+      "community": 2,
+      "norm_label": "get_thresholds()",
+      "id": "routers_system_get_thresholds"
+    },
+    {
+      "label": "Estado en tiempo real de ambas bases de datos.",
+      "file_type": "rationale",
+      "source_file": "api/routers/system.py",
+      "source_location": "L27",
+      "community": 2,
+      "norm_label": "estado en tiempo real de ambas bases de datos.",
+      "id": "routers_system_rationale_27"
+    },
+    {
+      "label": "\u00daltimas alertas de Telegram.",
+      "file_type": "rationale",
+      "source_file": "api/routers/system.py",
+      "source_location": "L99",
+      "community": 2,
+      "norm_label": "ultimas alertas de telegram.",
+      "id": "routers_system_rationale_99"
+    },
+    {
+      "label": "cache.py",
+      "file_type": "code",
+      "source_file": "api/services/cache.py",
+      "source_location": "L1",
+      "community": 6,
+      "norm_label": "cache.py",
+      "id": "api_services_cache_py"
+    },
+    {
+      "label": "_normalize_ts()",
+      "file_type": "code",
+      "source_file": "api/services/cache.py",
+      "source_location": "L10",
+      "community": 6,
+      "norm_label": "_normalize_ts()",
+      "id": "services_cache_normalize_ts"
+    },
+    {
+      "label": "get_cached_sensor_data()",
+      "file_type": "code",
+      "source_file": "api/services/cache.py",
+      "source_location": "L27",
+      "community": 6,
+      "norm_label": "get_cached_sensor_data()",
+      "id": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "label": "Convierte created_at (datetime o str) a ISO UTC normalizado sin offset '+00:00'.",
+      "file_type": "rationale",
+      "source_file": "api/services/cache.py",
+      "source_location": "L11",
+      "community": 6,
+      "norm_label": "convierte created_at (datetime o str) a iso utc normalizado sin offset '+00:00'.",
+      "id": "services_cache_rationale_11"
+    },
+    {
+      "label": "Cach\u00e9 incremental: primera vez descarga 60 d\u00edas, luego solo registros nuevos.",
+      "file_type": "rationale",
+      "source_file": "api/services/cache.py",
+      "source_location": "L28",
+      "community": 6,
+      "norm_label": "cache incremental: primera vez descarga 60 dias, luego solo registros nuevos.",
+      "id": "services_cache_rationale_28"
+    },
+    {
+      "label": "db_helpers.py",
+      "file_type": "code",
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L1",
+      "community": 1,
+      "norm_label": "db_helpers.py",
+      "id": "api_services_db_helpers_py"
+    },
+    {
+      "label": "pg_fetch_all()",
+      "file_type": "code",
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L6",
+      "community": 1,
+      "norm_label": "pg_fetch_all()",
+      "id": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "label": "pg_fetch_one()",
+      "file_type": "code",
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L23",
+      "community": 1,
+      "norm_label": "pg_fetch_one()",
+      "id": "services_db_helpers_pg_fetch_one"
+    },
+    {
+      "label": "load_history.py",
+      "file_type": "code",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L1",
+      "community": 7,
+      "norm_label": "load_history.py",
+      "id": "fetch_load_history_py"
+    },
+    {
+      "label": "fetch_chunk()",
+      "file_type": "code",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L18",
+      "community": 7,
+      "norm_label": "fetch_chunk()",
+      "id": "fetch_load_history_fetch_chunk"
+    },
+    {
+      "label": "load_all_history()",
+      "file_type": "code",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L30",
+      "community": 7,
+      "norm_label": "load_all_history()",
+      "id": "fetch_load_history_load_all_history"
+    },
+    {
+      "label": "load_history_supabase.py",
+      "file_type": "code",
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "load_history_supabase.py",
+      "id": "fetch_load_history_supabase_py"
+    },
+    {
+      "label": "fetch_chunk()",
+      "file_type": "code",
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L18",
+      "community": 2,
+      "norm_label": "fetch_chunk()",
+      "id": "fetch_load_history_supabase_fetch_chunk"
+    },
+    {
+      "label": "save_to_supabase()",
+      "file_type": "code",
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L31",
+      "community": 2,
+      "norm_label": "save_to_supabase()",
+      "id": "fetch_load_history_supabase_save_to_supabase"
+    },
+    {
+      "label": "notifier.py",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L1",
+      "community": 1,
+      "norm_label": "notifier.py",
+      "id": "fetch_notifier_py"
+    },
+    {
+      "label": "send_telegram()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L47",
+      "community": 1,
+      "norm_label": "send_telegram()",
+      "id": "fetch_notifier_send_telegram"
+    },
+    {
+      "label": "_last_alert_time_pg()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L64",
+      "community": 1,
+      "norm_label": "_last_alert_time_pg()",
+      "id": "fetch_notifier_last_alert_time_pg"
+    },
+    {
+      "label": "_last_alert_time()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L94",
+      "community": 1,
+      "norm_label": "_last_alert_time()",
+      "id": "fetch_notifier_last_alert_time"
+    },
+    {
+      "label": "_in_cooldown()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L115",
+      "community": 1,
+      "norm_label": "_in_cooldown()",
+      "id": "fetch_notifier_in_cooldown"
+    },
+    {
+      "label": "init_sensor_states()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L125",
+      "community": 1,
+      "norm_label": "init_sensor_states()",
+      "id": "fetch_notifier_init_sensor_states"
+    },
+    {
+      "label": "_save_alert()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L162",
+      "community": 1,
+      "norm_label": "_save_alert()",
+      "id": "fetch_notifier_save_alert"
+    },
+    {
+      "label": "check_silence()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L207",
+      "community": 1,
+      "norm_label": "check_silence()",
+      "id": "fetch_notifier_check_silence"
+    },
+    {
+      "label": "check_and_notify()",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L253",
+      "community": 1,
+      "norm_label": "check_and_notify()",
+      "id": "fetch_notifier_check_and_notify"
+    },
+    {
+      "label": "Consulta Postgres local para el \u00faltimo tiempo de alerta. Robusto en modo offline",
+      "file_type": "rationale",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L65",
+      "community": 1,
+      "norm_label": "consulta postgres local para el ultimo tiempo de alerta. robusto en modo offline",
+      "id": "fetch_notifier_rationale_65"
+    },
+    {
+      "label": "Devuelve el timestamp de la \u00faltima alerta. Postgres primero, Supabase como fallb",
+      "file_type": "rationale",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L95",
+      "community": 1,
+      "norm_label": "devuelve el timestamp de la ultima alerta. postgres primero, supabase como fallb",
+      "id": "fetch_notifier_rationale_95"
+    },
+    {
+      "label": "Al arrancar el servidor, lee el \u00faltimo estado de alerta por sensor desde     Po",
+      "file_type": "rationale",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L126",
+      "community": 1,
+      "norm_label": "al arrancar el servidor, lee el ultimo estado de alerta por sensor desde     po",
+      "id": "fetch_notifier_rationale_126"
+    },
+    {
+      "label": "reconciliation.py",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L1",
+      "community": 1,
+      "norm_label": "reconciliation.py",
+      "id": "fetch_reconciliation_py"
+    },
+    {
+      "label": "push_reconciliation()",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L9",
+      "community": 1,
+      "norm_label": "push_reconciliation()",
+      "id": "fetch_reconciliation_push_reconciliation"
+    },
+    {
+      "label": "push_table_data()",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L22",
+      "community": 1,
+      "norm_label": "push_table_data()",
+      "id": "fetch_reconciliation_push_table_data"
+    },
+    {
+      "label": "pull_reconciliation()",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L78",
+      "community": 1,
+      "norm_label": "pull_reconciliation()",
+      "id": "fetch_reconciliation_pull_reconciliation"
+    },
+    {
+      "label": "pull_table_data()",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L94",
+      "community": 1,
+      "norm_label": "pull_table_data()",
+      "id": "fetch_reconciliation_pull_table_data"
+    },
+    {
+      "label": "check_sync_health()",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L142",
+      "community": 1,
+      "norm_label": "check_sync_health()",
+      "id": "fetch_reconciliation_check_sync_health"
+    },
+    {
+      "label": "Busca registros locales en sensor_data y alert_history donde synced_to_supabase",
+      "file_type": "rationale",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L10",
+      "community": 1,
+      "norm_label": "busca registros locales en sensor_data y alert_history donde synced_to_supabase",
+      "id": "fetch_reconciliation_rationale_10"
+    },
+    {
+      "label": "Busca registros de las \u00faltimas 24 horas en Supabase (sensor_data y alert_history",
+      "file_type": "rationale",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L79",
+      "community": 1,
+      "norm_label": "busca registros de las ultimas 24 horas en supabase (sensor_data y alert_history",
+      "id": "fetch_reconciliation_rationale_79"
+    },
+    {
+      "label": "Comprueba si hay registros sin sincronizar con Supabase por m\u00e1s de 60 min.",
+      "file_type": "rationale",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L143",
+      "community": 1,
+      "norm_label": "comprueba si hay registros sin sincronizar con supabase por mas de 60 min.",
+      "id": "fetch_reconciliation_rationale_143"
+    },
+    {
+      "label": "recover.py",
+      "file_type": "code",
+      "source_file": "fetch/recover.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "recover.py",
+      "id": "fetch_recover_py"
+    },
+    {
+      "label": "recover()",
+      "file_type": "code",
+      "source_file": "fetch/recover.py",
+      "source_location": "L15",
+      "community": 2,
+      "norm_label": "recover()",
+      "id": "fetch_recover_recover"
+    },
+    {
+      "label": "sync.py",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L1",
+      "community": 3,
+      "norm_label": "sync.py",
+      "id": "fetch_sync_py"
+    },
+    {
+      "label": "init_last_received()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L15",
+      "community": 3,
+      "norm_label": "init_last_received()",
+      "id": "fetch_sync_init_last_received"
+    },
+    {
+      "label": "update_last_received()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L27",
+      "community": 3,
+      "norm_label": "update_last_received()",
+      "id": "fetch_sync_update_last_received"
+    },
+    {
+      "label": "get_last_received()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L32",
+      "community": 3,
+      "norm_label": "get_last_received()",
+      "id": "fetch_sync_get_last_received"
+    },
+    {
+      "label": "get_last_timestamp()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L67",
+      "community": 3,
+      "norm_label": "get_last_timestamp()",
+      "id": "fetch_sync_get_last_timestamp"
+    },
+    {
+      "label": "fetch_new_data()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L83",
+      "community": 3,
+      "norm_label": "fetch_new_data()",
+      "id": "fetch_sync_fetch_new_data"
+    },
+    {
+      "label": "save_to_supabase()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L129",
+      "community": 3,
+      "norm_label": "save_to_supabase()",
+      "id": "fetch_sync_save_to_supabase"
+    },
+    {
+      "label": "run_sync()",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": "L162",
+      "community": 3,
+      "norm_label": "run_sync()",
+      "id": "fetch_sync_run_sync"
+    },
+    {
+      "label": "Llama una sola vez al arrancar para cargar el \u00faltimo timestamp desde Supabase.",
+      "file_type": "rationale",
+      "source_file": "fetch/sync.py",
+      "source_location": "L16",
+      "community": 3,
+      "norm_label": "llama una sola vez al arrancar para cargar el ultimo timestamp desde supabase.",
+      "id": "fetch_sync_rationale_16"
+    },
+    {
+      "label": "Se llama despu\u00e9s de insertar datos. Actualiza el timestamp en RAM.",
+      "file_type": "rationale",
+      "source_file": "fetch/sync.py",
+      "source_location": "L28",
+      "community": 3,
+      "norm_label": "se llama despues de insertar datos. actualiza el timestamp en ram.",
+      "id": "fetch_sync_rationale_28"
+    },
+    {
+      "label": "Retorna el timestamp m\u00e1s reciente entre:     - lo que este proceso insert\u00f3 (_la",
+      "file_type": "rationale",
+      "source_file": "fetch/sync.py",
+      "source_location": "L33",
+      "community": 3,
+      "norm_label": "retorna el timestamp mas reciente entre:     - lo que este proceso inserto (_la",
+      "id": "fetch_sync_rationale_33"
+    },
+    {
+      "label": "thingspeak.py",
+      "file_type": "code",
+      "source_file": "fetch/thingspeak.py",
+      "source_location": "L1",
+      "community": 10,
+      "norm_label": "thingspeak.py",
+      "id": "fetch_thingspeak_py"
+    },
+    {
+      "label": "get_latest_data()",
+      "file_type": "code",
+      "source_file": "fetch/thingspeak.py",
+      "source_location": "L11",
+      "community": 10,
+      "norm_label": "get_latest_data()",
+      "id": "fetch_thingspeak_get_latest_data"
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "fetch/__init__.py",
+      "source_location": "L1",
+      "community": 13,
+      "norm_label": "__init__.py",
+      "id": "fetch_init_py"
+    },
+    {
+      "label": "firestore.py",
+      "file_type": "code",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L1",
+      "community": 7,
+      "norm_label": "firestore.py",
+      "id": "fetch_database_firestore_py"
+    },
+    {
+      "label": "init_firebase()",
+      "file_type": "code",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L8",
+      "community": 7,
+      "norm_label": "init_firebase()",
+      "id": "database_firestore_init_firebase"
+    },
+    {
+      "label": "save_data()",
+      "file_type": "code",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L14",
+      "community": 7,
+      "norm_label": "save_data()",
+      "id": "database_firestore_save_data"
+    },
+    {
+      "label": "postgres_client.py",
+      "file_type": "code",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L1",
+      "community": 1,
+      "norm_label": "postgres_client.py",
+      "id": "fetch_database_postgres_client_py"
+    },
+    {
+      "label": "get_pool()",
+      "file_type": "code",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L13",
+      "community": 1,
+      "norm_label": "get_pool()",
+      "id": "database_postgres_client_get_pool"
+    },
+    {
+      "label": "get_pg()",
+      "file_type": "code",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L23",
+      "community": 1,
+      "norm_label": "get_pg()",
+      "id": "database_postgres_client_get_pg"
+    },
+    {
+      "label": "release_pg()",
+      "file_type": "code",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L26",
+      "community": 1,
+      "norm_label": "release_pg()",
+      "id": "database_postgres_client_release_pg"
+    },
+    {
+      "label": "pg_available()",
+      "file_type": "code",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L29",
+      "community": 1,
+      "norm_label": "pg_available()",
+      "id": "database_postgres_client_pg_available"
+    },
+    {
+      "label": "supabase_client.py",
+      "file_type": "code",
+      "source_file": "fetch/database/supabase_client.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "supabase_client.py",
+      "id": "fetch_database_supabase_client_py"
+    },
+    {
+      "label": "get_supabase()",
+      "file_type": "code",
+      "source_file": "fetch/database/supabase_client.py",
+      "source_location": "L12",
+      "community": 2,
+      "norm_label": "get_supabase()",
+      "id": "database_supabase_client_get_supabase"
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "fetch/database/__init__.py",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "__init__.py",
+      "id": "fetch_database_init_py"
+    },
+    {
+      "label": "analytics.js",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L1",
+      "community": 4,
+      "norm_label": "analytics.js",
+      "id": "frontend_analytics_js"
+    },
+    {
+      "label": "escHtml()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L4",
+      "community": 4,
+      "norm_label": "eschtml()",
+      "id": "frontend_analytics_eschtml"
+    },
+    {
+      "label": "themeToggle",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L14",
+      "community": 4,
+      "norm_label": "themetoggle",
+      "id": "frontend_analytics_themetoggle"
+    },
+    {
+      "label": "getTheme()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L28",
+      "community": 4,
+      "norm_label": "gettheme()",
+      "id": "frontend_analytics_gettheme"
+    },
+    {
+      "label": "baseLayout()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L34",
+      "community": 4,
+      "norm_label": "baselayout()",
+      "id": "frontend_analytics_baselayout"
+    },
+    {
+      "label": "spinner()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L49",
+      "community": 4,
+      "norm_label": "spinner()",
+      "id": "frontend_analytics_spinner"
+    },
+    {
+      "label": "errMsg()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L59",
+      "community": 4,
+      "norm_label": "errmsg()",
+      "id": "frontend_analytics_errmsg"
+    },
+    {
+      "label": "clearSpinner()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L64",
+      "community": 4,
+      "norm_label": "clearspinner()",
+      "id": "frontend_analytics_clearspinner"
+    },
+    {
+      "label": "cache",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L71",
+      "community": 4,
+      "norm_label": "cache",
+      "id": "frontend_analytics_cache"
+    },
+    {
+      "label": "fetchJSON()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L72",
+      "community": 4,
+      "norm_label": "fetchjson()",
+      "id": "frontend_analytics_fetchjson"
+    },
+    {
+      "label": "renderAll()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L81",
+      "community": 4,
+      "norm_label": "renderall()",
+      "id": "frontend_analytics_renderall"
+    },
+    {
+      "label": "renderHeatmap()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L91",
+      "community": 4,
+      "norm_label": "renderheatmap()",
+      "id": "frontend_analytics_renderheatmap"
+    },
+    {
+      "label": "renderWeekly()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L131",
+      "community": 4,
+      "norm_label": "renderweekly()",
+      "id": "frontend_analytics_renderweekly"
+    },
+    {
+      "label": "renderCorrelation()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L166",
+      "community": 4,
+      "norm_label": "rendercorrelation()",
+      "id": "frontend_analytics_rendercorrelation"
+    },
+    {
+      "label": "renderCycles()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L206",
+      "community": 4,
+      "norm_label": "rendercycles()",
+      "id": "frontend_analytics_rendercycles"
+    },
+    {
+      "label": "renderForecast()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L250",
+      "community": 4,
+      "norm_label": "renderforecast()",
+      "id": "frontend_analytics_renderforecast"
+    },
+    {
+      "label": "renderAnomalies()",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L320",
+      "community": 4,
+      "norm_label": "renderanomalies()",
+      "id": "frontend_analytics_renderanomalies"
+    },
+    {
+      "label": "app.js",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L1",
+      "community": 0,
+      "norm_label": "app.js",
+      "id": "frontend_app_js"
+    },
+    {
+      "label": "allData",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L3",
+      "community": 0,
+      "norm_label": "alldata",
+      "id": "frontend_app_alldata"
+    },
+    {
+      "label": "toColombiaTime()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L10",
+      "community": 0,
+      "norm_label": "tocolombiatime()",
+      "id": "frontend_app_tocolombiatime"
+    },
+    {
+      "label": "formatDate()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L12",
+      "community": 0,
+      "norm_label": "formatdate()",
+      "id": "frontend_app_formatdate"
+    },
+    {
+      "label": "timeAgo()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L18",
+      "community": 0,
+      "norm_label": "timeago()",
+      "id": "frontend_app_timeago"
+    },
+    {
+      "label": "chartLayout()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L25",
+      "community": 0,
+      "norm_label": "chartlayout()",
+      "id": "frontend_app_chartlayout"
+    },
+    {
+      "label": "renderCharts()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L35",
+      "community": 0,
+      "norm_label": "rendercharts()",
+      "id": "frontend_app_rendercharts"
+    },
+    {
+      "label": "updateStats()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L68",
+      "community": 0,
+      "norm_label": "updatestats()",
+      "id": "frontend_app_updatestats"
+    },
+    {
+      "label": "applyStats()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L78",
+      "community": 0,
+      "norm_label": "applystats()",
+      "id": "frontend_app_applystats"
+    },
+    {
+      "label": "aplicarFiltro()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L96",
+      "community": 0,
+      "norm_label": "aplicarfiltro()",
+      "id": "frontend_app_aplicarfiltro"
+    },
+    {
+      "label": "resetFiltro()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L145",
+      "community": 0,
+      "norm_label": "resetfiltro()",
+      "id": "frontend_app_resetfiltro"
+    },
+    {
+      "label": "loadData()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L152",
+      "community": 0,
+      "norm_label": "loaddata()",
+      "id": "frontend_app_loaddata"
+    },
+    {
+      "label": "escapeHtml()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L165",
+      "community": 0,
+      "norm_label": "escapehtml()",
+      "id": "frontend_app_escapehtml"
+    },
+    {
+      "label": "loadAlerts()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L176",
+      "community": 0,
+      "norm_label": "loadalerts()",
+      "id": "frontend_app_loadalerts"
+    },
+    {
+      "label": "startAutoRefresh()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L206",
+      "community": 0,
+      "norm_label": "startautorefresh()",
+      "id": "frontend_app_startautorefresh"
+    },
+    {
+      "label": "stopAutoRefresh()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L222",
+      "community": 0,
+      "norm_label": "stopautorefresh()",
+      "id": "frontend_app_stopautorefresh"
+    },
+    {
+      "label": "resetCountdown()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L231",
+      "community": 0,
+      "norm_label": "resetcountdown()",
+      "id": "frontend_app_resetcountdown"
+    },
+    {
+      "label": "startCountdown()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L235",
+      "community": 0,
+      "norm_label": "startcountdown()",
+      "id": "frontend_app_startcountdown"
+    },
+    {
+      "label": "stopCountdown()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L246",
+      "community": 0,
+      "norm_label": "stopcountdown()",
+      "id": "frontend_app_stopcountdown"
+    },
+    {
+      "label": "rollingAvg()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L253",
+      "community": 0,
+      "norm_label": "rollingavg()",
+      "id": "frontend_app_rollingavg"
+    },
+    {
+      "label": "renderCombined()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L262",
+      "community": 0,
+      "norm_label": "rendercombined()",
+      "id": "frontend_app_rendercombined"
+    },
+    {
+      "label": "descargarCSV()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L354",
+      "community": 0,
+      "norm_label": "descargarcsv()",
+      "id": "frontend_app_descargarcsv"
+    },
+    {
+      "label": "DEFAULT_THRESHOLDS",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L397",
+      "community": 0,
+      "norm_label": "default_thresholds",
+      "id": "frontend_app_default_thresholds"
+    },
+    {
+      "label": "loadThresholds()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L403",
+      "community": 0,
+      "norm_label": "loadthresholds()",
+      "id": "frontend_app_loadthresholds"
+    },
+    {
+      "label": "saveThresholds()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L408",
+      "community": 0,
+      "norm_label": "savethresholds()",
+      "id": "frontend_app_savethresholds"
+    },
+    {
+      "label": "fillThresholdInputs()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L412",
+      "community": 0,
+      "norm_label": "fillthresholdinputs()",
+      "id": "frontend_app_fillthresholdinputs"
+    },
+    {
+      "label": "guardarUmbrales()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L421",
+      "community": 0,
+      "norm_label": "guardarumbrales()",
+      "id": "frontend_app_guardarumbrales"
+    },
+    {
+      "label": "resetUmbrales()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L433",
+      "community": 0,
+      "norm_label": "resetumbrales()",
+      "id": "frontend_app_resetumbrales"
+    },
+    {
+      "label": "toggleUmbrales()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L439",
+      "community": 0,
+      "norm_label": "toggleumbrales()",
+      "id": "frontend_app_toggleumbrales"
+    },
+    {
+      "label": "checkAlerts()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L446",
+      "community": 0,
+      "norm_label": "checkalerts()",
+      "id": "frontend_app_checkalerts"
+    },
+    {
+      "label": "applyTheme()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L471",
+      "community": 0,
+      "norm_label": "applytheme()",
+      "id": "frontend_app_applytheme"
+    },
+    {
+      "label": "toggleTheme()",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": "L494",
+      "community": 0,
+      "norm_label": "toggletheme()",
+      "id": "frontend_app_toggletheme"
+    },
+    {
+      "label": "NEXUS Platform",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": "https://nexus-w0yh.onrender.com",
+      "captured_at": null,
+      "author": "Robinson Segura Aponte",
+      "contributor": null,
+      "community": 15,
+      "norm_label": "nexus platform",
+      "id": "readme_nexus"
+    },
+    {
+      "label": "FastAPI Entry Point",
+      "file_type": "code",
+      "source_file": "api/main.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "fastapi entry point",
+      "id": "api_main"
+    },
+    {
+      "label": "ThingSpeak Sync Job",
+      "file_type": "code",
+      "source_file": "fetch/sync.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "thingspeak sync job",
+      "id": "fetch_sync"
+    },
+    {
+      "label": "Data Reconciliation Service",
+      "file_type": "code",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "data reconciliation service",
+      "id": "fetch_reconciliation"
+    },
+    {
+      "label": "Telegram Notifier",
+      "file_type": "code",
+      "source_file": "fetch/notifier.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "telegram notifier",
+      "id": "fetch_notifier"
+    },
+    {
+      "label": "Local PostgreSQL (Docker)",
+      "file_type": "code",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "local postgresql (docker)",
+      "id": "nexus_postgres"
+    },
+    {
+      "label": "Supabase (Cloud PostgreSQL)",
+      "file_type": "code",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "supabase (cloud postgresql)",
+      "id": "supabase_db"
+    },
+    {
+      "label": "ThingSpeak REST API",
+      "file_type": "code",
+      "source_file": "fetch/thingspeak.py",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "thingspeak rest api",
+      "id": "thingspeak_api"
+    },
+    {
+      "label": "Real-Time Dashboard Logic",
+      "file_type": "code",
+      "source_file": "frontend/app.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "real-time dashboard logic",
+      "id": "frontend_app"
+    },
+    {
+      "label": "Analytics Dashboard Logic",
+      "file_type": "code",
+      "source_file": "frontend/analytics.js",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "analytics dashboard logic",
+      "id": "frontend_analytics"
+    },
+    {
+      "label": "ESP32-S3 Sensor Node",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "esp32-s3 sensor node",
+      "id": "esp32_device"
+    },
+    {
+      "label": "Google Drive Backup (rclone)",
+      "file_type": "code",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "community": 5,
+      "norm_label": "google drive backup (rclone)",
+      "id": "rclone_sync"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/main.py",
+      "source_location": "L37",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_main_py",
+      "target": "api_main_watchdog_job"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/main.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_main_py",
+      "target": "api_main_root"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/main.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_main_py",
+      "target": "api_main_dashboard"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/main.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_main_py",
+      "target": "api_main_analytics_page"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/main.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_main_rationale_38",
+      "target": "api_main_watchdog_job"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/main.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "api_main_watchdog_job",
+      "target": "fetch_notifier_check_silence"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/main.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "api_main_watchdog_job",
+      "target": "fetch_sync_get_last_received"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "routers_analytics_get_heatmap"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_analytics_rationale_13",
+      "target": "routers_analytics_get_heatmap"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "routers_analytics_get_heatmap",
+      "target": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "routers_analytics_get_weekly"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_analytics_rationale_61",
+      "target": "routers_analytics_get_weekly"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "routers_analytics_get_weekly",
+      "target": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "routers_analytics_get_anomalies"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L111",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_analytics_rationale_111",
+      "target": "routers_analytics_get_anomalies"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/analytics.py",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "routers_analytics_get_anomalies",
+      "target": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/data.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_data_py",
+      "target": "routers_data_get_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/data.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_data_py",
+      "target": "routers_data_get_latest"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/data.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_data_py",
+      "target": "routers_data_get_stats"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/data.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_data_py",
+      "target": "routers_data_export_data"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "routers_data_get_data",
+      "target": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "routers_data_get_data",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "routers_data_get_latest",
+      "target": "services_db_helpers_pg_fetch_one"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "routers_data_get_latest",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "routers_data_get_stats",
+      "target": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "routers_data_get_stats",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/data.py",
+      "source_location": "L157",
+      "weight": 1.0,
+      "source": "routers_data_export_data",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_ingest_py",
+      "target": "routers_ingest_sensorpayload"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_ingest_py",
+      "target": "routers_ingest_ingest"
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_ingest_sensorpayload",
+      "target": "basemodel"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_ingest_rationale_24",
+      "target": "routers_ingest_ingest"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "routers_ingest_ingest",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "routers_ingest_ingest",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "routers_ingest_ingest",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "routers_ingest_ingest",
+      "target": "fetch_sync_update_last_received"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/ingest.py",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "routers_ingest_ingest",
+      "target": "fetch_notifier_check_and_notify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_sync_py",
+      "target": "routers_sync_to_utc"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_sync_py",
+      "target": "routers_sync_sync_status"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_sync_sync_status",
+      "target": "routers_sync_to_utc"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_sync_rationale_11",
+      "target": "routers_sync_to_utc"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/sync.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_sync_rationale_26",
+      "target": "routers_sync_sync_status"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/sync.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "routers_sync_sync_status",
+      "target": "services_db_helpers_pg_fetch_one"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_robots"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_health"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_get_status"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_sync"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_get_sensors"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_get_alerts"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L116",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_routers_system_py",
+      "target": "routers_system_get_thresholds"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_system_rationale_27",
+      "target": "routers_system_get_status"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/system.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "routers_system_get_status",
+      "target": "services_db_helpers_pg_fetch_one"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/system.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "routers_system_get_status",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/system.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "routers_system_sync",
+      "target": "fetch_sync_run_sync"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/routers/system.py",
+      "source_location": "L99",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "routers_system_rationale_99",
+      "target": "routers_system_get_alerts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/system.py",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "routers_system_get_alerts",
+      "target": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/routers/system.py",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "routers_system_get_alerts",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/cache.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_services_cache_py",
+      "target": "services_cache_normalize_ts"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/cache.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_services_cache_py",
+      "target": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/cache.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "services_cache_get_cached_sensor_data",
+      "target": "services_cache_normalize_ts"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/cache.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "services_cache_rationale_11",
+      "target": "services_cache_normalize_ts"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/cache.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "services_cache_rationale_28",
+      "target": "services_cache_get_cached_sensor_data"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/cache.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "services_cache_get_cached_sensor_data",
+      "target": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/cache.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "services_cache_get_cached_sensor_data",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_services_db_helpers_py",
+      "target": "services_db_helpers_pg_fetch_all"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "api_services_db_helpers_py",
+      "target": "services_db_helpers_pg_fetch_one"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "services_db_helpers_pg_fetch_all",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "services_db_helpers_pg_fetch_all",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "services_db_helpers_pg_fetch_one",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "api/services/db_helpers.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "services_db_helpers_pg_fetch_one",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_load_history_py",
+      "target": "fetch_load_history_fetch_chunk"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_load_history_py",
+      "target": "fetch_load_history_load_all_history"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/load_history.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_load_history_load_all_history",
+      "target": "fetch_load_history_fetch_chunk"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/load_history.py",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "fetch_load_history_load_all_history",
+      "target": "database_firestore_save_data"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "context": "call",
+      "confidence_score": 1.0,
+      "source": "fetch_load_history_supabase_py",
+      "target": "fetch_load_history_supabase_fetch_chunk"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "context": "call",
+      "confidence_score": 1.0,
+      "source": "fetch_load_history_supabase_py",
+      "target": "fetch_load_history_supabase_save_to_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/load_history_supabase.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "fetch_load_history_supabase_save_to_supabase",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_send_telegram"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_last_alert_time_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_last_alert_time"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L115",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_in_cooldown"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L125",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_init_sensor_states"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_save_alert"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L207",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_check_silence"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L253",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_py",
+      "target": "fetch_notifier_check_and_notify"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L232",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_check_silence",
+      "target": "fetch_notifier_send_telegram"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L295",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_check_and_notify",
+      "target": "fetch_notifier_send_telegram"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_check_sync_health",
+      "target": "fetch_notifier_send_telegram"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L96",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_last_alert_time",
+      "target": "fetch_notifier_last_alert_time_pg"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_rationale_65",
+      "target": "fetch_notifier_last_alert_time_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "fetch_notifier_last_alert_time_pg",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "fetch_notifier_last_alert_time_pg",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L116",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_in_cooldown",
+      "target": "fetch_notifier_last_alert_time"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L95",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_rationale_95",
+      "target": "fetch_notifier_last_alert_time"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L284",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_check_and_notify",
+      "target": "fetch_notifier_in_cooldown"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_rationale_126",
+      "target": "fetch_notifier_init_sensor_states"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "fetch_notifier_init_sensor_states",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "fetch_notifier_init_sensor_states",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L234",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_check_silence",
+      "target": "fetch_notifier_save_alert"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/notifier.py",
+      "source_location": "L297",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_notifier_check_and_notify",
+      "target": "fetch_notifier_save_alert"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L185",
+      "weight": 1.0,
+      "source": "fetch_notifier_save_alert",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/notifier.py",
+      "source_location": "L204",
+      "weight": 1.0,
+      "source": "fetch_notifier_save_alert",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/sync.py",
+      "source_location": "L157",
+      "weight": 1.0,
+      "source": "fetch_sync_save_to_supabase",
+      "target": "fetch_notifier_check_and_notify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_py",
+      "target": "fetch_reconciliation_push_reconciliation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_py",
+      "target": "fetch_reconciliation_push_table_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_py",
+      "target": "fetch_reconciliation_pull_reconciliation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_py",
+      "target": "fetch_reconciliation_pull_table_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_py",
+      "target": "fetch_reconciliation_check_sync_health"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_push_reconciliation",
+      "target": "fetch_reconciliation_push_table_data"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_rationale_10",
+      "target": "fetch_reconciliation_push_reconciliation"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_push_table_data",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_push_table_data",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_push_table_data",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_pull_reconciliation",
+      "target": "fetch_reconciliation_pull_table_data"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_rationale_79",
+      "target": "fetch_reconciliation_pull_reconciliation"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_pull_table_data",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_pull_table_data",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_pull_table_data",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L143",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_reconciliation_rationale_143",
+      "target": "fetch_reconciliation_check_sync_health"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_check_sync_health",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "fetch_reconciliation_check_sync_health",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/recover.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_recover_py",
+      "target": "fetch_recover_recover"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/recover.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "fetch_recover_recover",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_init_last_received"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_update_last_received"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_get_last_received"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_get_last_timestamp"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_fetch_new_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L129",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_save_to_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_py",
+      "target": "fetch_sync_run_sync"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_init_last_received",
+      "target": "fetch_sync_get_last_timestamp"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_rationale_16",
+      "target": "fetch_sync_init_last_received"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L152",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_save_to_supabase",
+      "target": "fetch_sync_update_last_received"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_rationale_28",
+      "target": "fetch_sync_update_last_received"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_get_last_received",
+      "target": "fetch_sync_get_last_timestamp"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_rationale_33",
+      "target": "fetch_sync_get_last_received"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L164",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_run_sync",
+      "target": "fetch_sync_get_last_timestamp"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/sync.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "fetch_sync_get_last_timestamp",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L171",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_run_sync",
+      "target": "fetch_sync_fetch_new_data"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/sync.py",
+      "source_location": "L190",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_sync_run_sync",
+      "target": "fetch_sync_save_to_supabase"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "fetch/sync.py",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "fetch_sync_save_to_supabase",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/thingspeak.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_thingspeak_py",
+      "target": "fetch_thingspeak_get_latest_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_firestore_py",
+      "target": "database_firestore_init_firebase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_firestore_py",
+      "target": "database_firestore_save_data"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/firestore.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "database_firestore_save_data",
+      "target": "database_firestore_init_firebase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_postgres_client_py",
+      "target": "database_postgres_client_get_pool"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_postgres_client_py",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_postgres_client_py",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_postgres_client_py",
+      "target": "database_postgres_client_pg_available"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "database_postgres_client_get_pg",
+      "target": "database_postgres_client_get_pool"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "database_postgres_client_release_pg",
+      "target": "database_postgres_client_get_pool"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "database_postgres_client_pg_available",
+      "target": "database_postgres_client_get_pg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/postgres_client.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "database_postgres_client_pg_available",
+      "target": "database_postgres_client_release_pg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fetch/database/supabase_client.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "fetch_database_supabase_client_py",
+      "target": "database_supabase_client_get_supabase"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_eschtml"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_themetoggle"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_gettheme"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L49",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L59",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L64",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L71",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_cache"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L72",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L81",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_renderall"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L91",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_renderheatmap"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L131",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_renderweekly"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L166",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_rendercorrelation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L206",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_rendercycles"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L250",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_renderforecast"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L320",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_js",
+      "target": "frontend_analytics_renderanomalies"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L334",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderanomalies",
+      "target": "frontend_analytics_eschtml"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_baselayout",
+      "target": "frontend_analytics_gettheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L99",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_gettheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L138",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_gettheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L212",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_gettheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L118",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L157",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L193",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercorrelation",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L238",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L307",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderforecast",
+      "target": "frontend_analytics_baselayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L92",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L132",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L167",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercorrelation",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L207",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L251",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderforecast",
+      "target": "frontend_analytics_spinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L128",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L162",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L202",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercorrelation",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L246",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L316",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderforecast",
+      "target": "frontend_analytics_errmsg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L106",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L140",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L181",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercorrelation",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L214",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L284",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderforecast",
+      "target": "frontend_analytics_clearspinner"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L95",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderheatmap",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L135",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderweekly",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L169",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercorrelation",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L209",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_rendercycles",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L253",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderforecast",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L324",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderanomalies",
+      "target": "frontend_analytics_fetchjson"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L82",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_renderheatmap"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L83",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_renderweekly"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L84",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_rendercorrelation"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L85",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_rendercycles"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L86",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_renderforecast"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/analytics.js",
+      "source_location": "L87",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_analytics_renderall",
+      "target": "frontend_analytics_renderanomalies"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_alldata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_tocolombiatime"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_formatdate"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_timeago"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_chartlayout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_rendercharts"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L68",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_updatestats"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L78",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_applystats"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L96",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_aplicarfiltro"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L145",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_resetfiltro"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L152",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_loaddata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L165",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_escapehtml"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L176",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_loadalerts"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L206",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_startautorefresh"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L222",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_stopautorefresh"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L231",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_resetcountdown"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L235",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_startcountdown"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L246",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_stopcountdown"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L253",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_rollingavg"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L262",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_rendercombined"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L354",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_descargarcsv"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L397",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_default_thresholds"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L403",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_loadthresholds"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L408",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_savethresholds"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L412",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_fillthresholdinputs"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L421",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_guardarumbrales"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L433",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_resetumbrales"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L439",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_toggleumbrales"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L446",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_checkalerts"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L471",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_applytheme"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L494",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_js",
+      "target": "frontend_app_toggletheme"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L57",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_tocolombiatime"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L57",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_formatdate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_timeago"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_chartlayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L313",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercombined",
+      "target": "frontend_app_chartlayout"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L62",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_rendercombined"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L63",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_checkalerts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L64",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercharts",
+      "target": "frontend_app_resetcountdown"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L101",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_aplicarfiltro",
+      "target": "frontend_app_rendercharts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L148",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_resetfiltro",
+      "target": "frontend_app_rendercharts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L157",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_loaddata",
+      "target": "frontend_app_rendercharts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L72",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_updatestats",
+      "target": "frontend_app_applystats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L102",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_aplicarfiltro",
+      "target": "frontend_app_updatestats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L149",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_resetfiltro",
+      "target": "frontend_app_updatestats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L158",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_loaddata",
+      "target": "frontend_app_updatestats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L138",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_aplicarfiltro",
+      "target": "frontend_app_applystats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L263",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_rendercombined",
+      "target": "frontend_app_rollingavg"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L427",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_guardarumbrales",
+      "target": "frontend_app_savethresholds"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L434",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_resetumbrales",
+      "target": "frontend_app_savethresholds"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L435",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_resetumbrales",
+      "target": "frontend_app_fillthresholdinputs"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L428",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_guardarumbrales",
+      "target": "frontend_app_checkalerts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L436",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_resetumbrales",
+      "target": "frontend_app_checkalerts"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L498",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_app_toggletheme",
+      "target": "frontend_app_applytheme"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/main.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "api_main",
+      "target": "nexus_postgres"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/main.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "api_main",
+      "target": "supabase_db"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": "POST /ingest",
+      "weight": 1.0,
+      "source": "esp32_device",
+      "target": "api_main"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app.js",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_app",
+      "target": "api_main"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/analytics.js",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "frontend_analytics",
+      "target": "api_main"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "api/main.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "api_main",
+      "target": "fetch_notifier"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "fetch/sync.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "fetch_sync",
+      "target": "thingspeak_api"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "fetch_reconciliation",
+      "target": "nexus_postgres"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "fetch/reconciliation.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "fetch_reconciliation",
+      "target": "supabase_db"
+    },
+    {
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "rclone_sync",
+      "target": "fetch_notifier"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "esp32_device",
+      "target": "thingspeak_api"
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "c8a25a519f81354e7c5b47f1358012dff3dc8ea5"
+}

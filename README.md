@@ -1,160 +1,82 @@
-# ⬡ NEXUS — Monitor IoT en Tiempo Real y Análisis Histórico
+# 🚀 NEXUS
 
-Plataforma de monitoreo de sensores IoT con visualización de datos en tiempo real,
-almacenamiento histórico en la nube, análisis de tendencias y sincronización automática.
+Sistema IoT híbrido edge/cloud para monitoreo ambiental en tiempo real, analítica avanzada y sincronización resiliente entre infraestructura local y cloud.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
-🖥️ **Servidor local:** [https://mechanisms-ave-invention-stakeholders.trycloudflare.com]
+🖥️ **Servidor local:** [mechanisms-ave-invention-stakeholders.trycloudflare.com](https://mechanisms-ave-invention-stakeholders.trycloudflare.com)
 
----
+> **En desarrollo activo** — Versión 0.9.3
 
-## 🚀 Estado del proyecto
+***
 
-> **En desarrollo activo** — Versión 0.9.2
+## 🌟 Características principales
 
----
+### 📡 Adquisición de datos IoT
 
-## ✅ Lo que funciona actualmente
+- Recepción de datos desde ESP32-S3 vía `POST /ingest`
+- Envío paralelo a ThingSpeak (redundancia de envío garantizada)
+- Endpoint seguro con autenticación `X-API-Key`
+- Validación y normalización automática de lecturas
 
-- Lectura de datos desde ThingSpeak via API REST
-- Almacenamiento histórico en Supabase (PostgreSQL) — +30,000 puntos
-- Sincronización incremental automática cada 5 minutos (APScheduler interno)
-- Reintentos con backoff exponencial si ThingSpeak falla (hasta 4 intentos)
-- API REST con FastAPI que expone los datos
-- **Sistema avanzado de Caché en RAM con Eager Loading y Thread Locks para proteger la base de datos.**
-- Dashboard web multipágina con UI/UX unificada (Tarjetas modulares, navegación "Píldora").
-- Panel **Real-Time**: Gráficas interactivas, barra de estado, reloj de actualización.
-- Panel **Analytics**: Análisis de tendencias, correlación (Pearson), ciclos y forecast.
-- Visualización de Temperatura (DHT11), Humedad (DHT11) y Presión (BMP280).
-- Filtro por rango de fechas con paginación automática.
-- Ajuste automático de zona horaria Colombia (America/Bogota).
-- Dashboard público desplegado en Render.com.
-- Auto-refresco del dashboard cada 5 minutos.
-- Exportación de datos en CSV directamente desde el backend.
-- Alertas visuales con umbrales configurables y persistentes en localStorage.
-- Modo oscuro / claro con persistencia.
-- Logging estructurado para trazabilidad en Render logs.
-- RLS habilitado en Supabase e índices optimizados por `created_at DESC`.
-- Notificaciones Telegram con lógica de estado (sin spam, sin rebote).
-- Watchdog de silencio: alerta Telegram si no llegan datos en 10 minutos, con aviso de restablecimiento automático.
-- Sanitización XSS en frontend: escapado de variables dinámicas en `innerHTML` (fix CodeQL #5).
-- Endpoint `/robots.txt` para proteger rutas de API de indexación.
-- **Almacenamiento primario en PostgreSQL local** (Docker) — dual-write con fallback
-- **Recepción directa desde ESP32** via `POST /ingest` — sin depender de ThingSpeak
-- **Historial de alertas guardado en PostgreSQL local Y Supabase simultáneamente.**
-- **Backup automatizado a Google Drive** con rclone en contenedor Docker, cron diario a las 9:10 PM COT con notificación Telegram al completar.
-- **Fallback automático Postgres → Supabase** en todos los endpoints de lectura con caché en RAM (Eager Loading, 5 min TTL).
-- **Logs del cron visibles** en `docker logs rclone_sync` via redirección a `/proc/1/fd/1`.
-- Protección de escritura en `POST /ingest` mediante `X-API-Key` header — solo el ESP32 autorizado puede insertar datos
-- Caché incremental — primera carga descarga 60 días, actualizaciones posteriores solo traen registros nuevos desde el último `created_at`
-- Endpoint `GET /status` — estado en tiempo real de PostgreSQL local y Supabase con conteo de registros y detección de desincronización
-- `tenant_id` en `sensor_data` y `alert_history` — columna multi-tenant preparada, valor `'default'` en PostgreSQL local y Supabase
-- **Reconciliación Automática (PUSH/PULL)** — garantiza la consistencia bidireccional entre la base local y Supabase ante fallos de red.
-- **Idempotencia y Unicidad** — restricciones únicas compuestas (`tenant_id` + `created_at`) en BD garantizan Upserts bidireccionales sin duplicados.
-- **Endpoint `GET /sync/status`** — observabilidad del sync: conteo de registros pendientes, desfase en minutos y estado (`sincronizado` / `pendiente` / `desfasado`).
-- **Job horario `check_sync_health`** — envía alerta Telegram si el desfase supera 60 minutos y otra de restablecimiento cuando se corrige.
-- **`init_sensor_states()`** — carga el último estado de alerta por sensor desde Postgres al arrancar, evitando duplicados tras reinicios.
-- **`_last_alert_time()`** — consulta Postgres primero y Supabase como fallback para el cooldown, garantizando robustez en modo offline.
-- **ESP32 envía datos a ThingSpeak Y al servidor local en paralelo** — redundancia de envío garantizada.
-- Compatibilidad dual de `created_at`: maneja `datetime` (Postgres local) y `str` (Supabase) en todos los endpoints.
-- **Red Docker compartida** (`nexus_net`) entre contenedores — comunicación interna sin exponer puertos.
-- **Modularización de la API** con `APIRouter` de FastAPI — separación en `routers/` y `services/` para mejor mantenibilidad.
-- Endpoint `GET /config/thresholds` — consulta los umbrales de alerta activos (temperatura, humedad, presión) desde la API.
+### 🗄️ Arquitectura híbrida
 
----
+- PostgreSQL local en Docker como base de datos primaria (multi-tenant ready)
+- Supabase cloud como respaldo y sincronización
+- Dual-write: escritura simultánea en ambas bases de datos
+- Sistema PUSH/PULL bidireccional con reconciliación automática
+- Resiliencia offline y fallback automático Postgres → Supabase
 
-## 🗺️ Roadmap
+### 📊 Dashboard analítico
 
-### Fase 1 — Base ✅
-- [x] Conexión con ThingSpeak
-- [x] ~~Base de datos en Firestore~~ → migrado a Supabase
-- [x] Sincronización automática en la nube
-- [x] API con FastAPI
-- [x] Dashboard básico con gráficas
+- Visualización en tiempo real con auto-refresco cada 5 minutos
+- Heatmaps de temperatura por hora del día
+- Análisis de tendencias, correlación Pearson, ciclos y forecast a 1 hora
+- Detección de anomalías (Desviación estándar ± Sigma)
+- Exportación de datos en CSV directamente desde el backend
+- Modo oscuro / claro con persistencia en localStorage
+- Alertas visuales con umbrales configurables
 
-### Fase 2 — Deploy y disponibilidad ✅
-- [x] Deploy del backend en Render.com
-- [x] Frontend servido desde FastAPI (ruta raíz `/`)
-- [x] UptimeRobot en `/health` para mantener el servicio activo 24/7
-- [x] Sincronización automática vía APScheduler interno
-- [x] Separación de CSS y JS en archivos independientes
-- [x] Layout principal (Temp arriba, Humedad/Presión lado a lado)
+### 🚨 Alertas automáticas
 
-### Fase 3 — Visualización ✅
-- [x] Selector de rango de fechas para filtrar datos históricos
-- [x] Indicadores en tiempo real sobre las gráficas
-- [x] Gráfica combinada de los 3 sensores
-- [x] Descarga de datos en CSV desde el dashboard
-- [x] Alertas visuales de umbrales configurables
-- [x] Modo oscuro / claro
+- Watchdog de silencio: alerta Telegram si no llegan datos en 10 minutos
+- Alertas Telegram con lógica de estado (sin spam, sin rebote)
+- Health checks con UptimeRobot en `/health`
+- Endpoint `/sync/status` con observabilidad del estado de sincronización
 
-### Fase 4 — Backend ✅
-- [x] Endpoints de estadísticas y exportación CSV
-- [x] Metadata de sensores y logging estructurado
-- [x] Índice en Supabase para optimizar queries
-- [x] Paginación y backoff exponencial
+### ⚡ Optimización y rendimiento
 
-### Fase 5 — Alertas y notificaciones ✅
-- [x] Notificaciones por Telegram al superar umbrales
-- [x] Historial de alertas en Supabase (`alert_history`)
-- [x] Dashboard con últimas alertas (`/alerts`)
-- [x] Lógica de estado en memoria (sin rebote ni spam)
-- [x] Watchdog de silencio — alerta si no llegan datos en ≥10 min (APScheduler cada 2 min)
+- Caché incremental en RAM con Eager Loading
+- TTL de 5 minutos y Thread Locks anti-stampede
+- Primera carga descarga 60 días; actualizaciones posteriores solo traen registros nuevos
+- Queries optimizadas con índices en `created_at DESC` y `tenant_id`
 
-### Fase 6 — Análisis de datos históricos ✅
-- [x] Heatmap de temperatura por hora del día
-- [x] Tendencia semanal — comportamiento por día de la semana
-- [x] Correlación temperatura / humedad (dispersión con coeficiente de Pearson)
-- [x] Promedio acumulado por hora — ciclos diarios
-- [x] Detección de anomalías (Desviación estándar ± Sigma)
-- [x] Forecast predictivo simple de temperatura a 1 hora
-- [x] Optimización de Backend con Caché Ansioso (Eager Loading) para reportes pesados
+***
 
-### Fase 7 — Infraestructura local ✅
-- [x] Endpoint `POST /ingest` — recepción directa desde ESP32
-- [x] PostgreSQL local en Docker (`nexus_postgres`) como BD primaria
-- [x] Dual-write: escribe en Postgres local + Supabase simultáneamente
-- [x] `alert_history` replicada en Postgres local
-- [x] Migración histórica completa: 41,622 registros + 687 alertas
-- [x] Red Docker compartida (`nexus_net`) entre contenedores
-- [x] ESP32 envía datos a ThingSpeak Y al servidor local en paralelo
+## 🧠 Arquitectura general
 
-### Fase 8 — Lectura local, Caché, Backup y Refactorización ✅
-- [x] Todos los endpoints de lectura (`/data`, `/data/latest`, `/data/stats`, `/data/heatmap`, `/data/weekly`, `/data/anomalies`, `/alerts`) leen desde PostgreSQL local con fallback a Supabase.
-- [x] Caché en RAM optimizada (incremental y Eager Loading) con descarga de registros nuevos, TTL 5 min y Thread Lock anti-stampede.
-- [x] Compatible con `created_at` como `datetime` (Postgres) o `str` (Supabase).
-- [x] Contenedor `rclone_sync` para backup automatizado (cron diario) a Google Drive y alertas en Telegram de la operación.
-- [x] Preparación Multi-tenant: columna `tenant_id TEXT DEFAULT 'default'` agregada en PostgreSQL local y Supabase.
-- [x] Modularización de la API usando `APIRouter` de FastAPI, separando `routers/` y `services/`.
+```text
+ESP32-S3
+   │
+   ├── ThingSpeak
+   └── POST /ingest
+           │
+           ▼
+FastAPI Backend
+           │
+    ┌──────┴──────┐
+    ▼             ▼
+PostgreSQL     Supabase
+(local)         (cloud)
+    │
+    ▼
+Dashboard + Analytics + Telegram
+```
 
-### Fase 9 — Seguridad
-- [x] API Key en `POST /ingest` (`X-API-Key` header) — proteger escritura ✅
-- [ ] JWT para endpoints de lectura — proteger dashboard
-- [ ] Cloudflare Access como capa de red antes del servidor
-
-### Fase 10 — Resiliencia y reconciliación de datos (PENDIENTE)
-> Garantizar consistencia entre PostgreSQL local y Supabase ante fallos de red, DNS o contenedor. Sincronización bidireccional automática.
-- [x] **Reconciliación PUSH (local → Supabase):** Agregar bandera `synced_to_supabase` en `sensor_data` y `alert_history`. En `/ingest` y con un Job horario, empujar datos pendientes hacia Supabase.
-- [x] **Reconciliación PULL (Supabase → local):** Job diario para comparar últimas 24h e insertar registros faltantes en Postgres local.
-- [x] **Idempotencia y Unicidad:** Implementación de restricciones únicas compuestas en BD (`tenant_id` + `created_at` + `sensor`) para garantizar Upserts bidireccionales sin duplicados.
-- [x] **Observabilidad del sync:** Endpoint `GET /sync/status` (público) con conteo de registros pendientes, desfase en minutos y estado (`sincronizado` / `pendiente` / `desfasado`). Job horario `check_sync_health` envía alerta Telegram si el desfase supera 60 minutos y otra de restablecimiento cuando se corrige.
-- [x] **Alertas desde base de datos:** `init_sensor_states()` carga el último estado de alerta por sensor desde Postgres al arrancar, evitando duplicados tras reinicios. `_last_alert_time()` consulta Postgres primero y Supabase como fallback para el cooldown, garantizando robustez en modo offline.
-
-### Fase 11 — Análisis Histórico Avanzado y Épocas (PENDIENTE)
-- [ ] Ampliar gráficos analíticos incluyendo promedios detallados por horas, días, semanas y meses.
-- [ ] Herramientas para comparar periodos históricos o temporadas (ej. meses secos vs meses de lluvia, años anteriores).
-- [ ] Agregar visualizaciones relevantes para análisis a largo plazo, máximos/mínimos absolutos y tendencias estacionales.
-
-### Fase 12 — Dominio y servidor principal (PENDIENTE)
-- [ ] Comprar dominio y gestionar DNS en Cloudflare.
-- [ ] Crear Named Tunnel permanente (reemplaza trycloudflare.com temporal).
-- [ ] Migrar de Render.com al servidor doméstico como hosting principal.
-
----
+***
 
 ## 🛠️ Stack tecnológico
 
-| Capa | Tecnología |
+| Área | Tecnologías |
 |---|---|
 | Sensores / Fuente | ESP32-S3 + DHT11 + BMP280 |
 | Envío de datos | ThingSpeak (buffer) + POST directo al servidor local |
@@ -167,8 +89,101 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | Hosting actual | Render.com + Servidor doméstico (Debian 12) |
 | Túnel público | Cloudflare Tunnel (trycloudflare.com — temporal) |
 | Backup / Sync | rclone + Google Drive + Docker cron |
+| Analytics | Pandas, NumPy |
+| Arquitectura | Graphify, NetworkX |
 
----
+## ⚡ Instalación rápida
+
+### 1. Clonar repositorio
+
+```bash
+git clone https://github.com/robinsons1/NEXUS.git
+cd NEXUS
+```
+
+### 2. Crear entorno virtual
+
+**Windows:**
+
+```powershell
+python -m venv venv
+venv\Scripts\Activate.ps1
+```
+
+**Linux:**
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configurar variables de entorno
+
+Crear archivo `.env` basado en `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Variables requeridas:
+
+```env
+# ThingSpeak
+THINGSPEAK_CHANNEL_ID=
+THINGSPEAK_READ_API_KEY=
+
+# Supabase
+SUPABASE_URL=
+SUPABASE_KEY=
+
+# Seguridad ingest
+INGEST_API_KEY=
+
+# Telegram
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+
+# PostgreSQL local
+POSTGRES_HOST=
+POSTGRES_PORT=
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+```
+
+### 5. Levantar PostgreSQL con Docker
+
+```bash
+docker network create nexus_net
+
+docker run -d \
+  --name nexus_postgres \
+  --network nexus_net \
+  -e POSTGRES_DB=nexus \
+  -e POSTGRES_USER=nexus \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  postgres:16
+```
+
+### 6. Ejecutar backend
+
+```bash
+python -m uvicorn api.main:app --reload
+```
+
+Servidor disponible en: `http://localhost:8000`
+
+> ⚠️ Para pruebas locales, cambiar `const API = "http://127.0.0.1:8000"` en `frontend/app.js`.
+> Antes de cualquier commit, revertir a `const API = "https://nexus-w0yh.onrender.com"`.
+
+***
 
 ## 🔌 Endpoints disponibles
 
@@ -188,67 +203,28 @@ almacenamiento histórico en la nube, análisis de tendencias y sincronización 
 | `/alerts` | GET | Historial de alertas Telegram. Params: `limit` (def. 50) |
 | `/config/thresholds` | GET | Umbrales de alerta configurados (temperatura, humedad, presión) |
 | `/sync` | GET/HEAD | Sincronización manual ThingSpeak → BDs |
-| `/sync/status` | GET | Observabilidad del sync local→Supabase: pendientes, desfase en minutos y estado (`sincronizado`/`pendiente`/`desfasado`) |
+| `/sync/status` | GET | Observabilidad del sync local→Supabase: pendientes, desfase en minutos y estado |
 | `/status` | GET | Estado en tiempo real de PostgreSQL local y Supabase: conteo de registros, diff e `in_sync` |
 | `/ingest` | POST | Recepción directa desde ESP32. Requiere header `X-API-Key`. Body: `field1` (°C), `field2` (%), `field3` (hPa, opcional) |
 | `/health` | GET/HEAD | Health check — usado por UptimeRobot |
 | `/docs` | GET | Documentación interactiva Swagger UI |
 | `/robots.txt` | GET | Directivas de indexación para crawlers |
 
----
+***
 
-## ⚙️ Instalación local
+## 📂 Estructura del proyecto
 
-### Requisitos
-- Python 3.11+
-- Docker + Docker Compose
-- Canal en ThingSpeak
-- Cuenta en Supabase
-- Cuenta en Google Drive (para backup con rclone — opcional)
-
-### Pasos
-
-```bash
-# Clonar el repositorio
-git clone [https://github.com/robinsons1/NEXUS.git](https://github.com/robinsons1/NEXUS.git)
-cd NEXUS
-
-# Crear entorno virtual
-python -m venv venv
-venv\Scripts\Activate.ps1  # Windows
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Configurar variables de entorno
-cp .env.example .env
-# Agregar `THINGSPEAK_CHANNEL_ID`, `API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `INGEST_API_KEY`
-```
-
-### Correr localmente
-
-```bash
-python -m uvicorn api.main:app --reload
-# http://localhost:8000
-```
-
-> Para pruebas locales cambiar `const API = "http://127.0.0.1:8000"` en `frontend/app.js`.
-> Antes de cualquier commit revertir a `const API = "https://nexus-w0yh.onrender.com"`.
-
----
-
-## 📁 Estructura del proyecto
-
-```
+```text
+NEXUS/
 ├── .github/                     # Workflows y configuración de GitHub
 ├── api/
 │   ├── routers/                 # Rutas de la API (analytics, data, ingest, system)
 │   ├── services/                # Servicios de caché y base de datos
 │   └── main.py                  # Punto de entrada de FastAPI
 ├── fetch/
-│   ├── database/                # Clientes de BD (Postgres, Supabase, Firestore)
+│   ├── database/                # Clientes de BD (Postgres, Supabase)
 │   ├── load_history.py          # Scripts de migración y utilidades
-│   ├── load_history_supabase.py # Scripts de migración y utilidades
+│   ├── load_history_supabase.py
 │   ├── notifier.py              # Gestión de alertas (Telegram y DB)
 │   ├── reconciliation.py        # Jobs de reconciliación (PUSH/PULL)
 │   ├── recover.py               # Scripts de recuperación
@@ -260,12 +236,79 @@ python -m uvicorn api.main:app --reload
 │   ├── app.js                   # Lógica del dashboard principal
 │   ├── index.html               # Vista del dashboard principal
 │   └── style.css                # Estilos globales
+├── docs/
+│   ├── architecture/            # Arquitectura interna y análisis Graphify
+│   ├── deployment/              # Infraestructura, Docker y deployment
+│   └── images/                  # Capturas del dashboard
+├── docker/
+├── backups/
 ├── .env.example                 # Variables de entorno de ejemplo
-├── p.py                         # Utilidad extra
 ├── render.yaml                  # Configuración de despliegue en Render
 └── requirements.txt             # Dependencias de Python
 ```
---
+
+***
+
+## 🔒 Seguridad
+
+Implementado actualmente:
+
+- API Key (`X-API-Key`) para `POST /ingest` — solo el ESP32 autorizado puede insertar datos
+- Sanitización XSS en frontend: escapado de variables dinámicas en `innerHTML`
+- RLS (Row Level Security) en Supabase
+- Docker network aislada (`nexus_net`) — comunicación interna sin exponer puertos
+- Thread Locks anti-stampede en caché
+- Fallback automático PostgreSQL ↔ Supabase
+- Endpoint `/robots.txt` para proteger rutas de API de indexación
+
+Pendiente:
+
+- JWT Authentication para endpoints de lectura
+- Cloudflare Access como capa de red
+- Dominio personalizado con Named Tunnel permanente
+
+***
+
+## 📈 Roadmap
+
+### ✅ Implementado (Fases 1–10)
+
+- [x] Backend FastAPI modular (`routers/` y `services/`)
+- [x] PostgreSQL local en Docker como BD primaria
+- [x] Supabase sync (dual-write + fallback)
+- [x] Dashboard analítico multipágina
+- [x] Caché incremental con Eager Loading y TTL 5 min
+- [x] Watchdog Telegram + historial de alertas
+- [x] Arquitectura híbrida edge/cloud
+- [x] Backup automatizado a Google Drive (rclone, cron diario)
+- [x] Reconciliación PUSH/PULL bidireccional automática
+- [x] Idempotencia y unicidad con Upserts sin duplicados
+- [x] Observabilidad del sync (`/sync/status`)
+- [x] API Key en `/ingest`
+- [x] Multi-tenant preparado (`tenant_id`)
+- [x] Migración histórica completa: 41,622 registros + 687 alertas
+
+### 🚧 En desarrollo (Fase 9 parcial)
+
+- [ ] JWT Authentication para endpoints de lectura
+- [ ] Cloudflare Access
+
+### 🗓️ Pendiente
+
+- [ ] Named Cloudflare Tunnel permanente (Fase 12)
+- [ ] Dominio propio
+- [ ] Migración al servidor doméstico como hosting principal
+- [ ] Dashboards avanzados con métricas históricas estacionales (Fase 11)
+- [ ] Forecasting ambiental avanzado
+- [ ] Multi-tenant real
+
+### 🧪 Futuras integraciones
+
+- **IoT:** MQTT, Home Assistant, Node-RED
+- **Observabilidad:** Grafana, Prometheus, Loki
+- **IA:** detección predictiva, forecasting, modelos temporales, Edge AI
+
+***
 
 ## 🌿 Ramas Git
 
@@ -276,9 +319,24 @@ python -m uvicorn api.main:app --reload
 
 Flujo: trabajar en `dev` → resolver conflictos → merge a `main`.
 
----
+***
+
+## 📚 Documentación técnica
+
+| Documento | Descripción |
+|---|---|
+| [`docs/architecture/`](docs/architecture/) | Arquitectura interna, análisis Graphify, comunidades funcionales y God Nodes |
+| [`docs/deployment/`](docs/deployment/) | Infraestructura completa, Docker, deployment en Render y mantenimiento |
+
+***
 
 ## 👤 Autor
 
-**Robinson Segura Aponte**  
+**Robinson Segura Aponte**
 [github.com/robinsons1](https://github.com/robinsons1)
+
+***
+
+## 📄 Licencia
+
+Proyecto bajo licencia MIT.
