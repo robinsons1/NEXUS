@@ -1,6 +1,6 @@
 # 🧠 Arquitectura y análisis técnico — NEXUS
 
-**Versión**: v0.9.3 | **Última actualización**: 2026-05-19
+**Versión**: v0.9.5 | **Última actualización**: 2026-05-20
 
 Documentación técnica interna del proyecto NEXUS. Esta sección contiene el análisis arquitectónico completo, estructura modular, relaciones internas, análisis Graphify, comunidades funcionales, observabilidad, sincronización híbrida y dependencias críticas.
 

@@ -1,6 +1,6 @@
 # 🚀 Deployment e Infraestructura — NEXUS
 
-**Versión**: v0.9.3 | **Última actualización**: 2026-05-19
+**Versión**: v0.9.5 | **Última actualización**: 2026-05-20
 
 Documentación técnica completa de despliegue, infraestructura, sincronización, servicios auxiliares y mantenimiento del proyecto NEXUS.
 

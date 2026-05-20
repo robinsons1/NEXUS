@@ -1,7 +1,7 @@
 const API = "";
 
 let allData = [];
-let refreshTimer = null;
+
 let countdownTimer = null;
 let countdownSeconds = 5 * 60;
 
@@ -61,7 +61,7 @@ function renderCharts(data) {
 
     renderCombined(times, temp, hum, pres);
     checkAlerts();
-    resetCountdown();
+    syncCountdownToData();
 }
 
 // ── Hace el fetch y aplica ──
@@ -202,34 +202,31 @@ async function loadAlerts() {
     }
 }
 
-// ── Auto-refresh ──
-function startAutoRefresh() {
-    if (refreshTimer) return;
-    refreshTimer = setInterval(() => {
-        const inicio = document.getElementById("fecha-inicio").value;
-        const fin    = document.getElementById("fecha-fin").value;
-        resetCountdown();
-        if (inicio && fin) {
-            aplicarFiltro();
-        } else {
-            loadData();
-            loadAlerts();  // ← AÑADIR ESTA LÍNEA
-        }
-    }, REFRESH_MS);
-    console.log("[Nexus] Auto-refresh iniciado ✅");
-}
-
-function stopAutoRefresh() {
-    if (refreshTimer) {
-        clearInterval(refreshTimer);
-        refreshTimer = null;
-        console.log("[Nexus] Auto-refresh pausado ⏸️");
+// ── Refresh helper ──
+function doRefresh() {
+    const inicio = document.getElementById("fecha-inicio").value;
+    const fin    = document.getElementById("fecha-fin").value;
+    if (inicio && fin) {
+        aplicarFiltro();
+    } else {
+        loadData();
+        loadAlerts();
     }
 }
 
-// ── Countdown ──
-function resetCountdown() {
-    countdownSeconds = REFRESH_MS / 1000;
+// ── Countdown sincronizado con datos reales ──
+function syncCountdownToData() {
+    if (allData.length === 0) {
+        countdownSeconds = REFRESH_MS / 1000;
+        return;
+    }
+    const lastTime  = new Date(allData.at(-1).created_at).getTime();
+    const now       = Date.now();
+    const elapsedSec  = Math.floor((now - lastTime) / 1000);
+    const intervalSec = REFRESH_MS / 1000;
+    const remaining   = intervalSec - (elapsedSec % intervalSec);
+    // Mínimo 5 s para evitar refresh en loop si el dato es reciente
+    countdownSeconds = Math.max(5, Math.min(remaining, intervalSec));
 }
 
 function startCountdown() {
@@ -240,6 +237,12 @@ function startCountdown() {
         const s  = String(countdownSeconds % 60).padStart(2, "0");
         const el = document.getElementById("sb-countdown");
         if (el) el.textContent = `${m}:${s}`;
+
+        // Al llegar a 0, disparar refresh de inmediato
+        if (countdownSeconds <= 0) {
+            countdownSeconds = REFRESH_MS / 1000; // evitar doble disparo
+            doRefresh();
+        }
     }, 1000);
 }
 
@@ -501,10 +504,9 @@ function toggleTheme() {
 // ── Visibilidad de pestaña ──
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-        startAutoRefresh();
+        syncCountdownToData();
         startCountdown();
     } else {
-        stopAutoRefresh();
         stopCountdown();
     }
 });
@@ -531,5 +533,5 @@ applyTheme(localStorage.getItem("nexus_theme") || "dark");
 
 loadData();
 loadAlerts();
-startAutoRefresh();
+
 startCountdown();

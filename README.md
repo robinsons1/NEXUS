@@ -5,7 +5,7 @@ Sistema IoT híbrido edge/cloud para monitoreo ambiental en tiempo real, analít
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
 🖥️ **Servidor local:** [https://assure-programmer-shepherd-harvest.trycloudflare.com](https://assure-programmer-shepherd-harvest.trycloudflare.com)
 
-> **En desarrollo activo** — Versión 0.9.3 | [Historial de cambios](#-roadmap)
+> **En desarrollo activo** — Versión 0.9.5 | **Última actualización**: 2026-05-20 | [Historial de cambios](#-roadmap) 
 
 ***
 
