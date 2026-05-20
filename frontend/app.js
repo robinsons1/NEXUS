@@ -34,12 +34,12 @@ const chartLayout = () => ({
 
 function renderCharts(data) {
     const times = data.map(d => new Date(d.created_at));
-    const temp  = data.map(d => parseFloat(d.field1));
-    const hum   = data.map(d => parseFloat(d.field2));
-    const pres  = data.map(d => parseFloat(d.field3));
+    const temp = data.map(d => parseFloat(d.field1));
+    const hum = data.map(d => parseFloat(d.field2));
+    const pres = data.map(d => parseFloat(d.field3));
 
     document.getElementById("val-temp").textContent = temp.at(-1)?.toFixed(1) ?? "--";
-    document.getElementById("val-hum").textContent  = hum.at(-1)?.toFixed(1)  ?? "--";
+    document.getElementById("val-hum").textContent = hum.at(-1)?.toFixed(1) ?? "--";
     document.getElementById("val-pres").textContent = pres.at(-1)?.toFixed(1) ?? "--";
 
     const trace = (y, color) => [{
@@ -49,15 +49,15 @@ function renderCharts(data) {
         fill: "none"
     }];
 
-    Plotly.newPlot("chart-temp", trace(temp, "#f87171"), chartLayout(), {responsive: true});
-    Plotly.newPlot("chart-hum",  trace(hum,  "#34d399"), chartLayout(), {responsive: true});
-    Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), chartLayout(), {responsive: true});
+    Plotly.newPlot("chart-temp", trace(temp, "#f87171"), chartLayout(), { responsive: true });
+    Plotly.newPlot("chart-hum", trace(hum, "#34d399"), chartLayout(), { responsive: true });
+    Plotly.newPlot("chart-pres", trace(pres, "#818cf8"), chartLayout(), { responsive: true });
 
     const lastDate = data.at(-1).created_at;
     document.getElementById("sb-ultimo").textContent = formatDate(toColombiaTime(lastDate));
-    document.getElementById("sb-hace").textContent   = timeAgo(lastDate);
-    document.getElementById("sb-desde").textContent  = formatDate(toColombiaTime(data[0].created_at));
-    document.getElementById("sb-pagina").textContent = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
+    document.getElementById("sb-hace").textContent = timeAgo(lastDate);
+    document.getElementById("sb-desde").textContent = formatDate(toColombiaTime(data[0].created_at));
+    document.getElementById("sb-pagina").textContent = new Date().toLocaleString("es-CO", { timeZone: "America/Bogota" });
 
     renderCombined(times, temp, hum, pres);
     checkAlerts();
@@ -67,7 +67,7 @@ function renderCharts(data) {
 // ── Hace el fetch y aplica ──
 async function updateStats(params = "") {
     try {
-        const res   = await fetch(`${API}/data/stats${params}`);
+        const res = await fetch(`${API}/data/stats${params}`);
         const stats = await res.json();
         applyStats(stats);
     } catch (e) {
@@ -78,24 +78,24 @@ async function updateStats(params = "") {
 function applyStats(s) {
     const fields = [
         { key: "temperature", id: "temp" },
-        { key: "humidity",    id: "hum"  },
-        { key: "pressure",    id: "pres" },
+        { key: "humidity", id: "hum" },
+        { key: "pressure", id: "pres" },
     ];
 
     fields.forEach(({ key, id }) => {
         const d = s[key];
         if (!d) return;
         document.getElementById(`stat-${id}-last`).textContent = d.last;
-        document.getElementById(`stat-${id}-min`).textContent  = d.min;
-        document.getElementById(`stat-${id}-max`).textContent  = d.max;
-        document.getElementById(`stat-${id}-avg`).textContent  = d.avg;
+        document.getElementById(`stat-${id}-min`).textContent = d.min;
+        document.getElementById(`stat-${id}-max`).textContent = d.max;
+        document.getElementById(`stat-${id}-avg`).textContent = d.avg;
     });
 }
 
 // ── Filtro ──                              // ← CAMBIO: async + updateStats
 async function aplicarFiltro() {
     const inicio = document.getElementById("fecha-inicio").value;
-    const fin    = document.getElementById("fecha-fin").value;
+    const fin = document.getElementById("fecha-fin").value;
 
     if (!inicio && !fin) {
         renderCharts(allData);
@@ -104,18 +104,18 @@ async function aplicarFiltro() {
     }
 
     const startParam = inicio || null;
-    const endParam   = fin ? `${fin}T23:59:59` : null;
+    const endParam = fin ? `${fin}T23:59:59` : null;
 
     try {
         // ── Construir URL de datos ──
         let dataUrl = `${API}/data?limit=99999`;
         if (startParam) dataUrl += `&start=${startParam}`;
-        if (endParam)   dataUrl += `&end=${endParam}`;
+        if (endParam) dataUrl += `&end=${endParam}`;
 
         // ── Construir params de stats ──
         let statsUrl = `${API}/data/stats?`;
         if (startParam) statsUrl += `start=${startParam}&`;
-        if (endParam)   statsUrl += `end=${endParam}`;
+        if (endParam) statsUrl += `end=${endParam}`;
 
         // ── Fetch en paralelo ──
         const [dataRes, statsRes] = await Promise.all([
@@ -123,7 +123,7 @@ async function aplicarFiltro() {
             fetch(statsUrl)
         ]);
 
-        const json  = await dataRes.json();
+        const json = await dataRes.json();
         const stats = await statsRes.json();
 
         const data = json.data.reverse();
@@ -144,14 +144,14 @@ async function aplicarFiltro() {
 
 function resetFiltro() {
     document.getElementById("fecha-inicio").value = "";
-    document.getElementById("fecha-fin").value    = "";
+    document.getElementById("fecha-fin").value = "";
     renderCharts(allData);
     updateStats(`?limit=100`);                       // ← stats para últimas 100
 }
 
 async function loadData() {
     try {
-        const res  = await fetch(`${API}/data?limit=100`);
+        const res = await fetch(`${API}/data?limit=100`);
         const json = await res.json();
         allData = json.data.reverse();
         renderCharts(allData);
@@ -177,13 +177,13 @@ async function loadAlerts() {
     try {
         const response = await fetch(`${API}/alerts?limit=10`);
         const alerts = await response.json();
-        
+
         const container = document.getElementById('alerts-container');
         if (!container) {
             console.log('No se encontró #alerts-container');
             return;
         }
-        
+
         let html = '';
         alerts.slice(0, 10).forEach(alert => {
             const time = new Date(alert.created_at).toLocaleString('es-CO');
@@ -194,7 +194,7 @@ async function loadAlerts() {
                 </div>
             `;
         });
-        
+
         container.innerHTML = html || '<p>No hay alertas recientes</p>';
     } catch (error) {
         console.error('Error cargando alertas:', error);
@@ -205,7 +205,7 @@ async function loadAlerts() {
 // ── Refresh helper ──
 function doRefresh() {
     const inicio = document.getElementById("fecha-inicio").value;
-    const fin    = document.getElementById("fecha-fin").value;
+    const fin = document.getElementById("fecha-fin").value;
     if (inicio && fin) {
         aplicarFiltro();
     } else {
@@ -220,21 +220,32 @@ function syncCountdownToData() {
         countdownSeconds = REFRESH_MS / 1000;
         return;
     }
-    const lastTime  = new Date(allData.at(-1).created_at).getTime();
-    const now       = Date.now();
-    const elapsedSec  = Math.floor((now - lastTime) / 1000);
+    // Forzar parseo como UTC: si el string no tiene 'Z' ni offset, añadir 'Z'
+    let raw = allData.at(-1).created_at;
+    if (!raw.endsWith("Z") && !raw.includes("+") && !/[0-9]-[0-9]{2}:[0-9]{2}$/.test(raw)) {
+        raw += "Z";
+    }
+    const lastTime = new Date(raw).getTime();
+    const now = Date.now();
+    const elapsedSec = Math.floor((now - lastTime) / 1000);
     const intervalSec = REFRESH_MS / 1000;
-    const remaining   = intervalSec - (elapsedSec % intervalSec);
+    const remaining = intervalSec - (elapsedSec % intervalSec);
     // Mínimo 5 s para evitar refresh en loop si el dato es reciente
     countdownSeconds = Math.max(5, Math.min(remaining, intervalSec));
+
+    // Actualizar el display de inmediato (sin esperar el siguiente tick)
+    const m = Math.floor(countdownSeconds / 60);
+    const s = String(Math.floor(countdownSeconds) % 60).padStart(2, "0");
+    const el = document.getElementById("sb-countdown");
+    if (el) el.textContent = `${m}:${s}`;
 }
 
 function startCountdown() {
     if (countdownTimer) return;
     countdownTimer = setInterval(() => {
         countdownSeconds = Math.max(0, countdownSeconds - 1);
-        const m  = Math.floor(countdownSeconds / 60);
-        const s  = String(countdownSeconds % 60).padStart(2, "0");
+        const m = Math.floor(countdownSeconds / 60);
+        const s = String(countdownSeconds % 60).padStart(2, "0");
         const el = document.getElementById("sb-countdown");
         if (el) el.textContent = `${m}:${s}`;
 
@@ -255,16 +266,16 @@ function stopCountdown() {
 
 function rollingAvg(arr, window = 10) {
     return arr.map((_, i) => {
-        const start  = Math.max(0, i - window + 1);
-        const slice  = arr.slice(start, i + 1);
-        const sum    = slice.reduce((a, b) => a + b, 0);
+        const start = Math.max(0, i - window + 1);
+        const slice = arr.slice(start, i + 1);
+        const sum = slice.reduce((a, b) => a + b, 0);
         return Math.round((sum / slice.length) * 100) / 100;
     });
 }
 
 function renderCombined(times, temp, hum, pres) {
     const avgTemp = rollingAvg(temp, 10);
-    const avgHum  = rollingAvg(hum,  10);
+    const avgHum = rollingAvg(hum, 10);
     const avgPres = rollingAvg(pres, 10);
 
     const traces = [
@@ -320,7 +331,7 @@ function renderCombined(times, temp, hum, pres) {
         yaxis: {
             title: "°C",
             titlefont: { size: 10, color: "#f87171" },
-            tickfont:  { size: 9,  color: "#f87171" },
+            tickfont: { size: 9, color: "#f87171" },
             gridcolor: "#2d3f55",
             autorange: true,
             rangemode: "normal"
@@ -330,7 +341,7 @@ function renderCombined(times, temp, hum, pres) {
             side: "right",
             title: "%",
             titlefont: { size: 10, color: "#34d399" },
-            tickfont:  { size: 9,  color: "#34d399" },
+            tickfont: { size: 9, color: "#34d399" },
             showgrid: false,
             autorange: true,
             rangemode: "normal"
@@ -342,7 +353,7 @@ function renderCombined(times, temp, hum, pres) {
             position: 0.85,
             title: "hPa",
             titlefont: { size: 10, color: "#818cf8" },
-            tickfont:  { size: 9,  color: "#818cf8" },
+            tickfont: { size: 9, color: "#818cf8" },
             showgrid: false,
             autorange: true,
             rangemode: "normal"
@@ -356,7 +367,7 @@ function renderCombined(times, temp, hum, pres) {
 
 async function descargarCSV() {
     const inicio = document.getElementById("fecha-inicio").value;
-    const fin    = document.getElementById("fecha-fin").value;
+    const fin = document.getElementById("fecha-fin").value;
 
     // Construir URL apuntando al nuevo endpoint del backend
     let url = `${API}/data/export?format=csv`;
@@ -373,7 +384,7 @@ async function descargarCSV() {
 
     // Nombre del archivo con rango o fecha actual
     const desde = inicio || "inicio";
-    const hasta = fin    || new Date().toISOString().slice(0, 10);
+    const hasta = fin || new Date().toISOString().slice(0, 10);
     const filename = `nexus_${desde}_${hasta}.csv`;
 
     try {
@@ -386,7 +397,7 @@ async function descargarCSV() {
 
         const blob = await res.blob();
         const link = document.createElement("a");
-        link.href  = URL.createObjectURL(blob);
+        link.href = URL.createObjectURL(blob);
         link.download = filename;
         link.click();
         URL.revokeObjectURL(link.href);
@@ -399,7 +410,7 @@ async function descargarCSV() {
 
 const DEFAULT_THRESHOLDS = {
     temp: { min: 20, max: 26 },
-    hum:  { min: 40, max: 75 },
+    hum: { min: 40, max: 75 },
     pres: { min: 750, max: 756 }
 };
 
@@ -415,8 +426,8 @@ function saveThresholds(t) {
 function fillThresholdInputs(t) {
     document.getElementById("u-temp-min").value = t.temp.min;
     document.getElementById("u-temp-max").value = t.temp.max;
-    document.getElementById("u-hum-min").value  = t.hum.min;
-    document.getElementById("u-hum-max").value  = t.hum.max;
+    document.getElementById("u-hum-min").value = t.hum.min;
+    document.getElementById("u-hum-max").value = t.hum.max;
     document.getElementById("u-pres-min").value = t.pres.min;
     document.getElementById("u-pres-max").value = t.pres.max;
 }
@@ -424,7 +435,7 @@ function fillThresholdInputs(t) {
 function guardarUmbrales() {
     const t = {
         temp: { min: parseFloat(document.getElementById("u-temp-min").value), max: parseFloat(document.getElementById("u-temp-max").value) },
-        hum:  { min: parseFloat(document.getElementById("u-hum-min").value),  max: parseFloat(document.getElementById("u-hum-max").value)  },
+        hum: { min: parseFloat(document.getElementById("u-hum-min").value), max: parseFloat(document.getElementById("u-hum-max").value) },
         pres: { min: parseFloat(document.getElementById("u-pres-min").value), max: parseFloat(document.getElementById("u-pres-max").value) }
     };
     saveThresholds(t);
@@ -440,7 +451,7 @@ function resetUmbrales() {
 }
 
 function toggleUmbrales() {
-    const body   = document.getElementById("umbrales-body");
+    const body = document.getElementById("umbrales-body");
     const toggle = document.getElementById("umbrales-toggle");
     const isOpen = body.classList.toggle("open");
     toggle.textContent = isOpen ? "▲" : "▼";
@@ -449,12 +460,12 @@ function toggleUmbrales() {
 function checkAlerts(t = loadThresholds()) {
     const sensors = [
         { id: "val-temp", cardClass: "temp-card", val: parseFloat(document.getElementById("val-temp").textContent), limits: t.temp, label: "°C" },
-        { id: "val-hum",  cardClass: "hum-card",  val: parseFloat(document.getElementById("val-hum").textContent),  limits: t.hum,  label: "%" },
-        { id: "val-pres", cardClass: "pres-card",  val: parseFloat(document.getElementById("val-pres").textContent), limits: t.pres, label: "hPa" }
+        { id: "val-hum", cardClass: "hum-card", val: parseFloat(document.getElementById("val-hum").textContent), limits: t.hum, label: "%" },
+        { id: "val-pres", cardClass: "pres-card", val: parseFloat(document.getElementById("val-pres").textContent), limits: t.pres, label: "hPa" }
     ];
 
     sensors.forEach(({ id, val, limits }) => {
-        const cardEl  = document.getElementById(id).closest(".card");
+        const cardEl = document.getElementById(id).closest(".card");
         const badgeEl = cardEl.querySelector(".alert-badge");
 
         cardEl.classList.remove("warn", "alert");
@@ -476,7 +487,7 @@ function applyTheme(theme) {
     document.getElementById("theme-toggle").textContent = theme === "light" ? "🌙" : "☀️";
 
     // Actualizar colores de Plotly según el tema
-    const chartBg   = theme === "light" ? "#ffffff" : "#1e293b";
+    const chartBg = theme === "light" ? "#ffffff" : "#1e293b";
     const gridColor = theme === "light" ? "#e2e8f0" : "#334155";
     const fontColor = theme === "light" ? "#475569" : "#94a3b8";
 
@@ -485,8 +496,8 @@ function applyTheme(theme) {
         if (el && el.data) {
             Plotly.relayout(id, {
                 paper_bgcolor: chartBg,
-                plot_bgcolor:  chartBg,
-                "font.color":  fontColor,
+                plot_bgcolor: chartBg,
+                "font.color": fontColor,
                 "xaxis.gridcolor": gridColor,
                 "yaxis.gridcolor": gridColor,
             });
@@ -496,7 +507,7 @@ function applyTheme(theme) {
 
 function toggleTheme() {
     const current = localStorage.getItem("nexus_theme") || "dark";
-    const next    = current === "dark" ? "light" : "dark";
+    const next = current === "dark" ? "light" : "dark";
     localStorage.setItem("nexus_theme", next);
     applyTheme(next);
 }
