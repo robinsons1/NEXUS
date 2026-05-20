@@ -3,7 +3,7 @@
 Sistema IoT híbrido edge/cloud para monitoreo ambiental en tiempo real, analítica avanzada y sincronización resiliente entre infraestructura local y cloud.
 
 🌐 **Demo en vivo:** [nexus-w0yh.onrender.com](https://nexus-w0yh.onrender.com)
-🖥️ **Servidor local:** [mechanisms-ave-invention-stakeholders.trycloudflare.com](https://mechanisms-ave-invention-stakeholders.trycloudflare.com)
+🖥️ **Servidor local:** [https://assure-programmer-shepherd-harvest.trycloudflare.com](https://assure-programmer-shepherd-harvest.trycloudflare.com)
 
 > **En desarrollo activo** — Versión 0.9.3 | [Historial de cambios](#-roadmap)
 
@@ -48,7 +48,7 @@ Sistema IoT híbrido edge/cloud para monitoreo ambiental en tiempo real, analít
 ### 🚨 Alertas automáticas
 
 - Watchdog de silencio: alerta Telegram si no llegan datos en 10 minutos
-- Alertas Telegram con lógica de estado (sin spam, sin rebote)
+- Alertas Telegram con métricas en tiempo real: duración de incidentes, valores pico, tendencias (📈/📉) y enlaces directos al dashboard (sin spam, sin rebote)
 - Health checks con UptimeRobot en `/health`
 - Endpoint `/sync/status` con observabilidad del estado de sincronización
 
@@ -159,6 +159,7 @@ INGEST_API_KEY=
 # Telegram
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
+NEXUS_BASE_URL=https://nexus-w0yh.onrender.com
 
 # PostgreSQL local
 POSTGRES_HOST=

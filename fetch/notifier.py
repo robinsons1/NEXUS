@@ -10,6 +10,7 @@ logger = logging.getLogger("nexus.notifier")
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+NEXUS_BASE_URL = os.getenv("NEXUS_BASE_URL", "https://nexus-w0yh.onrender.com")
 
 THRESHOLDS = {
     "temperature": {"above": 26.0, "below": 20.0},
@@ -110,6 +111,146 @@ def _last_alert_time(sensor: str, direction: str) -> datetime | None:
     except Exception as e:
         logger.error(f"Error consultando historial Supabase: {e}")
     return None
+
+
+def _get_oldest_data_time() -> datetime:
+    """Obtiene el timestamp del dato más antiguo registrado para usar como fallback de inicio."""
+    conn = None
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute("SELECT MIN(created_at) FROM sensor_data")
+        row = cur.fetchone()
+        cur.close()
+        if row and row[0]:
+            val = row[0]
+            if isinstance(val, datetime):
+                return val if val.tzinfo else val.replace(tzinfo=timezone.utc)
+            return datetime.fromisoformat(str(val).replace("+00:00", "").rstrip()).replace(tzinfo=timezone.utc)
+    except Exception as e:
+        logger.warning(f"_get_oldest_data_time: {e}")
+    finally:
+        if conn:
+            release_pg(conn)
+    return datetime.now(timezone.utc) - timedelta(days=1)
+
+
+def _format_duration(delta: timedelta) -> str:
+    """Da formato legible en español a una duración (timedelta)."""
+    total_seconds = int(delta.total_seconds())
+    if total_seconds < 0:
+        total_seconds = 0
+    days = total_seconds // 86400
+    hours = (total_seconds % 86400) // 3600
+    minutes = (total_seconds % 3600) // 60
+    
+    parts = []
+    if days > 0:
+        parts.append(f"{days} día{'s' if days != 1 else ''}")
+    if hours > 0:
+        parts.append(f"{hours} hora{'s' if hours != 1 else ''}")
+    if minutes > 0 or not parts:
+        parts.append(f"{minutes} minuto{'s' if minutes != 1 else ''}")
+        
+    return ", ".join(parts)
+
+
+def _get_duration_ok(sensor: str) -> str:
+    """Calcula cuánto tiempo ha estado el sensor en estado normal (ok)."""
+    last_restored = _last_alert_time(sensor, "restored")
+    if not last_restored:
+        last_restored = _get_oldest_data_time()
+    
+    now = datetime.now(timezone.utc)
+    delta = now - last_restored
+    return _format_duration(delta)
+
+
+def _get_duration_out_of_range(sensor: str, prev_state: str) -> tuple[str, datetime | None]:
+    """Calcula cuánto tiempo ha estado el sensor fuera de rango."""
+    last_alert = _last_alert_time(sensor, prev_state)
+    if not last_alert:
+        return "duración desconocida", None
+    now = datetime.now(timezone.utc)
+    delta = now - last_alert
+    return _format_duration(delta), last_alert
+
+
+def _get_peak_value(sensor: str, col: str, start_time: datetime, prev_state: str) -> float | None:
+    """Obtiene el valor pico (máximo o mínimo) registrado en sensor_data durante la anomalía."""
+    if not start_time:
+        return None
+    agg = "MAX" if prev_state == "above" else "MIN"
+    conn = None
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT {agg}(CAST({col} AS DOUBLE PRECISION)) FROM sensor_data "
+            f"WHERE created_at >= %s AND created_at <= %s",
+            (start_time, datetime.now(timezone.utc))
+        )
+        row = cur.fetchone()
+        cur.close()
+        if row and row[0] is not None:
+            return float(row[0])
+    except Exception as e:
+        logger.warning(f"_get_peak_value({sensor}/{prev_state}): {e}")
+    finally:
+        if conn:
+            release_pg(conn)
+    return None
+
+
+def _get_previous_reading(sensor: str, col: str) -> tuple[float | None, datetime | None]:
+    """Obtiene el valor y timestamp de la lectura inmediatamente anterior en la base de datos."""
+    conn = None
+    try:
+        conn = get_pg()
+        cur = conn.cursor()
+        cur.execute(
+            f"SELECT {col}, created_at FROM sensor_data "
+            f"WHERE {col} IS NOT NULL "
+            f"ORDER BY created_at DESC LIMIT 1 OFFSET 1"
+        )
+        row = cur.fetchone()
+        cur.close()
+        if row and row[0] is not None:
+            val = float(row[0])
+            ts = row[1]
+            if not isinstance(ts, datetime):
+                ts = datetime.fromisoformat(str(ts).replace("+00:00", "").rstrip())
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            return val, ts
+    except Exception as e:
+        logger.warning(f"_get_previous_reading({sensor}): {e}")
+    finally:
+        if conn:
+            release_pg(conn)
+    return None, None
+
+
+def _get_trend_string(sensor: str, col: str, current_value: float, unit: str) -> str:
+    """Determina la tendencia de cambio del sensor basándose en la lectura anterior."""
+    prev_val, prev_ts = _get_previous_reading(sensor, col)
+    if prev_val is None or prev_ts is None:
+        return ""
+    
+    diff = current_value - prev_val
+    now = datetime.now(timezone.utc)
+    time_diff = (now - prev_ts).total_seconds() / 60
+    
+    if time_diff <= 0:
+        return ""
+        
+    if abs(diff) < 0.05:
+        return "➡️ Estable"
+        
+    arrow = "📈" if diff > 0 else "📉"
+    sign = "+" if diff > 0 else ""
+    mins = max(1, int(round(time_diff)))
+    return f"{arrow} {sign}{diff:.1f} {unit} en los últimos {mins} min"
 
 
 def _in_cooldown(sensor: str, direction: str) -> bool:
@@ -261,7 +402,7 @@ async def check_and_notify(record: dict):
         if value is None:
             continue
 
-        emoji, label, unit, _ = SENSOR_LABELS[sensor]
+        emoji, label, unit, col = SENSOR_LABELS[sensor]
         limits        = THRESHOLDS[sensor]
         hyst          = HYSTERESIS[sensor]
         bogota_tz     = pytz.timezone("America/Bogota")
@@ -285,12 +426,21 @@ async def check_and_notify(record: dict):
                 logger.info(f"Alerta {sensor}/{current} en cooldown, omitida")
                 continue
 
+            duration_ok = _get_duration_ok(sensor)
+            trend_str = _get_trend_string(sensor, col, value, unit)
+            trend_line = f"Tendencia: <b>{trend_str}</b>\n" if trend_str else ""
             arrow = "🔺" if current == "above" else "🔻"
+            status_word = "Elevado" if current == "above" else "Bajo"
+
             msg = (
-                f"{emoji} <b>{label} FUERA DE RANGO</b>\n"
-                f"{arrow} {value:.1f} {unit}\n"
-                f"Umbral: {current} {limits[current]} {unit}\n"
-                f"📍 Bogotá — {timestamp_str} COT"
+                f"{emoji} <b>{label.upper()} FUERA DE RANGO</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━\n"
+                f"Estado actual: <b>{value:.1f} {unit}</b> ({status_word} {arrow})\n"
+                f"Umbral límite: {limits[current]} {unit}\n"
+                f"{trend_line}"
+                f"Tiempo en rango OK: <b>{duration_ok}</b>\n\n"
+                f"📍 Bogotá — {timestamp_str} COT\n"
+                f"🔗 <a href=\"{NEXUS_BASE_URL}\">Ver Dashboard en Vivo</a>"
             )
             sent = await send_telegram(msg)
             if sent:
@@ -311,10 +461,23 @@ async def check_and_notify(record: dict):
                 logger.info(f"Restored {sensor} en cooldown, omitido")
                 continue
 
+            duration_incident, start_time = _get_duration_out_of_range(sensor, prev_state)
+            peak_val = _get_peak_value(sensor, col, start_time, prev_state) if start_time else None
+            peak_arrow = "🔺" if prev_state == "above" else "🔻"
+            peak_line = f"Valor pico: <b>{peak_val:.1f} {unit}</b> {peak_arrow}\n" if peak_val is not None else ""
+            
+            trend_str = _get_trend_string(sensor, col, value, unit)
+            trend_line = f"Tendencia: <b>{trend_str}</b>\n" if trend_str else ""
+
             msg = (
-                f"{emoji} <b>{label} RESTABLECIDO</b>\n"
-                f"📥 {value:.1f} {unit} (en rango)\n"
-                f"📍 Bogotá — {timestamp_str} COT"
+                f"{emoji} <b>{label.upper()} RESTABLECIDO</b>\n"
+                f"━━━━━━━━━━━━━━━━━━━\n"
+                f"Estado actual: <b>{value:.1f} {unit}</b> (Normal 📥)\n"
+                f"{trend_line}"
+                f"Duración de anomalía: <b>{duration_incident}</b>\n"
+                f"{peak_line}\n"
+                f"📍 Bogotá — {timestamp_str} COT\n"
+                f"🔗 <a href=\"{NEXUS_BASE_URL}\">Ver Dashboard en Vivo</a>"
             )
             sent = await send_telegram(msg)
             if sent:

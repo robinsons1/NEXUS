@@ -12,14 +12,14 @@ function escHtml(str) {
 
 // ─── TEMA ─────────────────────────────────────────────────────────────────
 const themeToggle = document.getElementById("themeToggle");
-let isLight = localStorage.getItem("nexus-theme") === "light";
+let isLight = localStorage.getItem("nexus_theme") === "light";
 if (isLight) document.body.classList.add("light");
-themeToggle.textContent = isLight ? "☀️" : "🌙";
+themeToggle.textContent = isLight ? "🌙" : "☀️";
 themeToggle.addEventListener("click", () => {
     isLight = !isLight;
     document.body.classList.toggle("light", isLight);
-    themeToggle.textContent = isLight ? "☀️" : "🌙";
-    localStorage.setItem("nexus-theme", isLight ? "light" : "dark");
+    themeToggle.textContent = isLight ? "🌙" : "☀️";
+    localStorage.setItem("nexus_theme", isLight ? "light" : "dark");
     cache = {};
     renderAll();
 });
